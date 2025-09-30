@@ -1,5 +1,6 @@
 package com.raul_fernandez_garcia.worknearby
 
+import android.annotation.SuppressLint
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -54,6 +55,7 @@ private fun app() {
     }
 }
 
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
 @Preview(showBackground = true)
 @Composable
@@ -72,6 +74,8 @@ private fun Content() {
         }
     ) {
         Scaffold(
+            modifier = Modifier.padding(),
+
             topBar = {
                 CenterAlignedTopAppBar(
                     title = {
@@ -98,31 +102,22 @@ private fun Content() {
                     }
                 )
             }
-        ) { paddingValues ->
-            //ListaOfertas(paddingValues)
-            LazyColumn(
-                modifier = Modifier
-                    .background(Color.Gray)
-                    .fillMaxSize()
-                    .padding(paddingValues)
-            ) {
-                items(5) { index ->
-                    Text(
-                        text = "Item: $index",
-                        fontSize = 28.sp,
-                        modifier = Modifier.fillMaxWidth(),
-                        textAlign = TextAlign.Center
-                    )
-                }
-            }
+        ) {
+            ListaOfertas(modifier = Modifier.padding())
+
         }
     }
 }
 
 
-/*@Composable
-private fun ListaOfertas(paddingValues: PaddingValues) {
-    LazyColumn(modifier = Modifier.background(Color.Gray).fillMaxSize().padding(PaddingValues())) {
+@Composable
+private fun ListaOfertas(modifier: Modifier = Modifier) {
+    LazyColumn(
+        modifier = Modifier
+            .background(Color.Gray)
+            .fillMaxSize()
+            .padding(PaddingValues())
+    ) {
         items(5) { index ->
             Text(
                 text = "Item: $index",
@@ -133,5 +128,3 @@ private fun ListaOfertas(paddingValues: PaddingValues) {
         }
     }
 }
-
-*/
