@@ -119,6 +119,7 @@ private fun Content() {
     }
 }
 
+
 /*@Composable
 private fun ListaOfertas(paddingValues: PaddingValues) {
     LazyColumn(modifier = Modifier.background(Color.Gray).fillMaxSize().padding(PaddingValues())) {
