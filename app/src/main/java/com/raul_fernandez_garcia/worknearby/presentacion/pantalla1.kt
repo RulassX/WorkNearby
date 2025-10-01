@@ -1,9 +1,11 @@
 package com.raul_fernandez_garcia.worknearby.presentacion
 
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
+import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -33,10 +35,12 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.raul_fernandez_garcia.worknearby.R
 import com.raul_fernandez_garcia.worknearby.ui.theme.WorkNearbyTheme
 import kotlinx.coroutines.launch
 
@@ -198,6 +202,11 @@ fun ListaDeNombres() {
 @Preview
 @Composable
 private fun ListaOfertas() {
+
+    val nombres = listOf("Raúl", "Brais", "Laura", "Carlos", "Lucia", "Pedro", "Maria")
+    val apellidos =
+        listOf("Fernández", "Fernández", "Gomez", "Varela", "Rodriguez", "Lopez", "García")
+
     LazyColumn(
         modifier = Modifier
             .background(Color.Gray)
@@ -223,6 +232,49 @@ private fun ListaOfertas() {
                     modifier = Modifier.fillMaxWidth(),
                     //textAlign = TextAlign.Center
                 )
+            }
+        }
+        items(nombres.zip(apellidos)) { (nombre, apellido) ->
+
+            Card(
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                ),
+                modifier = Modifier
+                    .height(150.dp)
+                    .padding(vertical = 10.dp, horizontal = 15.dp)
+                    .fillMaxSize()
+            ) {
+                Column {
+                    Text(
+                        text = "Nombre: " + nombre,
+                        fontSize = 17.sp,
+                        modifier = Modifier
+                            .padding(start = 10.dp, top = 7.dp),
+                        //textAlign = TextAlign.Center,
+                    )
+                    Text(
+                        text = "Apellido: " + apellido,
+                        fontSize = 17.sp,
+                        modifier = Modifier
+                            .padding(start = 10.dp, top = 5.dp),
+                        //textAlign = TextAlign.Center,
+                    )
+                    Row(
+                        horizontalArrangement = Arrangement.End,
+                        verticalAlignment = Alignment.Top,
+                        modifier = Modifier.fillMaxSize()
+                    ) {
+                        Image(
+                            modifier = Modifier
+                                .padding(end = 10.dp, bottom = 10.dp),
+                            painter = painterResource(id = R.drawable.ic_launcher_background),
+                            contentDescription = "imagen",
+                        )
+                    }
+
+                }
+
             }
         }
 

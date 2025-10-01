@@ -133,8 +133,6 @@ private fun ListaOfertas(modifier: Modifier = Modifier) {
             .padding(PaddingValues())
             .padding(top = 10.dp)
     ) {
-
-
         items(nombres.zip(apellidos)) { (nombre, apellido) ->
 
             Card(
@@ -144,35 +142,36 @@ private fun ListaOfertas(modifier: Modifier = Modifier) {
                 modifier = Modifier
                     .height(150.dp)
                     .padding(vertical = 10.dp, horizontal = 15.dp)
+                    .fillMaxSize()
             ) {
-                Column {
-                    Text(
-                        text = "Nombre: " + nombre,
-                        fontSize = 17.sp,
-                        modifier = Modifier
-                            .padding(start = 10.dp, top = 7.dp),
-                        //textAlign = TextAlign.Center,
-                    )
-                    Text(
-                        text = "Apellido: " + apellido,
-                        fontSize = 17.sp,
-                        modifier = Modifier
-                            .padding(start = 10.dp, top = 5.dp),
-                        //textAlign = TextAlign.Center,
-                    )
-                    Row(
-                        horizontalArrangement = Arrangement.End,
-                        verticalAlignment = Alignment.Top,
-                        modifier = Modifier.fillMaxSize()
+                Row(
+                    modifier = Modifier.fillMaxWidth(),
+                    horizontalArrangement = Arrangement.SpaceBetween
+                ) {
+                    Column(
+                        verticalArrangement = Arrangement.spacedBy(4.dp)
                     ) {
-                        Image(
+                        Text(
+                            text = "Nombre: " + nombre,
+                            fontSize = 17.sp,
                             modifier = Modifier
-                                .padding(end = 10.dp, bottom = 10.dp),
-                            painter = painterResource(id = R.drawable.ic_launcher_background),
-                            contentDescription = "imagen",
+                                .padding(start = 10.dp, top = 7.dp),
+                            //textAlign = TextAlign.Center,
+                        )
+                        Text(
+                            text = "Apellido: " + apellido,
+                            fontSize = 17.sp,
+                            modifier = Modifier
+                                .padding(start = 10.dp, top = 5.dp),
+                            //textAlign = TextAlign.Center,
                         )
                     }
-
+                    Image(
+                        modifier = Modifier
+                            .padding(10.dp),
+                        painter = painterResource(id = R.drawable.ic_launcher_background),
+                        contentDescription = "imagen",
+                    )
                 }
 
             }
