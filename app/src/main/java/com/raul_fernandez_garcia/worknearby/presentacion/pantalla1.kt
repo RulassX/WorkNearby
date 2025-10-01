@@ -3,13 +3,17 @@ package com.raul_fernandez_garcia.worknearby.presentacion
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
+import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material3.Card
+import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.Divider
 import androidx.compose.material3.DrawerValue
@@ -185,8 +189,42 @@ fun ListaDeNombres() {
             )
         }
 
-        items(5){index ->
+        items(5) { index ->
             Text(text = "Item: $index")
         }
+    }
+}
+
+@Preview
+@Composable
+private fun ListaOfertas() {
+    LazyColumn(
+        modifier = Modifier
+            .background(Color.Gray)
+            .fillMaxSize()
+            .padding(PaddingValues())
+            .padding(top = 10.dp)
+    ) {
+        items(7) { index ->
+
+            Card(
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                ),
+                modifier = Modifier
+                    .height(150.dp)
+                    .padding(vertical = 10.dp, horizontal = 15.dp)
+                    .fillMaxWidth()
+
+            ) {
+                Text(
+                    text = "Item: $index",
+                    fontSize = 28.sp,
+                    modifier = Modifier.fillMaxWidth(),
+                    //textAlign = TextAlign.Center
+                )
+            }
+        }
+
     }
 }
