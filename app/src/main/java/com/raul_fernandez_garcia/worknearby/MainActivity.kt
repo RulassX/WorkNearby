@@ -121,7 +121,7 @@ private fun ListaOfertas(modifier: Modifier = Modifier) {
             .fillMaxSize()
             .padding(PaddingValues())
     ) {
-        items(5) { index ->
+        items(7) { index ->
 
             Card(
                 colors = CardDefaults.cardColors(
