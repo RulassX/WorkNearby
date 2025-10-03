@@ -11,6 +11,8 @@ import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
+import androidx.compose.foundation.layout.Spacer
+import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
@@ -124,7 +126,8 @@ private fun Content() {
 private fun ListaOfertas(modifier: Modifier = Modifier) {
     val nombres = listOf("Raúl", "Brais", "Laura", "Carlos", "Lucia", "Pedro", "Maria")
     val apellidos =
-        listOf("Fernández", "Fernández", "Gomez", "Varela", "Rodriguez", "Lopez", "García")
+        listOf("Fernández García", "Fernández", "Gomez", "Varela", "Rodriguez", "Lopez", "García")
+    //val puntuaciones = listOf("5/5", "4/5", "3.5/5", "2/5", "3/5", "2.5/5", "4.5/5")
 
     LazyColumn(
         modifier
@@ -145,25 +148,36 @@ private fun ListaOfertas(modifier: Modifier = Modifier) {
                     .fillMaxSize()
             ) {
                 Row(
-                    modifier = Modifier.fillMaxWidth(),
+                    modifier = Modifier.fillMaxSize(),
                     horizontalArrangement = Arrangement.SpaceBetween
                 ) {
                     Column(
-                        verticalArrangement = Arrangement.spacedBy(4.dp)
+                        verticalArrangement = Arrangement.spacedBy(4.dp),
+                        modifier = Modifier.fillMaxHeight(),
                     ) {
                         Text(
                             text = "Nombre: " + nombre,
                             fontSize = 17.sp,
                             modifier = Modifier
-                                .padding(start = 10.dp, top = 7.dp),
+                                .padding(start = 15.dp, top = 15.dp),
                             //textAlign = TextAlign.Center,
                         )
                         Text(
-                            text = "Apellido: " + apellido,
+                            text = "Apellidos: " + apellido,
                             fontSize = 17.sp,
                             modifier = Modifier
-                                .padding(start = 10.dp, top = 5.dp),
+                                .padding(start = 15.dp, top = 5.dp),
                             //textAlign = TextAlign.Center,
+                        )
+
+                        Spacer(modifier = Modifier.weight(1f))
+
+                        Text(
+                            text = "Valoracion: " + "5/5",
+                            fontSize = 17.sp,
+                            modifier = Modifier
+                                .padding(start = 15.dp, bottom = 15.dp),
+                            textAlign = TextAlign.End,
                         )
                     }
                     Image(
@@ -173,7 +187,6 @@ private fun ListaOfertas(modifier: Modifier = Modifier) {
                         contentDescription = "imagen",
                     )
                 }
-
             }
         }
     }
