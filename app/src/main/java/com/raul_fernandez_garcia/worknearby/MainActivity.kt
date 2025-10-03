@@ -168,7 +168,7 @@ private fun ListaOfertas(modifier: Modifier = Modifier) {
                     }
                     Image(
                         modifier = Modifier
-                            .padding(10.dp),
+                            .padding(15.dp),
                         painter = painterResource(id = R.drawable.ic_launcher_background),
                         contentDescription = "imagen",
                     )
