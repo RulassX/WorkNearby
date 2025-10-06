@@ -588,9 +588,10 @@ private fun ListaChats(modifier: Modifier = Modifier) {
                         contentScale = ContentScale.Crop
                     )
 
-                    Column (
+                    Column(
                         modifier = Modifier.fillMaxSize(),
-                        verticalArrangement = Arrangement.Center){
+                        verticalArrangement = Arrangement.Center
+                    ) {
                         Text(
                             text = nombre + " " + apellido,
                             fontSize = 20.sp,
