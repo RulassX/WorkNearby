@@ -395,7 +395,7 @@ private fun TrabajoOfertado() {
                         )
                     }
                     Text(
-                        text = "descripcion trabajador",
+                        text = "Descripcion trabajador",
                         fontSize = 22.sp,
                         modifier = Modifier
                             .padding(15.dp)
