@@ -14,6 +14,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
@@ -36,7 +37,9 @@ import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
+import androidx.compose.ui.geometry.Size
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
@@ -306,4 +309,102 @@ private fun ListaContratos(modifier: Modifier = Modifier) {
             }
         }
     }
+}
+
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
+@OptIn(ExperimentalMaterial3Api::class)
+@Preview
+@Composable
+private fun TrabajoOfertado() {
+    val drawerState = rememberDrawerState(DrawerValue.Closed)
+    val scope = rememberCoroutineScope()
+
+    ModalNavigationDrawer(
+        drawerState = drawerState,
+        drawerContent = {
+            ModalDrawerSheet {
+                Text(text = "OP1", modifier = Modifier.padding(16.dp))
+                Text(text = "OP2", modifier = Modifier.padding(16.dp))
+                Text(text = "OP3", modifier = Modifier.padding(16.dp))
+            }
+        }
+    ) {
+        Scaffold(
+            topBar = {
+                CenterAlignedTopAppBar(
+                    title = {
+                        Text(
+                            text = "WorkNearby"
+                        )
+
+                    },
+                    navigationIcon = {
+                        IconButton(onClick = {
+                            scope.launch {
+                                if (drawerState.isClosed) {
+                                    drawerState.open()
+                                } else {
+                                    drawerState.close()
+                                }
+                            }
+                        }) {
+                            Icon(
+                                imageVector = Icons.Default.Menu,
+                                contentDescription = "Abrir menu"
+                            )
+                        }
+                    }
+                )
+            }
+        ) { paddingValues ->
+            LazyColumn(
+                modifier = Modifier
+                    .background(Color.Gray)
+                    .fillMaxSize()
+                    .padding(paddingValues)
+            ) {
+                item {
+                    Row {
+                        Column {
+                            Text(
+                                text = "Raúl",
+                                fontSize = 22.sp,
+                                modifier = Modifier
+                                    .padding(top = 15.dp, bottom = 5.dp, start = 15.dp)
+                            )
+                            Text(
+                                text = "Fernández García",
+                                fontSize = 22.sp,
+                                modifier = Modifier
+                                    .padding(bottom = 15.dp, start = 15.dp)
+                            )
+                            Text(
+                                text = "Pintor",
+                                fontSize = 22.sp,
+                                modifier = Modifier.padding(bottom = 15.dp, start = 15.dp)
+                            )
+                        }
+
+                        Image(
+                            modifier = Modifier
+                                .padding(15.dp)
+                                .fillMaxWidth(),
+                            painter = painterResource(id = R.drawable.ic_launcher_background),
+                            contentDescription = "imagen",
+                            alignment = Alignment.TopEnd
+                        )
+                    }
+                    Text(
+                        text = "descripcion trabajador",
+                        fontSize = 22.sp,
+                        modifier = Modifier
+                            .padding(15.dp)
+                            .padding(top = 15.dp)
+                    )
+                }
+            }
+        }
+    }
+
+
 }
