@@ -65,6 +65,7 @@ private fun app() {
         Surface() {
             BuscarOfertas()
             BuscarContratos()
+            TrabajoOfertado()
         }
     }
 }
@@ -405,6 +406,92 @@ private fun TrabajoOfertado() {
             }
         }
     }
+}
 
+@OptIn(ExperimentalMaterial3Api::class)
+@Preview
+@Composable
+private fun Perfil() {
+    val drawerState = rememberDrawerState(DrawerValue.Closed)
+    val scope = rememberCoroutineScope()
 
+    ModalNavigationDrawer(
+        drawerState = drawerState,
+        drawerContent = {
+            ModalDrawerSheet {
+                Text(text = "OP1", modifier = Modifier.padding(16.dp))
+                Text(text = "OP2", modifier = Modifier.padding(16.dp))
+                Text(text = "OP3", modifier = Modifier.padding(16.dp))
+            }
+        }
+    ) {
+        Scaffold(
+            topBar = {
+                CenterAlignedTopAppBar(
+                    title = {
+                        Text(
+                            text = "Perfil"
+                        )
+
+                    },
+                    navigationIcon = {
+                        IconButton(onClick = {
+                            scope.launch {
+                                if (drawerState.isClosed) {
+                                    drawerState.open()
+                                } else {
+                                    drawerState.close()
+                                }
+                            }
+                        }) {
+                            Icon(
+                                imageVector = Icons.Default.Menu,
+                                contentDescription = "Abrir menu"
+                            )
+                        }
+                    }
+                )
+            }
+        ) { paddingValues ->
+            LazyColumn(
+                modifier = Modifier
+                    .background(Color.Gray)
+                    .fillMaxSize()
+                    .padding(paddingValues)
+            ) {
+                item {
+                    Row {
+                        Column {
+                            Image(
+                                modifier = Modifier
+                                    .padding(50.dp)
+                                    .fillMaxWidth(),
+                                painter = painterResource(id = R.drawable.ic_launcher_background),
+                                contentDescription = "imagen",
+                                alignment = Alignment.Center
+                            )
+
+                            Text(
+                                text = "Raúl",
+                                fontSize = 22.sp,
+                                modifier = Modifier
+                                    .padding(15.dp)
+                            )
+                            Text(
+                                text = "Fernández García",
+                                fontSize = 22.sp,
+                                modifier = Modifier
+                                    .padding(bottom = 15.dp, start = 15.dp)
+                            )
+                            Text(
+                                text = "Pintor",
+                                fontSize = 22.sp,
+                                modifier = Modifier.padding(bottom = 15.dp, start = 15.dp)
+                            )
+                        }
+                    }
+                }
+            }
+        }
+    }
 }
