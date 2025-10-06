@@ -413,6 +413,7 @@ private fun TrabajoOfertado() {
     }
 }
 
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
 @Preview
 @Composable
@@ -465,15 +466,24 @@ private fun Perfil() {
                     .padding(paddingValues)
             ) {
                 item {
-                    Row {
-                        Column {
+                    Row(
+                        modifier = Modifier.fillMaxSize(),
+                        horizontalArrangement = Arrangement.Center
+                    ) {
+                        Column(
+                            modifier = Modifier.fillMaxSize(),
+                            verticalArrangement = Arrangement.Center
+                        ) {
                             Image(
+                                alignment = Alignment.Center,
                                 modifier = Modifier
                                     .padding(50.dp)
+                                    .size(140.dp)
+                                    .clip(CircleShape)
                                     .fillMaxWidth(),
                                 painter = painterResource(id = R.drawable.ic_launcher_background),
                                 contentDescription = "imagen",
-                                alignment = Alignment.Center
+                                contentScale = ContentScale.Crop
                             )
 
                             Text(
@@ -580,7 +590,7 @@ private fun ListaChats(modifier: Modifier = Modifier) {
                 ) {
                     Image(
                         modifier = Modifier
-                            .padding(top = 15.dp, bottom = 15.dp, start = 15.dp)
+                            .padding(15.dp)
                             .size(70.dp)
                             .clip(CircleShape),
                         painter = painterResource(id = R.drawable.ic_launcher_background),
@@ -595,7 +605,7 @@ private fun ListaChats(modifier: Modifier = Modifier) {
                         Text(
                             text = nombre + " " + apellido,
                             fontSize = 20.sp,
-                            modifier = Modifier.padding(start = 15.dp, top = 15.dp),
+                            modifier = Modifier.padding(top = 15.dp).fillMaxSize(),
                         )
                     }
                 }
