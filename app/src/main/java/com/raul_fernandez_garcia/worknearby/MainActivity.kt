@@ -150,7 +150,7 @@ private fun ListaOfertas(modifier: Modifier = Modifier) {
                     containerColor = MaterialTheme.colorScheme.surfaceVariant,
                 ),
                 modifier = Modifier
-                    .height(150.dp)
+                    //.height(150.dp)
                     .padding(vertical = 10.dp, horizontal = 15.dp)
                     .fillMaxSize()
             ) {
@@ -176,6 +176,12 @@ private fun ListaOfertas(modifier: Modifier = Modifier) {
                                 .padding(start = 15.dp, top = 5.dp),
                             //textAlign = TextAlign.Center,
                         )
+                        Text(
+                            text = "Pintor",
+                            fontSize = 17.sp,
+                            modifier = Modifier
+                                .padding(bottom = 15.dp, start = 15.dp)
+                        )
 
                         Spacer(modifier = Modifier.weight(1f))
 
@@ -184,7 +190,6 @@ private fun ListaOfertas(modifier: Modifier = Modifier) {
                             fontSize = 17.sp,
                             modifier = Modifier
                                 .padding(start = 15.dp, bottom = 15.dp),
-                            textAlign = TextAlign.End,
                         )
                     }
                     Image(
@@ -416,7 +421,7 @@ private fun TrabajoOfertado() {
                         )
                     }
                     Text(
-                        text = "Descripcion trabajador",
+                        text = "Descripcion trabajador (Opcional)",
                         fontSize = 22.sp,
                         modifier = Modifier
                             .padding(15.dp)
@@ -514,17 +519,17 @@ private fun Perfil() {
                                     .padding(bottom = 15.dp, start = 15.dp)
                             )
                             Text(
-                                text = "Pintor",
-                                fontSize = 22.sp,
-                                modifier = Modifier.padding(bottom = 15.dp, start = 15.dp)
-                            )
-                            Text(
                                 text = "Telf.: 123456789",
                                 fontSize = 22.sp,
                                 modifier = Modifier.padding(bottom = 15.dp, start = 15.dp)
                             )
                             Text(
                                 text = "Email: ejemplo@gmail.com",
+                                fontSize = 22.sp,
+                                modifier = Modifier.padding(bottom = 15.dp, start = 15.dp)
+                            )
+                            Text(
+                                text = "Pintor",
                                 fontSize = 22.sp,
                                 modifier = Modifier.padding(bottom = 15.dp, start = 15.dp)
                             )
