@@ -71,6 +71,8 @@ private fun app() {
             BuscarOfertas()
             BuscarContratos()
             TrabajoOfertado()
+            Perfil()
+            BuscarChats()
         }
     }
 }
@@ -387,7 +389,20 @@ private fun TrabajoOfertado() {
                             Text(
                                 text = "Pintor",
                                 fontSize = 22.sp,
-                                modifier = Modifier.padding(bottom = 15.dp, start = 15.dp)
+                                modifier = Modifier
+                                    .padding(bottom = 15.dp, start = 15.dp)
+                            )
+                            Text(
+                                text = "Telf.: 123456789",
+                                fontSize = 22.sp,
+                                modifier = Modifier
+                                    .padding(bottom = 15.dp, start = 15.dp)
+                            )
+                            Text(
+                                text = "Email: ejemplo@gmail.com",
+                                fontSize = 22.sp,
+                                modifier = Modifier
+                                    .padding(bottom = 15.dp, start = 15.dp)
                             )
                         }
 
@@ -503,6 +518,16 @@ private fun Perfil() {
                                 fontSize = 22.sp,
                                 modifier = Modifier.padding(bottom = 15.dp, start = 15.dp)
                             )
+                            Text(
+                                text = "Telf.: 123456789",
+                                fontSize = 22.sp,
+                                modifier = Modifier.padding(bottom = 15.dp, start = 15.dp)
+                            )
+                            Text(
+                                text = "Email: ejemplo@gmail.com",
+                                fontSize = 22.sp,
+                                modifier = Modifier.padding(bottom = 15.dp, start = 15.dp)
+                            )
                         }
                     }
                 }
@@ -605,7 +630,9 @@ private fun ListaChats(modifier: Modifier = Modifier) {
                         Text(
                             text = nombre + " " + apellido,
                             fontSize = 20.sp,
-                            modifier = Modifier.padding(top = 15.dp).fillMaxSize(),
+                            modifier = Modifier
+                                .padding(top = 15.dp)
+                                .fillMaxSize(),
                         )
                     }
                 }
