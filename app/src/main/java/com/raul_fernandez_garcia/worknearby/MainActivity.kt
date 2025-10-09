@@ -59,13 +59,15 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            Surface { }
+            Surface {
+                appWorkNearby()
+            }
         }
     }
 }
 
 @Composable
-private fun app() {
+private fun appWorkNearby() {
     WorkNearbyTheme {
         Surface() {
             BuscarOfertas()

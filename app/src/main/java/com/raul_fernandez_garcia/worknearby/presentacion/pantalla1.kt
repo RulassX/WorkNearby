@@ -302,14 +302,23 @@ fun DetailedDrawerExample(
         drawerContent = {
             ModalDrawerSheet {
                 Column(
-                    modifier = Modifier.padding(horizontal = 16.dp)
+                    modifier = Modifier
+                        .padding(horizontal = 16.dp)
                         .verticalScroll(rememberScrollState())
                 ) {
                     Spacer(Modifier.height(12.dp))
-                    Text("Drawer Title", modifier = Modifier.padding(16.dp), style = MaterialTheme.typography.titleLarge)
+                    Text(
+                        "Drawer Title",
+                        modifier = Modifier.padding(16.dp),
+                        style = MaterialTheme.typography.titleLarge
+                    )
                     HorizontalDivider()
 
-                    Text("Section 1", modifier = Modifier.padding(16.dp), style = MaterialTheme.typography.titleMedium)
+                    Text(
+                        "Section 1",
+                        modifier = Modifier.padding(16.dp),
+                        style = MaterialTheme.typography.titleMedium
+                    )
                     NavigationDrawerItem(
                         label = { Text("Item 1") },
                         selected = false,
@@ -323,7 +332,11 @@ fun DetailedDrawerExample(
 
                     HorizontalDivider(modifier = Modifier.padding(vertical = 8.dp))
 
-                    Text("Section 2", modifier = Modifier.padding(16.dp), style = MaterialTheme.typography.titleMedium)
+                    Text(
+                        "Section 2",
+                        modifier = Modifier.padding(16.dp),
+                        style = MaterialTheme.typography.titleMedium
+                    )
                     NavigationDrawerItem(
                         label = { Text("Settings") },
                         selected = false,
