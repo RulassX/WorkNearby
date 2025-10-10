@@ -130,7 +130,6 @@ private fun BuscarOfertas() {
     }
 }
 
-
 @Composable
 private fun ListaOfertas(modifier: Modifier = Modifier) {
     val nombres = listOf("Raúl", "Brais", "Laura", "Carlos", "Lucia", "Pedro", "Maria")
