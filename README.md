@@ -28,11 +28,11 @@ Objetivo principal: Facilitar que pequeños profesionales o autónomos puedan pu
 
 🛠️ Tecnologías utilizadas
 
-Frontend (móvil): Android Studio, Kotlin, ConstraintLayout, RecyclerView, Room (SQLite), Retrofit, Picasso/Glide.
+Frontend (móvil): Android Studio, Kotlin, Jetpack Compose, RecyclerView, Room (SQLite), Retrofit, Coil.
 
-Backend (servidor): Java con Spring Boot (o Node.js con Express), API REST, JWT para autenticación.
+Backend (servidor): Kotlin con Spring Boot, API REST, JWT para autenticación.
 
-Base de datos: MySQL/PostgreSQL (servidor), SQLite (local).
+Base de datos: MySQL (servidor), SQLite (local).
 
 Control de versiones: Git / GitHub.
 
