@@ -207,6 +207,7 @@ fun ListaDeNombres() {
     }
 }
 
+
 @Preview
 @Composable
 private fun ListaOfertas() {
