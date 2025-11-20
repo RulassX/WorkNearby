@@ -1,4 +1,4 @@
-package com.raul_fernandez_garcia.worknearby
+package com.raul_fernandez_garcia.worknearby.presentacion
 
 import android.annotation.SuppressLint
 import android.os.Bundle
@@ -23,7 +23,6 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
-import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -54,6 +53,7 @@ import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import com.raul_fernandez_garcia.worknearby.R
 import com.raul_fernandez_garcia.worknearby.ui.theme.WorkNearbyTheme
 import kotlinx.coroutines.launch
 
@@ -62,55 +62,32 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            val navController = rememberNavController()
-            appWorkNearby(navController)
-
+            Surface {
+                appWorkNearby()
+            }
         }
     }
 }
 
 @Composable
-private fun appWorkNearby(navController: NavHostController) {
+private fun appWorkNearby() {
     WorkNearbyTheme {
         Surface() {
-            appNavigation(navController)
+            BuscarOfertas()
+            BuscarContratos()
+            TrabajoOfertado()
+            Perfil()
+            BuscarChats()
         }
     }
 }
 
-@Composable
-fun appNavigation(navController: NavHostController) {
-    NavHost(
-        navController = navController,
-        startDestination = "ofertas"
-    ) {
-
-        composable("ofertas") {
-            BuscarOfertas(navController)
-        }
-
-        composable("contratos") {
-            BuscarContratos(navController)
-        }
-
-        composable("trabajo_ofertado") {
-            TrabajoOfertado(navController)
-        }
-
-        composable("perfil") {
-            Perfil(navController)
-        }
-
-        composable("chats") {
-            BuscarChats(navController)
-        }
-    }
-}
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
+@Preview
 @Composable
-private fun BuscarOfertas(navController: NavHostController) {
+private fun BuscarOfertas() {
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val scope = rememberCoroutineScope()
 
@@ -153,12 +130,6 @@ private fun BuscarOfertas(navController: NavHostController) {
             }
         ) { paddingValues ->
             ListaOfertas(modifier = Modifier.padding(paddingValues))
-
-            Button(onClick = {
-                navController.navigate("contratos")
-            }) {
-                Text(text = "Ir a contratos")
-            }
         }
     }
 }
@@ -240,8 +211,9 @@ private fun ListaOfertas(modifier: Modifier = Modifier) {
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
+@Preview
 @Composable
-private fun BuscarContratos(navController: NavHostController) {
+private fun BuscarContratos() {
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val scope = rememberCoroutineScope()
 
@@ -359,8 +331,9 @@ private fun ListaContratos(modifier: Modifier = Modifier) {
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
+@Preview
 @Composable
-private fun TrabajoOfertado(navController: NavHostController) {
+private fun TrabajoOfertado() {
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val scope = rememberCoroutineScope()
 
@@ -467,8 +440,9 @@ private fun TrabajoOfertado(navController: NavHostController) {
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
+@Preview
 @Composable
-private fun Perfil(navController: NavHostController) {
+private fun Perfil() {
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val scope = rememberCoroutineScope()
 
@@ -574,8 +548,9 @@ private fun Perfil(navController: NavHostController) {
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
+@Preview
 @Composable
-private fun BuscarChats(navController: NavHostController) {
+private fun BuscarChats() {
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val scope = rememberCoroutineScope()
 
