@@ -1,4 +1,4 @@
-package com.raul_fernandez_garcia.worknearby.presentacion
+package com.raul_fernandez_garcia.worknearby.borrador
 
 import android.annotation.SuppressLint
 import android.os.Bundle
@@ -49,10 +49,6 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.navigation.NavHostController
-import androidx.navigation.compose.NavHost
-import androidx.navigation.compose.composable
-import androidx.navigation.compose.rememberNavController
 import com.raul_fernandez_garcia.worknearby.R
 import com.raul_fernandez_garcia.worknearby.ui.theme.WorkNearbyTheme
 import kotlinx.coroutines.launch

@@ -1,12 +1,11 @@
 package com.raul_fernandez_garcia.worknearby
 
-import com.raul_fernandez_garcia.worknearby.modelo.ClienteDTO
-import com.raul_fernandez_garcia.worknearby.modelo.LoginRequest
-import com.raul_fernandez_garcia.worknearby.modelo.LoginResponse
-import com.raul_fernandez_garcia.worknearby.modelo.ServicioDTO
-import com.raul_fernandez_garcia.worknearby.modelo.TrabajadorDTO
-import com.raul_fernandez_garcia.worknearby.modelo.UsuarioDTO
-import retrofit2.Call
+import com.raul_fernandez_garcia.worknearby.modeloODT.ClienteDTO
+import com.raul_fernandez_garcia.worknearby.modeloODT.LoginRequest
+import com.raul_fernandez_garcia.worknearby.modeloODT.LoginResponse
+import com.raul_fernandez_garcia.worknearby.modeloODT.ServicioDTO
+import com.raul_fernandez_garcia.worknearby.modeloODT.TrabajadorDTO
+import com.raul_fernandez_garcia.worknearby.modeloODT.UsuarioDTO
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST

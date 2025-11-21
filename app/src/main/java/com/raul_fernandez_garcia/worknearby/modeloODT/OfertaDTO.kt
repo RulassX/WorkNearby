@@ -1,4 +1,4 @@
-package com.raul_fernandez_garcia.worknearby.modelo
+package com.raul_fernandez_garcia.worknearby.modeloODT
 
 data class OfertaDTO(
     val id: Int,
