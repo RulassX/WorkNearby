@@ -1,8 +1,8 @@
 package com.raul_fernandez_garcia.worknearby.modelo
 
-data class Trabajador(
+data class TrabajadorDTO(
     val id: Int = 0,
-    val usuario: Usuario,
+    val usuarioDTO: UsuarioDTO,
     val descripcion: String,
     val precioHora: Double,
     val radioKm: Double,

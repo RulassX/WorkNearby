@@ -1,8 +1,8 @@
 package com.raul_fernandez_garcia.worknearby.modelo
 
-data class Cliente (
+data class ClienteDTO (
     val id: Int = 0,
-    val usuario: Usuario,
+    val usuarioDTO: UsuarioDTO,
     val direccion: String,
     val ciudad: String
 )

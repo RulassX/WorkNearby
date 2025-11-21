@@ -1,18 +1,80 @@
 package com.raul_fernandez_garcia.worknearby
 
-import com.raul_fernandez_garcia.worknearby.modelo.Usuario
+import com.raul_fernandez_garcia.worknearby.modelo.ClienteDTO
+import com.raul_fernandez_garcia.worknearby.modelo.LoginRequest
+import com.raul_fernandez_garcia.worknearby.modelo.LoginResponse
+import com.raul_fernandez_garcia.worknearby.modelo.ServicioDTO
+import com.raul_fernandez_garcia.worknearby.modelo.TrabajadorDTO
+import com.raul_fernandez_garcia.worknearby.modelo.UsuarioDTO
 import retrofit2.Call
 import retrofit2.http.Body
 import retrofit2.http.GET
 import retrofit2.http.POST
+import retrofit2.http.Path
 
 interface ApiService {
 
-    @POST("usuarios/crear")
-    fun crearUsuario(@Body usuario: Usuario): Call<Usuario>
+    //usuarios
 
-    @GET("usuarios")
-    fun obtenerUsuarios(): Call<List<Usuario>>
+    @POST("usuarios")
+    suspend fun crearUsuario(
+        @Body usuario: UsuarioDTO
+    ): UsuarioDTO
+
+    @GET("usuarios/{id}")
+    suspend fun obtenerUsuario(
+        @Path("id") id: Int
+    ): UsuarioDTO
+
+    @GET("usuarios/email/{email}")
+    suspend fun obtenerUsuarioPorEmail(
+        @Path("email") email: String
+    ): UsuarioDTO
+
+    @POST("login")
+    suspend fun login(
+        @Body loginData: LoginRequest
+    ): LoginResponse
 
 
+    //trabajadores
+
+    @GET("trabajadores")
+    suspend fun listarTrabajadores(): List<TrabajadorDTO>
+
+    @GET("trabajadores/{id}")
+    suspend fun obtenerTrabajador(
+        @Path("id") id: Int
+    ): TrabajadorDTO
+
+
+    //clientes
+
+    @POST("clientes")
+    suspend fun crearCliente(
+        @Body cliente: ClienteDTO
+    ): ClienteDTO
+
+    @GET("clientes/{id}")
+    suspend fun obtenerCliente(
+        @Path("id") id: Int
+    ): ClienteDTO
+
+
+    //servicios
+
+    @POST("servicios")
+    suspend fun crearServicio(
+        @Body servicio: ServicioDTO
+    ): ServicioDTO
+
+    @GET("servicios/cliente/{idCliente}")
+    suspend fun serviciosPorCliente(
+        @Path("idCliente") idCliente: Int
+    ): List<ServicioDTO>
+
+    @GET("servicios/trabajador/{idTrabajador}")
+    suspend fun serviciosPorTrabajador(
+        @Path("idTrabajador") idTrabajador: Int
+    ): List<ServicioDTO>
 }

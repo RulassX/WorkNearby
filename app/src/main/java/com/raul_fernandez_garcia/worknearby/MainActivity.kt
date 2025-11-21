@@ -85,7 +85,7 @@ fun appNavigation(navController: NavHostController) {
     ) {
 
         composable("ofertas") {
-            BuscarServicios(navController)
+            BuscarOfertas(navController)
         }
 
         composable("contratos") {
@@ -109,7 +109,7 @@ fun appNavigation(navController: NavHostController) {
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun BuscarServicios(navController: NavHostController) {
+private fun BuscarOfertas(navController: NavHostController) {
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val scope = rememberCoroutineScope()
 
@@ -151,7 +151,7 @@ private fun BuscarServicios(navController: NavHostController) {
                 )
             }
         ) { paddingValues ->
-            ListaServicios(modifier = Modifier.padding(paddingValues))
+            ListaOfertas(modifier = Modifier.padding(paddingValues))
 
             Button(onClick = {
                 navController.navigate("contratos")
@@ -163,7 +163,7 @@ private fun BuscarServicios(navController: NavHostController) {
 }
 
 @Composable
-private fun ListaServicios(modifier: Modifier = Modifier) {
+private fun ListaOfertas(modifier: Modifier = Modifier) {
     val nombres = listOf("Raúl", "Brais", "Laura", "Carlos", "Lucia", "Pedro", "Maria")
     val apellidos =
         listOf("Fernández García", "Fernández", "Gomez", "Varela", "Rodriguez", "Lopez", "García")

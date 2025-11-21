@@ -1,10 +1,10 @@
 package com.raul_fernandez_garcia.worknearby.modelo
 
-data class Servicio (
+data class ServicioDTO (
     val id: Int = 0,
-    val cliente: Cliente,
-    val trabajador: Trabajador,
-    val categoria: Categoria,
+    val cliente: ClienteDTO,
+    val trabajador: TrabajadorDTO,
+    val categoria: CategoriaDTO,
     val descripcion: String,
     val estado: String,
     val fechaSolicitud: String? = null
