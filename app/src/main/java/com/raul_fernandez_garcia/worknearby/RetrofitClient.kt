@@ -4,6 +4,7 @@ import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 
 object RetrofitClient {
+    // prueba con emulador esta ip: 10.0.2.2
     private const val BASE_URL = "http://192.168.1.138:8080/"
 
     private val logging = okhttp3.logging.HttpLoggingInterceptor().apply {

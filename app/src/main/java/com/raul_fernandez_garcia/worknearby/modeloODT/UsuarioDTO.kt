@@ -5,7 +5,6 @@ data class UsuarioDTO(
     val nombre: String,
     val apellidos: String,
     val email: String,
-    val password: String,
     val telefono: String,
     val rol: String,
     val fechaReg: String? = null
