@@ -1,4 +1,4 @@
-package com.raul_fernandez_garcia.worknearby.modeloODT
+package com.raul_fernandez_garcia.worknearby.modeloDTO
 
 data class TrabajadorCategoria(
     val trabajador: TrabajadorDTO,

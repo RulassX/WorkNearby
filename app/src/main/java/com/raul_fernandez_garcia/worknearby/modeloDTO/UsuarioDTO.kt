@@ -1,4 +1,4 @@
-package com.raul_fernandez_garcia.worknearby.modeloODT
+package com.raul_fernandez_garcia.worknearby.modeloDTO
 
 data class UsuarioDTO(
     val id: Int = 0,
@@ -6,6 +6,6 @@ data class UsuarioDTO(
     val apellidos: String,
     val email: String,
     val telefono: String,
-    val rol: String,
+    var rol: String,
     val fechaReg: String? = null
 )

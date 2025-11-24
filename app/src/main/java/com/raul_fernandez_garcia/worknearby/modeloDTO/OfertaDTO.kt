@@ -1,11 +1,11 @@
-package com.raul_fernandez_garcia.worknearby.modeloODT
+package com.raul_fernandez_garcia.worknearby.modeloDTO
 
 data class OfertaDTO(
     val id: Int,
     val trabajador: TrabajadorDTO,
-    val titulo: String,
-    val descripcion: String,
-    val precio: Double?,
+    var titulo: String,
+    var descripcion: String,
+    var precio: Double?,
     val categoria: CategoriaDTO?,
     val foto: String?,
     val fechaPublicacion: String
