@@ -42,17 +42,32 @@ Control de versiones: Git / GitHub.
 
     WorkNearby/
     ├─ app/
-    │  ├─ src/
-    │  │  ├─ main/
-    │  │  │  ├─ java/com/raul_fernandez_garcia/worknearby
-    │  │  │  │  ├─ MainActivity.kt
-    │  │  │  │  ├─ ...
-    │  │  │  │ 
-    │  │  │  ├─ res/...
-    │  │  │  └─AndroidManifest.xml
-    │  │  ├─ test/...
-    │  │  └─ androidTest/...
-    │  └─ resources/...
+    │  └─ src/
+    │     ├─ main/
+    │     │  ├─ AndroidManifest.xml
+    │     │  ├─ kotlin/com/raul_fernandez_garcia/worknearby/
+    │     │  │  ├─ login/
+    │     │  │  │  ├─ LoginRequest.kt
+    │     │  │  │  └─ LoginResponse.kt
+    │     │  │  ├─ modeloDTO/
+    │     │  │  │  ├─ CategoriaDTO.kt
+    │     │  │  │  ├─ ClienteDTO.kt
+    │     │  │  │  ├─ OfertaDTO.kt
+    │     │  │  │  ├─ ResenaDTO.kt
+    │     │  │  │  ├─ ServicioDTO.kt
+    │     │  │  │  ├─ TrabajadorCategoria.kt
+    │     │  │  │  ├─ TrabajadorDTO.kt
+    │     │  │  │  └─ UsuarioDTO.kt
+    │     │  │  ├─ ApiService.kt
+    │     │  │  ├─ RetrofitClient.kt
+    │     │  │  └─ MainActivity.kt
+    │     │  ├─ res/
+    │     │  │  ├─ drawable/
+    │     │  │  ├─ mipmap/
+    │     │  │  ├─ values/
+    │     │  │  └─ raw/
+    │     ├─ test/
+    │     └─ androidTest/
     └─ README.md
 
 📊 Base de datos
