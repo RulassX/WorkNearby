@@ -1,4 +1,4 @@
-package com.raul_fernandez_garcia.worknearby.login
+package com.raul_fernandez_garcia.worknearby.modeloDTO
 
 data class LoginRequest(
     val email: String,
