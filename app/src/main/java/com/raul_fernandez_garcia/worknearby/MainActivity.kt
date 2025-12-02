@@ -25,6 +25,7 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -36,6 +37,7 @@ import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
+import androidx.compose.material3.NavigationDrawerItem
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -133,8 +135,29 @@ private fun BuscarOfertas(
         drawerState = drawerState,
         drawerContent = {
             ModalDrawerSheet {
-                Text(text = "OP1", modifier = Modifier.padding(16.dp))
-                Text(text = "OP2", modifier = Modifier.padding(16.dp))
+                NavigationDrawerItem(
+                    label = { Text(text = "Mi Perfil") },
+                    selected = false,
+                    onClick = {
+                        scope.launch {
+                            drawerState.close()
+                            navController.navigate("perfil")
+                        }
+                    },
+                    modifier = Modifier.padding(horizontal = 12.dp)
+                )
+
+                NavigationDrawerItem(
+                    label = { Text(text = "Mis Contratos") },
+                    selected = false,
+                    onClick = {
+                        scope.launch {
+                            drawerState.close()
+                            navController.navigate("contratos")
+                        }
+                    },
+                    modifier = Modifier.padding(horizontal = 12.dp)
+                )
                 Text(text = "OP3", modifier = Modifier.padding(16.dp))
             }
         }
@@ -181,21 +204,12 @@ private fun BuscarOfertas(
                     modifier = Modifier.padding(paddingValues)
                 )
             }
-
-            Button(onClick = {
-                navController.navigate("contratos")
-            }) {
-                Text(text = "Ir a contratos")
-            }
         }
     }
 }
 
 @Composable
 fun ListaOfertas(ofertas: List<OfertaDTO>, modifier: Modifier = Modifier) {
-    //val nombres = listOf()
-    //val apellidos = listOf()
-    //val puntuaciones = listOf()
 
     LazyColumn(
         modifier
@@ -237,7 +251,6 @@ fun ListaOfertas(ofertas: List<OfertaDTO>, modifier: Modifier = Modifier) {
                             //textAlign = TextAlign.Center,
                         )
 
-
                         Spacer(modifier = Modifier.weight(1f))
 
                         Text(
@@ -249,13 +262,13 @@ fun ListaOfertas(ofertas: List<OfertaDTO>, modifier: Modifier = Modifier) {
                     }
 
                     AsyncImage(
-                        model = oferta.fotoUrlOferta ?: R.drawable.ic_launcher_background, // Si es null, usa icono por defecto
+                        model = oferta.fotoUrlOferta ?: R.drawable.imagenvacia,
                         contentDescription = "Foto de oferta",
                         modifier = Modifier
                             .padding(15.dp)
-                            .width(130.dp) // Ancho fijo para la imagen
+                            .width(115.dp)
                             .fillMaxHeight(),
-                        contentScale = ContentScale.Crop // Recorta la imagen para llenar el espacio
+                        contentScale = ContentScale.Crop
                     )
                 }
             }
@@ -294,9 +307,28 @@ private fun BuscarContratos(navController: NavHostController) {
         drawerState = drawerState,
         drawerContent = {
             ModalDrawerSheet {
-                Text(text = "OP1", modifier = Modifier.padding(16.dp))
-                Text(text = "OP2", modifier = Modifier.padding(16.dp))
-                Text(text = "OP3", modifier = Modifier.padding(16.dp))
+                NavigationDrawerItem(
+                    label = { Text(text = "Mi Perfil") },
+                    selected = false,
+                    onClick = {
+                        scope.launch {
+                            drawerState.close()
+                            navController.navigate("perfil")
+                        }
+                    },
+                    modifier = Modifier.padding(horizontal = 12.dp)
+                )
+
+                NavigationDrawerItem(
+                    label = { Text(text = "Ofertas de trabajo") },
+                    selected = false,
+                    onClick = {
+                        scope.launch {
+                            drawerState.close()
+                            navController.navigate("ofertas")
+                        }
+                    }
+                )
             }
         }
     ) {
