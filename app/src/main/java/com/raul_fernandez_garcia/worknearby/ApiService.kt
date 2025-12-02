@@ -1,8 +1,9 @@
 package com.raul_fernandez_garcia.worknearby
 
+import com.raul_fernandez_garcia.WorkNearby_API.modeloDTO.LoginRequest
+import com.raul_fernandez_garcia.WorkNearby_API.modeloDTO.RegistroDTO
+import com.raul_fernandez_garcia.WorkNearby_API.modeloDTO.SolicitarServicioDTO
 import com.raul_fernandez_garcia.worknearby.modeloDTO.ClienteDTO
-import com.raul_fernandez_garcia.worknearby.modeloDTO.LoginRequest
-import com.raul_fernandez_garcia.worknearby.borrador.LoginResponse
 import com.raul_fernandez_garcia.worknearby.modeloDTO.OfertaDTO
 import com.raul_fernandez_garcia.worknearby.modeloDTO.ResenaDTO
 import com.raul_fernandez_garcia.worknearby.modeloDTO.ServicioDTO

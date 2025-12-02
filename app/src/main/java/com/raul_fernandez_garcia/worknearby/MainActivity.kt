@@ -8,6 +8,7 @@ import androidx.activity.enableEdgeToEdge
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.layout.Arrangement
+import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
 import androidx.compose.foundation.layout.Row
@@ -18,6 +19,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
@@ -39,6 +41,8 @@ import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.collectAsState
+import androidx.compose.runtime.getValue
 import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
@@ -49,11 +53,18 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.viewModelScope
+import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
+import coil.compose.AsyncImage
+import com.raul_fernandez_garcia.worknearby.modeloDTO.OfertaDTO
 import com.raul_fernandez_garcia.worknearby.ui.theme.WorkNearbyTheme
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
@@ -109,7 +120,12 @@ fun appNavigation(navController: NavHostController) {
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun BuscarOfertas(navController: NavHostController) {
+private fun BuscarOfertas(
+    navController: NavHostController,
+    viewModel: OfertasViewModel = viewModel()
+) {
+    val listaOfertasReal by viewModel.ofertas.collectAsState()
+
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val scope = rememberCoroutineScope()
 
@@ -130,7 +146,6 @@ private fun BuscarOfertas(navController: NavHostController) {
                         Text(
                             text = "WorkNearby"
                         )
-
                     },
                     navigationIcon = {
                         IconButton(onClick = {
@@ -151,7 +166,21 @@ private fun BuscarOfertas(navController: NavHostController) {
                 )
             }
         ) { paddingValues ->
-            ListaOfertas(modifier = Modifier.padding(paddingValues))
+            if (listaOfertasReal.isEmpty()) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(paddingValues),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text("Cargando ofertas o no hay disponibles...")
+                }
+            } else {
+                ListaOfertas(
+                    ofertas = listaOfertasReal,
+                    modifier = Modifier.padding(paddingValues)
+                )
+            }
 
             Button(onClick = {
                 navController.navigate("contratos")
@@ -163,11 +192,10 @@ private fun BuscarOfertas(navController: NavHostController) {
 }
 
 @Composable
-private fun ListaOfertas(modifier: Modifier = Modifier) {
-    val nombres = listOf("Raúl", "Brais", "Laura", "Carlos", "Lucia", "Pedro", "Maria")
-    val apellidos =
-        listOf("Fernández García", "Fernández", "Gomez", "Varela", "Rodriguez", "Lopez", "García")
-    //val puntuaciones = listOf("5/5", "4/5", "3.5/5", "2/5", "3/5", "2.5/5", "4.5/5")
+fun ListaOfertas(ofertas: List<OfertaDTO>, modifier: Modifier = Modifier) {
+    //val nombres = listOf()
+    //val apellidos = listOf()
+    //val puntuaciones = listOf()
 
     LazyColumn(
         modifier
@@ -176,7 +204,7 @@ private fun ListaOfertas(modifier: Modifier = Modifier) {
             .padding(PaddingValues())
             .padding(top = 10.dp)
     ) {
-        items(nombres.zip(apellidos)) { (nombre, apellido) ->
+        items(ofertas) { oferta ->
 
             Card(
                 colors = CardDefaults.cardColors(
@@ -196,42 +224,60 @@ private fun ListaOfertas(modifier: Modifier = Modifier) {
                         modifier = Modifier.fillMaxHeight(),
                     ) {
                         Text(
-                            text = "Nombre: " + nombre,
+                            text = oferta.nombreCategoria,
                             fontSize = 17.sp,
                             modifier = Modifier
-                                .padding(start = 15.dp, top = 15.dp),
-                            //textAlign = TextAlign.Center,
+                                .padding(start = 15.dp, top = 15.dp)
                         )
                         Text(
-                            text = "Apellidos: " + apellido,
+                            text = "Nombre: ${oferta.nombreTrabajador}",
                             fontSize = 17.sp,
                             modifier = Modifier
-                                .padding(start = 15.dp, top = 5.dp),
+                                .padding(bottom = 15.dp, start = 15.dp),
                             //textAlign = TextAlign.Center,
                         )
-                        Text(
-                            text = "Pintor",
-                            fontSize = 17.sp,
-                            modifier = Modifier
-                                .padding(bottom = 15.dp, start = 15.dp)
-                        )
+
 
                         Spacer(modifier = Modifier.weight(1f))
 
                         Text(
-                            text = "Valoracion: " + "5/5",
+                            text = "Precio: ${oferta.precio} €/h",
                             fontSize = 17.sp,
                             modifier = Modifier
                                 .padding(start = 15.dp, bottom = 15.dp),
                         )
                     }
-                    Image(
+
+                    AsyncImage(
+                        model = oferta.fotoUrlOferta ?: R.drawable.ic_launcher_background, // Si es null, usa icono por defecto
+                        contentDescription = "Foto de oferta",
                         modifier = Modifier
-                            .padding(15.dp),
-                        painter = painterResource(id = R.drawable.ic_launcher_background),
-                        contentDescription = "imagen",
+                            .padding(15.dp)
+                            .width(130.dp) // Ancho fijo para la imagen
+                            .fillMaxHeight(),
+                        contentScale = ContentScale.Crop // Recorta la imagen para llenar el espacio
                     )
                 }
+            }
+        }
+    }
+}
+
+class OfertasViewModel : ViewModel() {
+    private val _ofertas = MutableStateFlow<List<OfertaDTO>>(emptyList())
+    val ofertas: StateFlow<List<OfertaDTO>> = _ofertas
+
+    init {
+        cargarOfertas()
+    }
+
+    fun cargarOfertas() {
+        viewModelScope.launch {
+            try {
+                val lista = RetrofitClient.api.buscarOfertas(lat = null, lon = null)
+                _ofertas.value = lista
+            } catch (e: Exception) {
+                e.printStackTrace()
             }
         }
     }
@@ -291,7 +337,15 @@ private fun BuscarContratos(navController: NavHostController) {
 private fun ListaContratos(modifier: Modifier = Modifier) {
     val nombres = listOf("Raúl", "Brais", "Laura", "Carlos", "Lucia", "Pedro", "Maria")
     val apellidos =
-        listOf("Fernández García", "Fernández", "Gomez", "Varela", "Rodriguez", "Lopez", "García")
+        listOf(
+            "Fernández García",
+            "Fernández",
+            "Gomez",
+            "Varela",
+            "Rodriguez",
+            "Lopez",
+            "García"
+        )
 
     LazyColumn(
         modifier
@@ -625,7 +679,15 @@ private fun BuscarChats(navController: NavHostController) {
 private fun ListaChats(modifier: Modifier = Modifier) {
     val nombres = listOf("Raúl", "Brais", "Laura", "Carlos", "Lucia", "Pedro", "Maria")
     val apellidos =
-        listOf("Fernández García", "Fernández", "Gomez", "Varela", "Rodriguez", "Lopez", "García")
+        listOf(
+            "Fernández García",
+            "Fernández",
+            "Gomez",
+            "Varela",
+            "Rodriguez",
+            "Lopez",
+            "García"
+        )
 
     LazyColumn(
         modifier

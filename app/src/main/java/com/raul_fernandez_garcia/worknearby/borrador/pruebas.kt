@@ -18,6 +18,7 @@ import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
+import androidx.compose.foundation.layout.width
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
@@ -49,6 +50,7 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import coil.compose.AsyncImage
 import com.raul_fernandez_garcia.worknearby.R
 import com.raul_fernandez_garcia.worknearby.ui.theme.WorkNearbyTheme
 import kotlinx.coroutines.launch
@@ -164,41 +166,38 @@ private fun ListaOfertas(modifier: Modifier = Modifier) {
                         modifier = Modifier.fillMaxHeight(),
                     ) {
                         Text(
-                            text = "Nombre: " + nombre,
-                            fontSize = 17.sp,
-                            modifier = Modifier
-                                .padding(start = 15.dp, top = 15.dp),
-                            //textAlign = TextAlign.Center,
-                        )
-                        Text(
-                            text = "Apellidos: " + apellido,
-                            fontSize = 17.sp,
-                            modifier = Modifier
-                                .padding(start = 15.dp, top = 5.dp),
-                            //textAlign = TextAlign.Center,
-                        )
-                        Text(
                             text = "Pintor",
                             fontSize = 17.sp,
                             modifier = Modifier
-                                .padding(bottom = 15.dp, start = 15.dp)
+                                .padding(start = 15.dp, top = 15.dp)
+                        )
+
+                        Text(
+                            text = nombre + " " + apellido,
+                            fontSize = 17.sp,
+                            modifier = Modifier
+                                .padding(bottom = 15.dp, start = 15.dp),
+                            //textAlign = TextAlign.Center,
                         )
 
                         Spacer(modifier = Modifier.weight(1f))
 
                         Text(
-                            text = "Valoracion: " + "5/5",
+                            text = "Precio: " + "30" + "€/h",
                             fontSize = 17.sp,
                             modifier = Modifier
                                 .padding(start = 15.dp, bottom = 15.dp),
                         )
                     }
+
                     Image(
                         modifier = Modifier
                             .padding(15.dp),
                         painter = painterResource(id = R.drawable.ic_launcher_background),
                         contentDescription = "imagen",
                     )
+
+
                 }
             }
         }
