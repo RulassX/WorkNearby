@@ -15,6 +15,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxHeight
 import androidx.compose.foundation.layout.fillMaxSize
+import androidx.compose.foundation.layout.fillMaxWidth
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
 import androidx.compose.foundation.lazy.LazyColumn
@@ -154,6 +155,7 @@ private fun BuscarOfertas() {
     }
 }
 
+
 @Composable
 private fun ListaOfertas(modifier: Modifier = Modifier) {
 
@@ -230,3 +232,69 @@ private fun ListaOfertas(modifier: Modifier = Modifier) {
         }
     }
 }
+
+/*
+LazyColumn(
+modifier = Modifier
+.background(Color.Gray)
+.fillMaxSize()
+.padding(paddingValues)
+) {
+    item {
+        Row {
+            Column {
+                Text(
+                    text = "Raúl",
+                    fontSize = 22.sp,
+                    modifier = Modifier
+                        .padding(top = 15.dp, bottom = 5.dp, start = 15.dp)
+                )
+                Text(
+                    text = "Fernández García",
+                    fontSize = 22.sp,
+                    modifier = Modifier
+                        .padding(bottom = 15.dp, start = 15.dp)
+                )
+                Text(
+                    text = "Pintor",
+                    fontSize = 22.sp,
+                    modifier = Modifier
+                        .padding(bottom = 15.dp, start = 15.dp)
+                )
+                Text(
+                    text = "Telf.: 123456789",
+                    fontSize = 22.sp,
+                    modifier = Modifier
+                        .padding(bottom = 15.dp, start = 15.dp)
+                )
+                Text(
+                    text = "Email: ejemplo@gmail.com",
+                    fontSize = 22.sp,
+                    modifier = Modifier
+                        .padding(bottom = 15.dp, start = 15.dp)
+                )
+            }
+
+            Image(
+                modifier = Modifier
+                    .padding(15.dp)
+                    .fillMaxWidth(),
+                painter = painterResource(id = R.drawable.ic_launcher_background),
+                contentDescription = "imagen",
+                alignment = Alignment.TopEnd
+            )
+        }
+        Text(
+            text = "Descripcion trabajador (Opcional)",
+            fontSize = 22.sp,
+            modifier = Modifier
+                .padding(15.dp)
+                .padding(top = 15.dp)
+        )
+    }
+}
+}
+}
+}
+
+ */

@@ -34,7 +34,12 @@ interface ApiService {
         @Query("lon") lon: Double?
     ): List<OfertaDTO>
 
-   @GET("/api/trabajadores/{id}")
+    @GET("/api/ofertas/{id}")
+    suspend fun obtenerOferta(
+        @Path("id") id: Int
+    ): OfertaDTO
+
+    @GET("/api/trabajadores/{id}")
     suspend fun obtenerTrabajador(
         @Path("id") id: Int
     ): TrabajadorDTO

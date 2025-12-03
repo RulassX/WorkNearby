@@ -302,6 +302,8 @@ private fun ListaContratos(modifier: Modifier = Modifier) {
                             //textAlign = TextAlign.Center,
                         )
 
+
+
                         Spacer(modifier = Modifier.weight(1f))
 
                         Text(

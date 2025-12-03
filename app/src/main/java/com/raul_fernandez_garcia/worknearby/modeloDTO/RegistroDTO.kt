@@ -14,6 +14,6 @@ data class RegistroDTO(
     val direccion: String? = null,
     val ciudad: String? = null,
     val descripcion: String? = null,
-    val precioHora: Double? = null,
+    val precio: Double? = null,
     val radioKm: Double? = null
 )

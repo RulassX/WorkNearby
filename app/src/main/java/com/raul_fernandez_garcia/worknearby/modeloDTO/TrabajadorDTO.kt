@@ -4,7 +4,6 @@ data class TrabajadorDTO(
     val id: Int,
     val usuario: UsuarioDTO,
     val descripcion: String?,
-    val precioHora: Double,
     val radioKm: Double,
     val latitud: Double,
     val longitud: Double
