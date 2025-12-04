@@ -60,6 +60,9 @@ interface ApiService {
         @Body datos: ClienteDTO
     ): ClienteDTO
 
+    @GET("/api/usuario/trabajador/{id}")
+    suspend fun obtenerPerfilTrabajador(@Path("id") idUsuario: Int): TrabajadorDTO
+
     @POST("/api/servicios/solicitar")
     suspend fun solicitarServicio(
         @Body datos: SolicitarServicioDTO

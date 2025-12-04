@@ -28,6 +28,8 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Menu
+import androidx.compose.material.icons.filled.Person
+import androidx.compose.material3.AssistChip
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
@@ -69,6 +71,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import coil.compose.AsyncImage
+import com.raul_fernandez_garcia.worknearby.modeloDTO.ClienteDTO
 import com.raul_fernandez_garcia.worknearby.modeloDTO.OfertaDTO
 import com.raul_fernandez_garcia.worknearby.modeloDTO.ResenaDTO
 import com.raul_fernandez_garcia.worknearby.modeloDTO.ServicioDTO
@@ -183,7 +186,6 @@ private fun BuscarOfertas(
                     },
                     modifier = Modifier.padding(horizontal = 12.dp)
                 )
-                Text(text = "OP3", modifier = Modifier.padding(16.dp))
             }
         }
     ) {
@@ -245,7 +247,7 @@ fun ListaOfertas(
 
     LazyColumn(
         modifier
-            .background(Color.Gray)
+            .background(Color.White)
             .fillMaxSize()
             .padding(PaddingValues())
             .padding(top = 10.dp)
@@ -260,7 +262,7 @@ fun ListaOfertas(
                     //.height(150.dp)
                     .padding(vertical = 10.dp, horizontal = 15.dp)
                     .fillMaxSize()
-                    .clickable { onOfertaClick(oferta.idTrabajador) }
+                    .clickable { onOfertaClick(oferta.id) }
             ) {
                 Row(
                     modifier = Modifier.fillMaxSize(),
@@ -300,6 +302,7 @@ fun ListaOfertas(
                         modifier = Modifier
                             .padding(15.dp)
                             .width(115.dp)
+                            .clip(RoundedCornerShape(8.dp))
                             .fillMaxHeight(),
                         contentScale = ContentScale.Crop
                     )
@@ -456,7 +459,7 @@ private fun ListaContratos(contratos: List<ServicioDTO>, modifier: Modifier = Mo
 
     LazyColumn(
         modifier
-            .background(Color.Gray)
+            .background(Color.White)
             .fillMaxSize()
             .padding(PaddingValues())
             .padding(top = 10.dp)
@@ -703,7 +706,7 @@ private fun TrabajoOfertado(
 
                 LazyColumn(
                     modifier = Modifier
-                        .background(Color.Gray)
+                        .background(Color.White)
                         .fillMaxSize()
                         .padding(paddingValues)
                 ) {
@@ -747,6 +750,7 @@ private fun TrabajoOfertado(
                                 model = user.fotoUrl ?: R.drawable.fotoperfilvacia,
                                 contentDescription = "Foto perfil",
                                 modifier = Modifier
+                                    .padding(5.dp)
                                     .size(120.dp)
                                     .clip(RoundedCornerShape(8.dp))
                                     .border(1.dp, Color.Gray, RoundedCornerShape(8.dp)),
@@ -861,7 +865,21 @@ class TrabajoViewModel : ViewModel() {
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun Perfil(navController: NavHostController) {
+private fun Perfil(
+    navController: NavHostController,
+    viewModel: PerfilViewModel = viewModel()
+) {
+
+    val perfil by viewModel.perfil.collectAsState()
+    val esTrabajador by viewModel.esTrabajador.collectAsState()
+    val isLoading by viewModel.isLoading.collectAsState()
+    val nombreUsuarioMenu = if (perfil != null) {
+        if (esTrabajador) (perfil as TrabajadorDTO).usuario.nombre
+        else (perfil as ClienteDTO).usuario.nombre
+    } else {
+        "Usuario"
+    }
+
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val scope = rememberCoroutineScope()
 
@@ -869,9 +887,38 @@ private fun Perfil(navController: NavHostController) {
         drawerState = drawerState,
         drawerContent = {
             ModalDrawerSheet {
-                Text(text = "OP1", modifier = Modifier.padding(16.dp))
-                Text(text = "OP2", modifier = Modifier.padding(16.dp))
-                Text(text = "OP3", modifier = Modifier.padding(16.dp))
+                Spacer(modifier = Modifier.height(15.dp))
+                Text(
+                    text = "Hola $nombreUsuarioMenu",
+                    modifier = Modifier.padding(15.dp),
+                    style = MaterialTheme.typography.titleLarge
+                )
+                HorizontalDivider()
+                Spacer(modifier = Modifier.height(15.dp))
+
+                NavigationDrawerItem(
+                    label = { Text(text = "Ofertas de trabajo") },
+                    selected = false,
+                    onClick = {
+                        scope.launch {
+                            drawerState.close()
+                            navController.navigate("ofertas")
+                        }
+                    },
+                    modifier = Modifier.padding(horizontal = 12.dp)
+                )
+
+                NavigationDrawerItem(
+                    label = { Text(text = "Mis Contratos") },
+                    selected = false,
+                    onClick = {
+                        scope.launch {
+                            drawerState.close()
+                            navController.navigate("contratos")
+                        }
+                    },
+                    modifier = Modifier.padding(horizontal = 12.dp)
+                )
             }
         }
     ) {
@@ -882,7 +929,6 @@ private fun Perfil(navController: NavHostController) {
                         Text(
                             text = "Perfil"
                         )
-
                     },
                     navigationIcon = {
                         IconButton(onClick = {
@@ -903,60 +949,85 @@ private fun Perfil(navController: NavHostController) {
                 )
             }
         ) { paddingValues ->
-            LazyColumn(
-                modifier = Modifier
-                    .background(Color.Gray)
-                    .fillMaxSize()
-                    .padding(paddingValues)
-            ) {
-                item {
-                    Row(
-                        modifier = Modifier.fillMaxSize(),
-                        horizontalArrangement = Arrangement.Center
-                    ) {
+            if (isLoading || perfil == null) {
+                Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    CircularProgressIndicator()
+                }
+            } else {
+                // EXTRAEMOS LOS DATOS COMUNES (UsuarioDTO)
+                // Tanto ClienteDTO como TrabajadorDTO tienen un campo 'usuario'
+                val usuario =
+                    if (esTrabajador) (perfil as TrabajadorDTO).usuario else (perfil as ClienteDTO).usuario
+
+                LazyColumn(
+                    modifier = Modifier
+                        .background(Color.White)
+                        .fillMaxSize()
+                        .padding(paddingValues)
+                ) {
+                    item {
                         Column(
-                            modifier = Modifier.fillMaxSize(),
-                            verticalArrangement = Arrangement.Center
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(16.dp),
+                            horizontalAlignment = Alignment.CenterHorizontally
                         ) {
-                            Image(
-                                alignment = Alignment.Center,
+                            // FOTO Y NOMBRE (Comun para ambos)
+                            AsyncImage(
+                                model = usuario.fotoUrl ?: R.drawable.fotoperfilvacia,
+                                contentDescription = "Foto perfil",
                                 modifier = Modifier
-                                    .padding(50.dp)
                                     .size(140.dp)
                                     .clip(CircleShape)
-                                    .fillMaxWidth(),
-                                painter = painterResource(id = R.drawable.ic_launcher_background),
-                                contentDescription = "imagen",
+                                    .border(2.dp, Color.Gray, CircleShape),
                                 contentScale = ContentScale.Crop
                             )
+                            Spacer(modifier = Modifier.height(16.dp))
+                            Text(
+                                text = usuario.nombre,
+                                fontSize = 24.sp,
+                            )
+                            Text(text = usuario.apellidos, fontSize = 20.sp, color = Color.Gray)
 
-                            Text(
-                                text = "Raúl",
-                                fontSize = 22.sp,
-                                modifier = Modifier
-                                    .padding(15.dp)
+                            // ROL
+                            AssistChip(
+                                onClick = {},
+                                label = { Text(usuario.rol.uppercase()) },
+                                leadingIcon = { Icon(Icons.Default.Person, null) }
                             )
-                            Text(
-                                text = "Fernández García",
-                                fontSize = 22.sp,
-                                modifier = Modifier
-                                    .padding(bottom = 15.dp, start = 15.dp)
-                            )
-                            Text(
-                                text = "Telf.: 123456789",
-                                fontSize = 22.sp,
-                                modifier = Modifier.padding(bottom = 15.dp, start = 15.dp)
-                            )
-                            Text(
-                                text = "Email: ejemplo@gmail.com",
-                                fontSize = 22.sp,
-                                modifier = Modifier.padding(bottom = 15.dp, start = 15.dp)
-                            )
-                            Text(
-                                text = "Pintor",
-                                fontSize = 22.sp,
-                                modifier = Modifier.padding(bottom = 15.dp, start = 15.dp)
-                            )
+
+                            Spacer(modifier = Modifier.height(24.dp))
+
+                            // TARJETA DE DATOS
+                            Card(
+                                modifier = Modifier.fillMaxWidth(),
+                                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+                            ) {
+                                Column(modifier = Modifier.padding(16.dp)) {
+                                    viewModel.DatoPerfil("Teléfono", usuario.telefono)
+                                    viewModel.DatoPerfil("Email", usuario.email)
+
+                                    // DATOS ESPECIFICOS SEGUN ROL
+                                    if (esTrabajador) {
+                                        val p = perfil as TrabajadorDTO
+                                        viewModel.DatoPerfil("Radio Acción", "${p.radioKm} km")
+                                        viewModel.DatoPerfil(
+                                            "Descripción",
+                                            p.descripcion ?: "Sin descripción"
+                                        )
+                                    } else {
+                                        val c = perfil as ClienteDTO
+                                        viewModel.DatoPerfil(
+                                            "Ciudad",
+                                            c.ciudad ?: "No especificada"
+                                        )
+                                        viewModel.DatoPerfil(
+                                            "Dirección",
+                                            c.direccion ?: "No especificada"
+                                        )
+                                    }
+                                }
+                            }
                         }
                     }
                 }
@@ -964,6 +1035,73 @@ private fun Perfil(navController: NavHostController) {
         }
     }
 }
+
+class PerfilViewModel : ViewModel() {
+
+    // Usamos 'Any?' porque puede ser ClienteDTO o TrabajadorDTO
+    private val _perfil = MutableStateFlow<Any?>(null)
+    val perfil: StateFlow<Any?> = _perfil
+
+    private val _isLoading = MutableStateFlow(true)
+    val isLoading: StateFlow<Boolean> = _isLoading
+
+    private val _esTrabajador = MutableStateFlow(false)
+    val esTrabajador: StateFlow<Boolean> = _esTrabajador
+
+    init {
+        cargarMiPerfil()
+    }
+
+    @Composable
+    fun DatoPerfil(titulo: String, valor: String) {
+        Column(modifier = Modifier.padding(vertical = 4.dp)) {
+            Text(
+                text = titulo,
+                fontSize = 14.sp,
+                color = Color.Gray
+            )
+            Text(
+                text = valor,
+                fontSize = 18.sp,
+                fontWeight = FontWeight.SemiBold
+            )
+            HorizontalDivider(modifier = Modifier.padding(top = 8.dp))
+        }
+    }
+
+    private fun cargarMiPerfil() {
+        viewModelScope.launch {
+            _isLoading.value = true
+            try {
+                // Aqui deberia leer de SharedPreferences
+                // Por ahora, simulamos. CAMBIA ESTO PARA PROBAR:
+                val miId = 2
+                val soyTrabajador = true // <--- CAMBIA A true SI ERES RAUL
+
+                _esTrabajador.value = soyTrabajador
+
+                if (soyTrabajador) {
+                    val datos = RetrofitClient.api.obtenerPerfilTrabajador(miId)
+                    _perfil.value = datos
+                } else {
+                    val datos = RetrofitClient.api.obtenerPerfilCliente(miId)
+                    _perfil.value = datos
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            } finally {
+                _isLoading.value = false
+            }
+        }
+    }
+}
+
+
+
+
+
+
+
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)

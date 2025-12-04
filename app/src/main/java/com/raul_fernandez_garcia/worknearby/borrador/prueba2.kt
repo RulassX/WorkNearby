@@ -234,6 +234,229 @@ private fun ListaOfertas(modifier: Modifier = Modifier) {
 }
 
 /*
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun TrabajoOfertado(
+    navController: NavHostController,
+    idOferta: Int,
+    viewModel: TrabajoViewModel = viewModel()
+) {
+
+    LaunchedEffect(idOferta) {
+        viewModel.cargarDatos(idOferta)
+    }
+
+    val oferta by viewModel.oferta.collectAsState()
+    val trabajador by viewModel.trabajador.collectAsState()
+    val resenas by viewModel.resenas.collectAsState()
+    val nombreUsuarioMenu by viewModel.nombreUsuarioLogueado.collectAsState()
+    val isLoading by viewModel.isLoading.collectAsState()
+
+    val drawerState = rememberDrawerState(DrawerValue.Closed)
+    val scope = rememberCoroutineScope()
+
+    ModalNavigationDrawer(
+        drawerState = drawerState,
+        drawerContent = {
+            ModalDrawerSheet {
+                Spacer(modifier = Modifier.height(15.dp))
+                Text(
+                    text = "Hola $nombreUsuarioMenu",
+                    modifier = Modifier.padding(15.dp),
+                    style = MaterialTheme.typography.titleLarge
+                )
+                HorizontalDivider()
+                Spacer(modifier = Modifier.height(15.dp))
+
+                NavigationDrawerItem(
+                    label = { Text(text = "Mi Perfil") },
+                    selected = false,
+                    onClick = {
+                        scope.launch {
+                            drawerState.close()
+                            navController.navigate("perfil")
+                        }
+                    },
+                    modifier = Modifier.padding(horizontal = 12.dp)
+                )
+
+                NavigationDrawerItem(
+                    label = { Text(text = "Ofertas de trabajo") },
+                    selected = false,
+                    onClick = {
+                        scope.launch {
+                            drawerState.close()
+                            navController.navigate("ofertas")
+                        }
+                    },
+                    modifier = Modifier.padding(horizontal = 12.dp)
+                )
+
+                NavigationDrawerItem(
+                    label = { Text(text = "Mis Contratos") },
+                    selected = false,
+                    onClick = {
+                        scope.launch {
+                            drawerState.close()
+                            navController.navigate("contratos")
+                        }
+                    },
+                    modifier = Modifier.padding(horizontal = 12.dp)
+                )
+            }
+        }
+    ) {
+        Scaffold(
+            topBar = {
+                CenterAlignedTopAppBar(
+                    title = {
+                        Text(
+                            text = "Detalles"
+                        )
+                    },
+                    navigationIcon = {
+                        IconButton(onClick = {
+                            scope.launch {
+                                if (drawerState.isClosed) {
+                                    drawerState.open()
+                                } else {
+                                    drawerState.close()
+                                }
+                            }
+                        }) {
+                            Icon(
+                                imageVector = Icons.Default.Menu,
+                                contentDescription = "Abrir menu"
+                            )
+                        }
+                    }
+                )
+            }
+        ) { paddingValues ->
+            if (isLoading || trabajador == null) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(paddingValues),
+                    contentAlignment = Alignment.Center
+                ) {
+                    CircularProgressIndicator()
+                }
+            } else {
+                val user = trabajador!!.usuario
+
+                LazyColumn(
+                    modifier = Modifier
+                        .background(Color.Gray)
+                        .fillMaxSize()
+                        .padding(paddingValues)
+                ) {
+                    item {
+                        Row(modifier = Modifier.padding(16.dp)) {
+                            Column(modifier = Modifier.weight(1f)) {
+                                // Nombre Real
+                                Text(
+                                    text = user.nombre,
+                                    fontSize = 20.sp,
+                                    modifier = Modifier.padding(bottom = 4.dp)
+                                )
+                                // Apellidos Reales
+                                Text(
+                                    text = user.apellidos,
+                                    fontSize = 20.sp,
+                                    modifier = Modifier.padding(bottom = 8.dp)
+                                )
+                                // Profesión (Descripción corta)
+                                Text(
+                                    text = trabajador!!.descripcion ?: "Profesional",
+                                    fontSize = 18.sp,
+                                    color = Color.Gray,
+                                    modifier = Modifier.padding(bottom = 15.dp)
+                                )
+                                // Contacto Real
+                                Text(text = "Telf.: ${user.telefono}", fontSize = 16.sp)
+                                Text(text = "Email: ${user.email}", fontSize = 16.sp)
+
+                                // Precio Real
+                                Text(
+                                    text = "${oferta!!.precio} €/hora",
+                                    fontSize = 20.sp,
+                                    fontWeight = FontWeight.Bold,
+                                    modifier = Modifier.padding(top = 8.dp)
+                                )
+                            }
+
+                            // FOTO REAL (Coil)
+                            AsyncImage(
+                                model = user.fotoUrl ?: R.drawable.fotoperfilvacia,
+                                contentDescription = "Foto perfil",
+                                modifier = Modifier
+                                    .size(120.dp)
+                                    .clip(RoundedCornerShape(8.dp))
+                                    .border(1.dp, Color.Gray, RoundedCornerShape(8.dp)),
+                                contentScale = ContentScale.Crop,
+                                alignment = Alignment.TopEnd
+                            )
+                        }
+
+                        HorizontalDivider(modifier = Modifier.padding(vertical = 16.dp))
+                        Text(
+                            text = "Opiniones de clientes",
+                            fontSize = 20.sp,
+                            fontWeight = FontWeight.Bold,
+                            modifier = Modifier.padding(start = 16.dp, bottom = 8.dp)
+                        )
+                    }
+
+                    //LISTA DE RESEÑAS
+                    if (resenas.isEmpty()) {
+                        item {
+                            Text(
+                                "No hay reseñas todavía.",
+                                modifier = Modifier.padding(16.dp),
+                            )
+                        }
+                    } else {
+                        items(resenas) { resena ->
+                            Card(
+                                modifier = Modifier
+                                    .fillMaxWidth()
+                                    .padding(horizontal = 16.dp, vertical = 4.dp),
+                                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+                            ) {
+                                Column(modifier = Modifier.padding(12.dp)) {
+                                    Row(
+                                        horizontalArrangement = Arrangement.SpaceBetween,
+                                        modifier = Modifier.fillMaxWidth()
+                                    ) {
+                                        Text(
+                                            text = resena.nombreCliente,
+                                            fontWeight = FontWeight.Bold
+                                        )
+                                        Text(text = "${resena.puntuacion}/5")
+                                    }
+                                    if (!resena.comentario.isNullOrEmpty()) {
+                                        Text(
+                                            text = resena.comentario,
+                                            modifier = Modifier.padding(top = 4.dp)
+                                        )
+                                    }
+                                }
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+}
+
+
+
+
+
+
 LazyColumn(
 modifier = Modifier
 .background(Color.Gray)
