@@ -457,6 +457,16 @@ private fun TrabajoOfertado(
 
 
 
+
+
+
+
+
+
+
+
+
+
 LazyColumn(
 modifier = Modifier
 .background(Color.Gray)

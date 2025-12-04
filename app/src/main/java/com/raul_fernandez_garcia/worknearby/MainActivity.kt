@@ -5,7 +5,6 @@ import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
-import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -27,15 +26,22 @@ import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Person
+import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Star
+import androidx.compose.material.icons.outlined.Star
 import androidx.compose.material3.AssistChip
+import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
@@ -43,6 +49,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.NavigationDrawerItem
+import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -51,14 +58,18 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableIntStateOf
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
-import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModel
@@ -71,6 +82,7 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import coil.compose.AsyncImage
+import com.raul_fernandez_garcia.WorkNearby_API.modeloDTO.CrearResenaDTO
 import com.raul_fernandez_garcia.worknearby.modeloDTO.ClienteDTO
 import com.raul_fernandez_garcia.worknearby.modeloDTO.OfertaDTO
 import com.raul_fernandez_garcia.worknearby.modeloDTO.ResenaDTO
@@ -130,8 +142,8 @@ fun appNavigation(navController: NavHostController) {
             Perfil(navController)
         }
 
-        composable("chats") {
-            BuscarChats(navController)
+        composable("crear_resena") {
+            EscribirResena(navController)
         }
     }
 }
@@ -610,6 +622,7 @@ private fun TrabajoOfertado(
     val resenas by viewModel.resenas.collectAsState()
     val nombreUsuarioMenu by viewModel.nombreUsuarioLogueado.collectAsState()
     val isLoading by viewModel.isLoading.collectAsState()
+    val esCliente by viewModel.esCliente.collectAsState()
 
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val scope = rememberCoroutineScope()
@@ -618,75 +631,17 @@ private fun TrabajoOfertado(
         drawerState = drawerState,
         drawerContent = {
             ModalDrawerSheet {
-                Spacer(modifier = Modifier.height(15.dp))
-                Text(
-                    text = "Hola $nombreUsuarioMenu",
-                    modifier = Modifier.padding(15.dp),
-                    style = MaterialTheme.typography.titleLarge
-                )
-                HorizontalDivider()
-                Spacer(modifier = Modifier.height(15.dp))
 
-                NavigationDrawerItem(
-                    label = { Text(text = "Mi Perfil") },
-                    selected = false,
-                    onClick = {
-                        scope.launch {
-                            drawerState.close()
-                            navController.navigate("perfil")
-                        }
-                    },
-                    modifier = Modifier.padding(horizontal = 12.dp)
-                )
-
-                NavigationDrawerItem(
-                    label = { Text(text = "Ofertas de trabajo") },
-                    selected = false,
-                    onClick = {
-                        scope.launch {
-                            drawerState.close()
-                            navController.navigate("ofertas")
-                        }
-                    },
-                    modifier = Modifier.padding(horizontal = 12.dp)
-                )
-
-                NavigationDrawerItem(
-                    label = { Text(text = "Mis Contratos") },
-                    selected = false,
-                    onClick = {
-                        scope.launch {
-                            drawerState.close()
-                            navController.navigate("contratos")
-                        }
-                    },
-                    modifier = Modifier.padding(horizontal = 12.dp)
-                )
             }
         }
     ) {
         Scaffold(
             topBar = {
                 CenterAlignedTopAppBar(
-                    title = {
-                        Text(
-                            text = "Detalles"
-                        )
-                    },
+                    title = { Text(text = "Detalles") },
                     navigationIcon = {
-                        IconButton(onClick = {
-                            scope.launch {
-                                if (drawerState.isClosed) {
-                                    drawerState.open()
-                                } else {
-                                    drawerState.close()
-                                }
-                            }
-                        }) {
-                            Icon(
-                                imageVector = Icons.Default.Menu,
-                                contentDescription = "Abrir menu"
-                            )
+                        IconButton(onClick = { navController.popBackStack() }) {
+                            Icon(Icons.Default.ArrowBack, contentDescription = "Cancelar")
                         }
                     }
                 )
@@ -760,12 +715,35 @@ private fun TrabajoOfertado(
                         }
 
                         HorizontalDivider(modifier = Modifier.padding(vertical = 16.dp))
-                        Text(
-                            text = "Opiniones de clientes",
-                            fontSize = 20.sp,
-                            fontWeight = FontWeight.Bold,
-                            modifier = Modifier.padding(start = 16.dp, bottom = 8.dp)
-                        )
+
+                        Row(
+                            modifier = Modifier
+                                .fillMaxWidth()
+                                .padding(start = 16.dp, end = 16.dp, bottom = 8.dp),
+                            horizontalArrangement = Arrangement.SpaceBetween,
+                            verticalAlignment = Alignment.CenterVertically
+                        ) {
+                            Text(
+                                text = "Opiniones de clientes",
+                                fontSize = 20.sp,
+                                fontWeight = FontWeight.Bold
+                            )
+
+                            // Boton solo visible para cliente
+                            if (esCliente) {
+                                FilledIconButton(
+                                    onClick = {
+                                        navController.navigate("crear_resena")
+                                    },
+                                    modifier = Modifier.size(35.dp)
+                                ) {
+                                    Icon(
+                                        imageVector = Icons.Default.Add,
+                                        contentDescription = "Añadir reseña"
+                                    )
+                                }
+                            }
+                        }
                     }
 
                     //LISTA DE RESEÑAS
@@ -832,6 +810,9 @@ class TrabajoViewModel : ViewModel() {
     private val _nombreUsuarioLogueado = MutableStateFlow("Usuario")
     val nombreUsuarioLogueado: StateFlow<String> = _nombreUsuarioLogueado
 
+    private val _esCliente = MutableStateFlow(true) // Lo pongo true para probar
+    val esCliente: StateFlow<Boolean> = _esCliente
+
     fun cargarDatos(idOferta: Int) {
         viewModelScope.launch {
             _isLoading.value = true
@@ -852,6 +833,11 @@ class TrabajoViewModel : ViewModel() {
                 // D. Cargar el nombre del usuario actual (Para el menu)
                 val miPerfil = RetrofitClient.api.obtenerPerfilCliente(1)
                 _nombreUsuarioLogueado.value = miPerfil.usuario.nombre
+
+                // Si mi ID es 1 (Juan), soy cliente.
+                // Mas adelante esto vendra de SharedPreferences
+                val miIdLogueado = 1
+                _esCliente.value = (miIdLogueado == 1)
 
             } catch (e: Exception) {
                 e.printStackTrace()
@@ -1097,10 +1083,178 @@ class PerfilViewModel : ViewModel() {
 }
 
 
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun EscribirResena(
+    navController: NavHostController,
+    idTrabajador: Int = 2,
+    viewModel: CrearResenaViewModel = viewModel()
+) {
+    // Estados del formulario
+    var puntuacion by remember { mutableIntStateOf(0) }
+    var comentario by remember { mutableStateOf("") }
+
+    // Estados del ViewModel
+    val isLoading by viewModel.isLoading.collectAsState()
+    val mensajeExito by viewModel.mensajeExito.collectAsState()
+
+    // Efecto: Si se publica con éxito, volvemos atrás
+    LaunchedEffect(mensajeExito) {
+        if (mensajeExito != null) {
+            // Esperamos un poquito para que el usuario lea (opcional)
+            navController.popBackStack()
+            viewModel.resetMensaje()
+        }
+    }
+
+    Scaffold(
+        topBar = {
+            CenterAlignedTopAppBar(
+                title = { Text("Escribe tu Opinión") },
+                navigationIcon = {
+                    IconButton(onClick = { navController.popBackStack() }) {
+                        Icon(Icons.Default.ArrowBack, contentDescription = "Cancelar")
+                    }
+                }
+            )
+        }
+    ) { paddingValues ->
+
+        if (isLoading) {
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                CircularProgressIndicator()
+            }
+        } else {
+            Column(
+                modifier = Modifier
+                    .padding(paddingValues)
+                    .fillMaxSize()
+                    .background(Color.White)
+                    .padding(24.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+
+                Text(
+                    text = "¿Qué tal fue el trabajo?",
+                    fontSize = 22.sp,
+                    //fontWeight = FontWeight.Bold,
+                    color = Color.Black
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Text(
+                    text = "Tu opinión ayuda a otros usuarios a elegir.",
+                    fontSize = 14.sp,
+                    color = Color.Gray,
+                    textAlign = TextAlign.Center
+                )
+
+                Spacer(modifier = Modifier.height(32.dp))
+
+                // --- COMPONENTE DE ESTRELLAS ---
+                Row(
+                    horizontalArrangement = Arrangement.Center,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    repeat(5) { index ->
+                        val starNumber = index + 1
+                        val isSelected = starNumber <= puntuacion
+
+                        Icon(
+                            imageVector = if (isSelected) Icons.Filled.Star else Icons.Outlined.Star,
+                            contentDescription = "Estrella $starNumber",
+                            tint = if (isSelected) Color(0xFFFFC107) else Color.LightGray,
+                            modifier = Modifier
+                                .size(48.dp)
+                                .padding(4.dp)
+                                .clickable {
+                                    puntuacion = starNumber
+                                }
+                        )
+                    }
+                }
+
+                Text(
+                    text = "$puntuacion/5",
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color(0xFFFFC107),
+                    modifier = Modifier.padding(top = 8.dp)
+                )
+
+                Spacer(modifier = Modifier.height(32.dp))
+
+                // --- CAJA DE TEXTO ---
+                OutlinedTextField(
+                    value = comentario,
+                    onValueChange = { comentario = it },
+                    label = { Text("Escribe tu comentario...") },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(150.dp),
+                    shape = RoundedCornerShape(12.dp)
+                )
+
+                Spacer(modifier = Modifier.weight(1f))
+
+                // --- BOTON DE ENVIAR ---
+                Button(
+                    onClick = {
+                        viewModel.enviarResena(idTrabajador, puntuacion, comentario)
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(50.dp),
+                    enabled = puntuacion > 0,
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
+                ) {
+                    Text("Publicar Reseña", fontSize = 16.sp)
+                }
+            }
+        }
+    }
+}
 
 
+class CrearResenaViewModel : ViewModel() {
 
+    private val _isLoading = MutableStateFlow(false)
+    val isLoading: StateFlow<Boolean> = _isLoading
 
+    private val _mensajeExito = MutableStateFlow<String?>(null)
+    val mensajeExito: StateFlow<String?> = _mensajeExito
+
+    fun enviarResena(idTrabajador: Int, puntuacion: Int, comentario: String) {
+        viewModelScope.launch {
+            _isLoading.value = true
+            try {
+                //ID Cliente (1 = Juan).
+                // Cuando tengas Login real, esto vendra de las preferencias.
+                val miIdCliente = 1
+
+                val nuevaResena = CrearResenaDTO(
+                    idCliente = miIdCliente,
+                    idTrabajador = idTrabajador,
+                    puntuacion = puntuacion,
+                    comentario = comentario
+                )
+
+                RetrofitClient.api.publicarResena(nuevaResena)
+                _mensajeExito.value = "¡Opinión publicada correctamente!"
+            } catch (e: Exception) {
+                e.printStackTrace()
+            } finally {
+                _isLoading.value = false
+            }
+        }
+    }
+
+    // Para limpiar el mensaje después de navegar
+    fun resetMensaje() {
+        _mensajeExito.value = null
+    }
+}
 
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
@@ -1148,69 +1302,7 @@ private fun BuscarChats(navController: NavHostController) {
                 )
             }
         ) { paddingValues ->
-            ListaChats(modifier = Modifier.padding(paddingValues))
-        }
-    }
-}
-
-@Composable
-private fun ListaChats(modifier: Modifier = Modifier) {
-    val nombres = listOf("Raúl", "Brais", "Laura", "Carlos", "Lucia", "Pedro", "Maria")
-    val apellidos =
-        listOf(
-            "Fernández García",
-            "Fernández",
-            "Gomez",
-            "Varela",
-            "Rodriguez",
-            "Lopez",
-            "García"
-        )
-
-    LazyColumn(
-        modifier
-            .background(Color.Gray)
-            .fillMaxSize()
-            .padding(PaddingValues())
-            .padding(top = 10.dp)
-    ) {
-        items(nombres.zip(apellidos)) { (nombre, apellido) ->
-
-            Card(
-                colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceVariant,
-                ),
-                modifier = Modifier
-                    .padding(vertical = 10.dp, horizontal = 15.dp)
-                    .fillMaxWidth()
-            ) {
-                Row(
-                    modifier = Modifier.fillMaxSize(),
-                ) {
-                    Image(
-                        modifier = Modifier
-                            .padding(15.dp)
-                            .size(70.dp)
-                            .clip(CircleShape),
-                        painter = painterResource(id = R.drawable.ic_launcher_background),
-                        contentDescription = "imagen",
-                        contentScale = ContentScale.Crop
-                    )
-
-                    Column(
-                        modifier = Modifier.fillMaxSize(),
-                        verticalArrangement = Arrangement.Center
-                    ) {
-                        Text(
-                            text = nombre + " " + apellido,
-                            fontSize = 20.sp,
-                            modifier = Modifier
-                                .padding(top = 15.dp)
-                                .fillMaxSize(),
-                        )
-                    }
-                }
-            }
+            //ListaChats(modifier = Modifier.padding(paddingValues))
         }
     }
 }

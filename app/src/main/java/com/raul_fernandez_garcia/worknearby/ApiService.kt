@@ -1,5 +1,6 @@
 package com.raul_fernandez_garcia.worknearby
 
+import com.raul_fernandez_garcia.WorkNearby_API.modeloDTO.CrearResenaDTO
 import com.raul_fernandez_garcia.WorkNearby_API.modeloDTO.LoginRequest
 import com.raul_fernandez_garcia.WorkNearby_API.modeloDTO.RegistroDTO
 import com.raul_fernandez_garcia.WorkNearby_API.modeloDTO.SolicitarServicioDTO
@@ -48,6 +49,9 @@ interface ApiService {
     suspend fun obtenerResenas(
         @Path("id") id: Int
     ): List<ResenaDTO>
+
+    @POST("/api/resenas")
+    suspend fun publicarResena(@Body resena: CrearResenaDTO): ResenaDTO
 
     @GET("/api/usuario/cliente/{id}")
     suspend fun obtenerPerfilCliente(
