@@ -1,6 +1,7 @@
 package com.raul_fernandez_garcia.worknearby
 
 import android.annotation.SuppressLint
+import android.content.Context
 import android.os.Bundle
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.setContent
@@ -25,6 +26,7 @@ import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.items
 import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
+import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Menu
@@ -33,6 +35,7 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.Star
 import androidx.compose.material3.AssistChip
+import androidx.compose.material3.AssistChipDefaults
 import androidx.compose.material3.Button
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
@@ -50,9 +53,12 @@ import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.NavigationDrawerItem
 import androidx.compose.material3.OutlinedTextField
+import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
+import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
@@ -68,11 +74,15 @@ import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
+import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.text.font.FontWeight
+import androidx.compose.ui.text.input.KeyboardType
+import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
@@ -82,15 +92,12 @@ import androidx.navigation.compose.composable
 import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import coil.compose.AsyncImage
-import com.raul_fernandez_garcia.WorkNearby_API.modeloDTO.CrearResenaDTO
+import com.example.compose.AppTheme
+import com.raul_fernandez_garcia.WorkNearby_API.modeloDTO.LoginRequest
 import com.raul_fernandez_garcia.worknearby.modeloDTO.ClienteDTO
 import com.raul_fernandez_garcia.worknearby.modeloDTO.OfertaDTO
-import com.raul_fernandez_garcia.worknearby.modeloDTO.ResenaDTO
 import com.raul_fernandez_garcia.worknearby.modeloDTO.ServicioDTO
 import com.raul_fernandez_garcia.worknearby.modeloDTO.TrabajadorDTO
-import com.raul_fernandez_garcia.worknearby.ui.theme.WorkNearbyTheme
-import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 class MainActivity : ComponentActivity() {
@@ -98,8 +105,15 @@ class MainActivity : ComponentActivity() {
         super.onCreate(savedInstanceState)
         enableEdgeToEdge()
         setContent {
-            val navController = rememberNavController()
-            appWorkNearby(navController)
+            AppTheme {
+                Surface(
+                    modifier = Modifier.fillMaxSize(),
+                    color = MaterialTheme.colorScheme.tertiaryContainer
+                ) {
+                    val navController = rememberNavController()
+                    appWorkNearby(navController)
+                }
+            }
 
         }
     }
@@ -107,7 +121,7 @@ class MainActivity : ComponentActivity() {
 
 @Composable
 private fun appWorkNearby(navController: NavHostController) {
-    WorkNearbyTheme {
+    AppTheme {
         Surface() {
             appNavigation(navController)
         }
@@ -118,8 +132,12 @@ private fun appWorkNearby(navController: NavHostController) {
 fun appNavigation(navController: NavHostController) {
     NavHost(
         navController = navController,
-        startDestination = "ofertas"
+        startDestination = "login"
     ) {
+
+        composable("login") {
+            VentanaLogin(navController)
+        }
 
         composable("ofertas") {
             BuscarOfertas(navController)
@@ -147,6 +165,8 @@ fun appNavigation(navController: NavHostController) {
         }
     }
 }
+
+//------------------------------------------------
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
@@ -204,10 +224,23 @@ private fun BuscarOfertas(
         Scaffold(
             topBar = {
                 CenterAlignedTopAppBar(
+                    colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                        // Color de fondo de la barra
+                        containerColor = MaterialTheme.colorScheme.primary,
+
+                        // Color del texto del titulo (debe contrastar con el fondo)
+                        titleContentColor = MaterialTheme.colorScheme.onPrimary,
+
+                        // Color de los iconos (menu, flecha atras)
+                        navigationIconContentColor = MaterialTheme.colorScheme.onPrimary,
+                        actionIconContentColor = MaterialTheme.colorScheme.onPrimary
+                    ),
+
                     title = {
                         Text(
                             text = "WorkNearby"
                         )
+
                     },
                     navigationIcon = {
                         IconButton(onClick = {
@@ -222,6 +255,7 @@ private fun BuscarOfertas(
                             Icon(
                                 imageVector = Icons.Default.Menu,
                                 contentDescription = "Abrir menu"
+
                             )
                         }
                     }
@@ -259,7 +293,6 @@ fun ListaOfertas(
 
     LazyColumn(
         modifier
-            .background(Color.White)
             .fillMaxSize()
             .padding(PaddingValues())
             .padding(top = 10.dp)
@@ -268,7 +301,8 @@ fun ListaOfertas(
 
             Card(
                 colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                    containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                    contentColor = MaterialTheme.colorScheme.onSecondaryContainer
                 ),
                 modifier = Modifier
                     //.height(150.dp)
@@ -324,45 +358,7 @@ fun ListaOfertas(
     }
 }
 
-class OfertasViewModel : ViewModel() {
-    private val _ofertas = MutableStateFlow<List<OfertaDTO>>(emptyList())
-    val ofertas: StateFlow<List<OfertaDTO>> = _ofertas
-
-    private val _nombreUsuario = MutableStateFlow("Cargando...")
-    val nombreUsuario: StateFlow<String> = _nombreUsuario
-
-    init {
-        cargarOfertas()
-        cargarPerfilUsuario()
-    }
-
-    fun cargarOfertas() {
-        viewModelScope.launch {
-            try {
-                val lista = RetrofitClient.api.buscarOfertas(lat = null, lon = null)
-                _ofertas.value = lista
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
-        }
-    }
-
-    private fun cargarPerfilUsuario() {
-        viewModelScope.launch {
-            try {
-                // ID hardcodeado 1 (Juan) para pruebas. Luego vendra del Login.
-                val idUsuarioLogueado = 1
-                val perfil = RetrofitClient.api.obtenerPerfilCliente(idUsuarioLogueado)
-
-                // Actualizamos la variable con el nombre real
-                _nombreUsuario.value = perfil.usuario.nombre
-            } catch (e: Exception) {
-                e.printStackTrace()
-                _nombreUsuario.value = "Usuario"
-            }
-        }
-    }
-}
+//------------------------------------------------
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
@@ -420,6 +416,18 @@ private fun BuscarContratos(
         Scaffold(
             topBar = {
                 CenterAlignedTopAppBar(
+                    colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                        // Color de fondo de la barra
+                        containerColor = MaterialTheme.colorScheme.primary,
+
+                        // Color del texto del titulo (debe contrastar con el fondo)
+                        titleContentColor = MaterialTheme.colorScheme.onPrimary,
+
+                        // Color de los iconos (menu, flecha atras)
+                        navigationIconContentColor = MaterialTheme.colorScheme.onPrimary,
+                        actionIconContentColor = MaterialTheme.colorScheme.onPrimary
+                    ),
+
                     title = {
                         Text(
                             text = "Contratos"
@@ -471,7 +479,6 @@ private fun ListaContratos(contratos: List<ServicioDTO>, modifier: Modifier = Mo
 
     LazyColumn(
         modifier
-            .background(Color.White)
             .fillMaxSize()
             .padding(PaddingValues())
             .padding(top = 10.dp)
@@ -480,7 +487,8 @@ private fun ListaContratos(contratos: List<ServicioDTO>, modifier: Modifier = Mo
 
             Card(
                 colors = CardDefaults.cardColors(
-                    containerColor = MaterialTheme.colorScheme.surfaceVariant,
+                    containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                    contentColor = MaterialTheme.colorScheme.onSecondaryContainer
                 ),
                 modifier = Modifier
                     //.height(150.dp)
@@ -552,57 +560,7 @@ private fun ListaContratos(contratos: List<ServicioDTO>, modifier: Modifier = Mo
     }
 }
 
-class ContratosViewModel : ViewModel() {
-    private val _contratos = MutableStateFlow<List<ServicioDTO>>(emptyList())
-    val contratos: StateFlow<List<ServicioDTO>> = _contratos
-
-    private val _nombreUsuario = MutableStateFlow("Cargando...")
-    val nombreUsuario: StateFlow<String> = _nombreUsuario
-
-    init {
-        cargarContratos()
-        cargarPerfilUsuario()
-    }
-
-    fun cargarContratos() {
-        viewModelScope.launch {
-            try {
-                //AQUi SE DEBE USAR EL ID DEL USUARIO LOGUEADO (Desde SharedPreferences)
-                // Por ahora pongo '1' y 'false' (cliente) para probar que funciona
-                val myId = 1
-                val soyTrabajador = false
-
-                val lista = RetrofitClient.api.obtenerMisContratos(
-                    idUsuario = myId,
-                    esTrabajador = soyTrabajador
-                )
-                _contratos.value = lista
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
-        }
-    }
-
-    private fun cargarPerfilUsuario() {
-        viewModelScope.launch {
-            try {
-                //Aqui usamos el ID 1 hardcodeado por ahora (como eres Cliente)
-                //Mas adelante esto vendra de SharedPreferences
-                val idUsuarioLogueado = 1
-
-                //Llamamos al endpoint que creamos en UsuarioController: /api/user/cliente/{id}
-                val perfil = RetrofitClient.api.obtenerPerfilCliente(idUsuarioLogueado)
-
-                //Actualizamos el estado con el nombre real
-                _nombreUsuario.value = perfil.usuario.nombre
-
-            } catch (e: Exception) {
-                _nombreUsuario.value = "Usuario" // Fallback si hay error
-                e.printStackTrace()
-            }
-        }
-    }
-}
+//------------------------------------------------
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
@@ -638,6 +596,18 @@ private fun TrabajoOfertado(
         Scaffold(
             topBar = {
                 CenterAlignedTopAppBar(
+                    colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                        // Color de fondo de la barra
+                        containerColor = MaterialTheme.colorScheme.primary,
+
+                        // Color del texto del titulo (debe contrastar con el fondo)
+                        titleContentColor = MaterialTheme.colorScheme.onPrimary,
+
+                        // Color de los iconos (menu, flecha atras)
+                        navigationIconContentColor = MaterialTheme.colorScheme.onPrimary,
+                        actionIconContentColor = MaterialTheme.colorScheme.onPrimary
+                    ),
+
                     title = { Text(text = "Detalles") },
                     navigationIcon = {
                         IconButton(onClick = { navController.popBackStack() }) {
@@ -661,7 +631,6 @@ private fun TrabajoOfertado(
 
                 LazyColumn(
                     modifier = Modifier
-                        .background(Color.White)
                         .fillMaxSize()
                         .padding(paddingValues)
                 ) {
@@ -680,7 +649,7 @@ private fun TrabajoOfertado(
                                     fontSize = 20.sp,
                                     modifier = Modifier.padding(bottom = 8.dp)
                                 )
-                                // Profesión (Descripción corta)
+                                // Profesion (Descripcion corta)
                                 Text(
                                     text = trabajador!!.descripcion ?: "Profesional",
                                     fontSize = 18.sp,
@@ -760,7 +729,10 @@ private fun TrabajoOfertado(
                                 modifier = Modifier
                                     .fillMaxWidth()
                                     .padding(horizontal = 16.dp, vertical = 4.dp),
-                                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+                                colors = CardDefaults.cardColors(
+                                    containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                                    contentColor = MaterialTheme.colorScheme.onSecondaryContainer
+                                ),
                             ) {
                                 Column(modifier = Modifier.padding(12.dp)) {
                                     Row(
@@ -789,72 +761,18 @@ private fun TrabajoOfertado(
     }
 }
 
-class TrabajoViewModel : ViewModel() {
-    // 1. Datos oferta
-    private val _oferta = MutableStateFlow<OfertaDTO?>(null)
-    val oferta: StateFlow<OfertaDTO?> = _oferta
-
-    // 2. Datos de Trabajador
-    private val _trabajador = MutableStateFlow<TrabajadorDTO?>(null)
-    val trabajador: StateFlow<TrabajadorDTO?> = _trabajador
-
-    // 3. Lista de Reseñas
-    private val _resenas = MutableStateFlow<List<ResenaDTO>>(emptyList())
-    val resenas: StateFlow<List<ResenaDTO>> = _resenas
-
-    // 4. Estado de carga
-    private val _isLoading = MutableStateFlow(true)
-    val isLoading: StateFlow<Boolean> = _isLoading
-
-    // 5. Nombre del usuario logueado (Para el menu lateral)
-    private val _nombreUsuarioLogueado = MutableStateFlow("Usuario")
-    val nombreUsuarioLogueado: StateFlow<String> = _nombreUsuarioLogueado
-
-    private val _esCliente = MutableStateFlow(true) // Lo pongo true para probar
-    val esCliente: StateFlow<Boolean> = _esCliente
-
-    fun cargarDatos(idOferta: Int) {
-        viewModelScope.launch {
-            _isLoading.value = true
-            try {
-                // A. Descargar Oferta (Para precio y ID trabajador)
-                val ofertaDescargada = RetrofitClient.api.obtenerOferta(idOferta)
-                _oferta.value = ofertaDescargada
-
-                // B. Cargar perfil del trabajador
-                val idDelPintor = ofertaDescargada.idTrabajador
-                val perfil = RetrofitClient.api.obtenerTrabajador(idDelPintor)
-                _trabajador.value = perfil
-
-                // C. Cargar sus reseñas
-                val listaResenas = RetrofitClient.api.obtenerResenas(idDelPintor)
-                _resenas.value = listaResenas
-
-                // D. Cargar el nombre del usuario actual (Para el menu)
-                val miPerfil = RetrofitClient.api.obtenerPerfilCliente(1)
-                _nombreUsuarioLogueado.value = miPerfil.usuario.nombre
-
-                // Si mi ID es 1 (Juan), soy cliente.
-                // Mas adelante esto vendra de SharedPreferences
-                val miIdLogueado = 1
-                _esCliente.value = (miIdLogueado == 1)
-
-            } catch (e: Exception) {
-                e.printStackTrace()
-            } finally {
-                _isLoading.value = false
-            }
-        }
-    }
-}
+//------------------------------------------------
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun Perfil(
-    navController: NavHostController,
-    viewModel: PerfilViewModel = viewModel()
+    navController: NavHostController
 ) {
+    val context = LocalContext.current
+    val viewModel: PerfilViewModel = viewModel(
+        factory = PerfilViewModelFactory(context)
+    )
 
     val perfil by viewModel.perfil.collectAsState()
     val esTrabajador by viewModel.esTrabajador.collectAsState()
@@ -911,6 +829,18 @@ private fun Perfil(
         Scaffold(
             topBar = {
                 CenterAlignedTopAppBar(
+                    colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                        // Color de fondo de la barra
+                        containerColor = MaterialTheme.colorScheme.primary,
+
+                        // Color del texto del titulo (debe contrastar con el fondo)
+                        titleContentColor = MaterialTheme.colorScheme.onPrimary,
+
+                        // Color de los iconos (menu, flecha atras)
+                        navigationIconContentColor = MaterialTheme.colorScheme.onPrimary,
+                        actionIconContentColor = MaterialTheme.colorScheme.onPrimary
+                    ),
+
                     title = {
                         Text(
                             text = "Perfil"
@@ -947,7 +877,6 @@ private fun Perfil(
 
                 LazyColumn(
                     modifier = Modifier
-                        .background(Color.White)
                         .fillMaxSize()
                         .padding(paddingValues)
                 ) {
@@ -978,8 +907,17 @@ private fun Perfil(
                             // ROL
                             AssistChip(
                                 onClick = {},
-                                label = { Text(usuario.rol.uppercase()) },
-                                leadingIcon = { Icon(Icons.Default.Person, null) }
+                                label = { Text(usuario.rol.uppercase())},
+                                leadingIcon = {
+                                    Icon(
+                                        Icons.Default.Person,
+                                        null,
+                                        tint = MaterialTheme.colorScheme.primary
+                                    )
+                                },
+                                colors = AssistChipDefaults.assistChipColors(
+                                    containerColor = MaterialTheme.colorScheme.secondaryContainer
+                                ),
                             )
 
                             Spacer(modifier = Modifier.height(24.dp))
@@ -987,27 +925,30 @@ private fun Perfil(
                             // TARJETA DE DATOS
                             Card(
                                 modifier = Modifier.fillMaxWidth(),
-                                colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+                                colors = CardDefaults.cardColors(
+                                    containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                                    contentColor = MaterialTheme.colorScheme.onSecondaryContainer
+                                ),
                             ) {
                                 Column(modifier = Modifier.padding(16.dp)) {
-                                    viewModel.DatoPerfil("Teléfono", usuario.telefono)
-                                    viewModel.DatoPerfil("Email", usuario.email)
+                                    DatoPerfil("Teléfono", usuario.telefono)
+                                    DatoPerfil("Email", usuario.email)
 
                                     // DATOS ESPECIFICOS SEGUN ROL
                                     if (esTrabajador) {
                                         val p = perfil as TrabajadorDTO
-                                        viewModel.DatoPerfil("Radio Acción", "${p.radioKm} km")
-                                        viewModel.DatoPerfil(
+                                        DatoPerfil("Radio Acción", "${p.radioKm} km")
+                                        DatoPerfil(
                                             "Descripción",
                                             p.descripcion ?: "Sin descripción"
                                         )
                                     } else {
                                         val c = perfil as ClienteDTO
-                                        viewModel.DatoPerfil(
+                                        DatoPerfil(
                                             "Ciudad",
                                             c.ciudad ?: "No especificada"
                                         )
-                                        viewModel.DatoPerfil(
+                                        DatoPerfil(
                                             "Dirección",
                                             c.direccion ?: "No especificada"
                                         )
@@ -1022,66 +963,24 @@ private fun Perfil(
     }
 }
 
-class PerfilViewModel : ViewModel() {
-
-    // Usamos 'Any?' porque puede ser ClienteDTO o TrabajadorDTO
-    private val _perfil = MutableStateFlow<Any?>(null)
-    val perfil: StateFlow<Any?> = _perfil
-
-    private val _isLoading = MutableStateFlow(true)
-    val isLoading: StateFlow<Boolean> = _isLoading
-
-    private val _esTrabajador = MutableStateFlow(false)
-    val esTrabajador: StateFlow<Boolean> = _esTrabajador
-
-    init {
-        cargarMiPerfil()
-    }
-
-    @Composable
-    fun DatoPerfil(titulo: String, valor: String) {
-        Column(modifier = Modifier.padding(vertical = 4.dp)) {
-            Text(
-                text = titulo,
-                fontSize = 14.sp,
-                color = Color.Gray
-            )
-            Text(
-                text = valor,
-                fontSize = 18.sp,
-                fontWeight = FontWeight.SemiBold
-            )
-            HorizontalDivider(modifier = Modifier.padding(top = 8.dp))
-        }
-    }
-
-    private fun cargarMiPerfil() {
-        viewModelScope.launch {
-            _isLoading.value = true
-            try {
-                // Aqui deberia leer de SharedPreferences
-                // Por ahora, simulamos. CAMBIA ESTO PARA PROBAR:
-                val miId = 2
-                val soyTrabajador = true // <--- CAMBIA A true SI ERES RAUL
-
-                _esTrabajador.value = soyTrabajador
-
-                if (soyTrabajador) {
-                    val datos = RetrofitClient.api.obtenerPerfilTrabajador(miId)
-                    _perfil.value = datos
-                } else {
-                    val datos = RetrofitClient.api.obtenerPerfilCliente(miId)
-                    _perfil.value = datos
-                }
-            } catch (e: Exception) {
-                e.printStackTrace()
-            } finally {
-                _isLoading.value = false
-            }
-        }
+@Composable
+fun DatoPerfil(titulo: String, valor: String) {
+    Column(modifier = Modifier.padding(vertical = 4.dp)) {
+        Text(
+            text = titulo,
+            fontSize = 14.sp,
+            color = Color.Gray
+        )
+        Text(
+            text = valor,
+            fontSize = 18.sp,
+            fontWeight = FontWeight.SemiBold
+        )
+        HorizontalDivider(modifier = Modifier.padding(top = 8.dp))
     }
 }
 
+//------------------------------------------------
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -1098,7 +997,7 @@ fun EscribirResena(
     val isLoading by viewModel.isLoading.collectAsState()
     val mensajeExito by viewModel.mensajeExito.collectAsState()
 
-    // Efecto: Si se publica con éxito, volvemos atrás
+    // Efecto: Si se publica con exito, volvemos atras
     LaunchedEffect(mensajeExito) {
         if (mensajeExito != null) {
             // Esperamos un poquito para que el usuario lea (opcional)
@@ -1110,6 +1009,18 @@ fun EscribirResena(
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                    // Color de fondo de la barra
+                    containerColor = MaterialTheme.colorScheme.primary,
+
+                    // Color del texto del titulo
+                    titleContentColor = MaterialTheme.colorScheme.onPrimary,
+
+                    // Color de los iconos (menu, flecha atras)
+                    navigationIconContentColor = MaterialTheme.colorScheme.onPrimary,
+                    actionIconContentColor = MaterialTheme.colorScheme.onPrimary
+                ),
+
                 title = { Text("Escribe tu Opinión") },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
@@ -1129,7 +1040,6 @@ fun EscribirResena(
                 modifier = Modifier
                     .padding(paddingValues)
                     .fillMaxSize()
-                    .background(Color.White)
                     .padding(24.dp),
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
@@ -1193,8 +1103,8 @@ fun EscribirResena(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(150.dp),
-                    shape = RoundedCornerShape(12.dp)
-                )
+                    shape = RoundedCornerShape(12.dp),
+                    )
 
                 Spacer(modifier = Modifier.weight(1f))
 
@@ -1216,93 +1126,130 @@ fun EscribirResena(
     }
 }
 
+//------------------------------------------------
 
-class CrearResenaViewModel : ViewModel() {
-
-    private val _isLoading = MutableStateFlow(false)
-    val isLoading: StateFlow<Boolean> = _isLoading
-
-    private val _mensajeExito = MutableStateFlow<String?>(null)
-    val mensajeExito: StateFlow<String?> = _mensajeExito
-
-    fun enviarResena(idTrabajador: Int, puntuacion: Int, comentario: String) {
-        viewModelScope.launch {
-            _isLoading.value = true
-            try {
-                //ID Cliente (1 = Juan).
-                // Cuando tengas Login real, esto vendra de las preferencias.
-                val miIdCliente = 1
-
-                val nuevaResena = CrearResenaDTO(
-                    idCliente = miIdCliente,
-                    idTrabajador = idTrabajador,
-                    puntuacion = puntuacion,
-                    comentario = comentario
-                )
-
-                RetrofitClient.api.publicarResena(nuevaResena)
-                _mensajeExito.value = "¡Opinión publicada correctamente!"
-            } catch (e: Exception) {
-                e.printStackTrace()
-            } finally {
-                _isLoading.value = false
-            }
-        }
-    }
-
-    // Para limpiar el mensaje después de navegar
-    fun resetMensaje() {
-        _mensajeExito.value = null
-    }
-}
-
-
-@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
-@OptIn(ExperimentalMaterial3Api::class)
 @Composable
-private fun BuscarChats(navController: NavHostController) {
-    val drawerState = rememberDrawerState(DrawerValue.Closed)
-    val scope = rememberCoroutineScope()
+fun VentanaLogin(
+    navController: NavHostController
+) {
+    val context = LocalContext.current
+    val viewModel: LoginViewModel = viewModel(factory = LoginViewModelFactory(context))
 
-    ModalNavigationDrawer(
-        drawerState = drawerState,
-        drawerContent = {
-            ModalDrawerSheet {
-                Text(text = "OP1", modifier = Modifier.padding(16.dp))
-                Text(text = "OP2", modifier = Modifier.padding(16.dp))
-                Text(text = "OP3", modifier = Modifier.padding(16.dp))
+    // Si el login es exitoso, navegamos a Ofertas y borramos el historial para no volver atras al login
+    LaunchedEffect(viewModel.loginExitoso) {
+        if (viewModel.loginExitoso) {
+            navController.navigate("ofertas") {
+                popUpTo("login") { inclusive = true }
             }
         }
-    ) {
-        Scaffold(
-            topBar = {
-                CenterAlignedTopAppBar(
-                    title = {
-                        Text(
-                            text = "Chats"
-                        )
+    }
 
-                    },
-                    navigationIcon = {
-                        IconButton(onClick = {
-                            scope.launch {
-                                if (drawerState.isClosed) {
-                                    drawerState.open()
-                                } else {
-                                    drawerState.close()
-                                }
-                            }
-                        }) {
-                            Icon(
-                                imageVector = Icons.Default.Menu,
-                                contentDescription = "Abrir menu"
-                            )
-                        }
-                    }
+    Scaffold(
+        containerColor = Color.White
+    ) { padding ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)
+                .padding(24.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            verticalArrangement = Arrangement.Center
+        ) {
+            // --- LOGO O ICONO ---
+            Icon(
+                imageVector = Icons.Default.Person,
+                contentDescription = "Logo",
+                modifier = Modifier.size(100.dp),
+                tint = MaterialTheme.colorScheme.primary
+            )
+
+            Text(
+                text = "WorkNearby",
+                fontSize = 32.sp,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.primary
+            )
+
+            Spacer(modifier = Modifier.height(8.dp))
+
+            Text(
+                text = "Inicia sesión para continuar",
+                fontSize = 16.sp,
+                color = Color.Gray
+            )
+
+            Spacer(modifier = Modifier.height(32.dp))
+
+            // --- FORMULARIO ---
+
+            // Email
+            OutlinedTextField(
+                value = viewModel.email,
+                onValueChange = { viewModel.email = it },
+                label = { Text("Correo electrónico") },
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true,
+                shape = RoundedCornerShape(12.dp)
+            )
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            // Contraseña
+            OutlinedTextField(
+                value = viewModel.password,
+                onValueChange = { viewModel.password = it },
+                label = { Text("Contraseña") },
+                modifier = Modifier.fillMaxWidth(),
+                singleLine = true,
+                shape = RoundedCornerShape(12.dp),
+                visualTransformation = PasswordVisualTransformation(),
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
+            )
+
+            // Mensaje de Error
+            if (viewModel.loginError != null) {
+                Spacer(modifier = Modifier.height(8.dp))
+                Text(
+                    text = viewModel.loginError!!,
+                    color = MaterialTheme.colorScheme.error,
+                    fontSize = 14.sp
                 )
             }
-        ) { paddingValues ->
-            //ListaChats(modifier = Modifier.padding(paddingValues))
+
+            Spacer(modifier = Modifier.height(24.dp))
+
+            // BOTON LOGIN
+            Button(
+                onClick = { viewModel.login() },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(50.dp),
+                shape = RoundedCornerShape(12.dp),
+                enabled = !viewModel.isLoading // Deshabilitar si carga
+            ) {
+                if (viewModel.isLoading) {
+                    CircularProgressIndicator(color = Color.White, modifier = Modifier.size(24.dp))
+                } else {
+                    Text("Entrar", fontSize = 18.sp)
+                }
+            }
+
+            Spacer(modifier = Modifier.height(16.dp))
+
+            /*
+
+            // BOTON IR A REGISTRO
+            TextButton(
+                onClick = { navController.navigate("registro") }
+            ) {
+                Text("¿No tienes cuenta? Regístrate aquí")
+            }
+
+            */
+
         }
     }
 }
+
+
+

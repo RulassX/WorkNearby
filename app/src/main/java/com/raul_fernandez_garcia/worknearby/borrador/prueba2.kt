@@ -48,8 +48,8 @@ import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import com.example.compose.AppTheme
 import com.raul_fernandez_garcia.worknearby.R
-import com.raul_fernandez_garcia.worknearby.ui.theme.WorkNearbyTheme
 import kotlinx.coroutines.launch
 
 class prueba2 : ComponentActivity() {
@@ -66,7 +66,7 @@ class prueba2 : ComponentActivity() {
 
 @Composable
 private fun appWorkNearby() {
-    WorkNearbyTheme {
+    AppTheme {
         Surface() {
             BuscarOfertas()
             //BuscarContratos()
