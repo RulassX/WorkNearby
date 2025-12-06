@@ -17,12 +17,20 @@ import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
-class OfertasViewModel : ViewModel() {
+class OfertasViewModel(context: Context) : ViewModel() {
+    val sessionManager = SessionManager(context)
     private val _ofertas = MutableStateFlow<List<OfertaDTO>>(emptyList())
     val ofertas: StateFlow<List<OfertaDTO>> = _ofertas
 
+    private val _isLoading = MutableStateFlow(true)
+    val isLoading: StateFlow<Boolean> = _isLoading
     private val _nombreUsuario = MutableStateFlow("Cargando...")
     val nombreUsuario: StateFlow<String> = _nombreUsuario
+
+    // Con true el boton aparece 1/2 seg si eres trabajador y al comprobar rol desaparece
+    // Con false el boton no esta y si eres cliente aparecera despues de comprobar rol
+    private val _esTrabajador = MutableStateFlow(false)
+    val esTrabajador: StateFlow<Boolean> = _esTrabajador
 
     init {
         cargarOfertas()
@@ -43,12 +51,24 @@ class OfertasViewModel : ViewModel() {
     private fun cargarPerfilUsuario() {
         viewModelScope.launch {
             try {
-                // ID hardcodeado 1 (Juan) para pruebas. Luego vendra del Login.
-                val idUsuarioLogueado = 1
-                val perfil = RetrofitClient.api.obtenerPerfilCliente(idUsuarioLogueado)
+                val idUsuarioLogueado = sessionManager.obtenerIdUsuario()
+                val rol = sessionManager.obtenerRol()
 
-                // Actualizamos la variable con el nombre real
-                _nombreUsuario.value = perfil.usuario.nombre
+                _esTrabajador.value = (rol == "trabajador")
+
+                if (idUsuarioLogueado != 0) {
+                    val nombreReal = if (rol == "trabajador") {
+                        val perfil = RetrofitClient.api.obtenerPerfilTrabajador(idUsuarioLogueado)
+                        perfil.usuario.nombre
+                    } else {
+                        val perfil = RetrofitClient.api.obtenerPerfilCliente(idUsuarioLogueado)
+                        perfil.usuario.nombre
+                    }
+
+                    _nombreUsuario.value = nombreReal
+                } else {
+                    _nombreUsuario.value = "Invitado"
+                }
             } catch (e: Exception) {
                 e.printStackTrace()
                 _nombreUsuario.value = "Usuario"
@@ -57,14 +77,28 @@ class OfertasViewModel : ViewModel() {
     }
 }
 
+class OfertasViewModelFactory(private val context: Context) : ViewModelProvider.Factory {
+    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+        if (modelClass.isAssignableFrom(OfertasViewModel::class.java)) {
+            @Suppress("UNCHECKED_CAST")
+            return OfertasViewModel(context) as T
+        }
+        throw IllegalArgumentException("Unknown ViewModel class")
+    }
+}
+
 //------------------------------------------------
 
-class ContratosViewModel : ViewModel() {
+class ContratosViewModel(context: Context) : ViewModel() {
+    val sessionManager = SessionManager(context)
     private val _contratos = MutableStateFlow<List<ServicioDTO>>(emptyList())
     val contratos: StateFlow<List<ServicioDTO>> = _contratos
 
     private val _nombreUsuario = MutableStateFlow("Cargando...")
     val nombreUsuario: StateFlow<String> = _nombreUsuario
+
+    private val _isLoading = MutableStateFlow(true)
+    val isLoading: StateFlow<Boolean> = _isLoading
 
     init {
         cargarContratos()
@@ -73,19 +107,23 @@ class ContratosViewModel : ViewModel() {
 
     fun cargarContratos() {
         viewModelScope.launch {
+            _isLoading.value = true
             try {
-                //AQUi SE DEBE USAR EL ID DEL USUARIO LOGUEADO (Desde SharedPreferences)
-                // Por ahora pongo '1' y 'false' (cliente) para probar que funciona
-                val myId = 1
-                val soyTrabajador = false
+                val idUsuario = sessionManager.obtenerIdUsuario()
+                val rol = sessionManager.obtenerRol()
+                val soyTrabajador = (rol == "trabajador")
 
-                val lista = RetrofitClient.api.obtenerMisContratos(
-                    idUsuario = myId,
-                    esTrabajador = soyTrabajador
-                )
-                _contratos.value = lista
+                if (idUsuario != 0) {
+                    val lista = RetrofitClient.api.obtenerMisContratos(
+                        idUsuario = idUsuario,
+                        esTrabajador = soyTrabajador
+                    )
+                    _contratos.value = lista
+                }
             } catch (e: Exception) {
                 e.printStackTrace()
+            } finally {
+                _isLoading.value = false
             }
         }
     }
@@ -93,27 +131,45 @@ class ContratosViewModel : ViewModel() {
     private fun cargarPerfilUsuario() {
         viewModelScope.launch {
             try {
-                //Aqui usamos el ID 1 hardcodeado por ahora (como eres Cliente)
-                //Mas adelante esto vendra de SharedPreferences
-                val idUsuarioLogueado = 1
+                val idUsuarioLogueado = sessionManager.obtenerIdUsuario()
+                val rol = sessionManager.obtenerRol()
 
-                //Llamamos al endpoint que creamos en UsuarioController: /api/user/cliente/{id}
-                val perfil = RetrofitClient.api.obtenerPerfilCliente(idUsuarioLogueado)
+                if (idUsuarioLogueado != 0) {
+                    val nombreReal = if (rol == "trabajador") {
+                        val perfil = RetrofitClient.api.obtenerPerfilTrabajador(idUsuarioLogueado)
+                        perfil.usuario.nombre
+                    } else {
+                        val perfil = RetrofitClient.api.obtenerPerfilCliente(idUsuarioLogueado)
+                        perfil.usuario.nombre
+                    }
 
-                //Actualizamos el estado con el nombre real
-                _nombreUsuario.value = perfil.usuario.nombre
-
+                    _nombreUsuario.value = nombreReal
+                } else {
+                    _nombreUsuario.value = "Invitado"
+                }
             } catch (e: Exception) {
-                _nombreUsuario.value = "Usuario" // Fallback si hay error
                 e.printStackTrace()
+                _nombreUsuario.value = "Usuario"
             }
         }
     }
 }
 
+class ContratosViewModelFactory(private val context: Context) : ViewModelProvider.Factory {
+    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+        if (modelClass.isAssignableFrom(ContratosViewModel::class.java)) {
+            @Suppress("UNCHECKED_CAST")
+            return ContratosViewModel(context) as T
+        }
+        throw IllegalArgumentException("Unknown ViewModel class")
+    }
+}
+
 //------------------------------------------------
 
-class TrabajoViewModel : ViewModel() {
+class TrabajoViewModel(context: Context) : ViewModel() {
+    val sessionManager = SessionManager(context)
+
     // 1. Datos oferta
     private val _oferta = MutableStateFlow<OfertaDTO?>(null)
     val oferta: StateFlow<OfertaDTO?> = _oferta
@@ -134,7 +190,9 @@ class TrabajoViewModel : ViewModel() {
     private val _nombreUsuarioLogueado = MutableStateFlow("Usuario")
     val nombreUsuarioLogueado: StateFlow<String> = _nombreUsuarioLogueado
 
-    private val _esCliente = MutableStateFlow(true) // Lo pongo true para probar
+    // Con true el boton aparece 1/2 seg si eres trabajador y al comprobar rol desaparece
+    // Con false el boton no esta y si eres cliente aparecera despues de comprobar rol
+    private val _esCliente = MutableStateFlow(false)
     val esCliente: StateFlow<Boolean> = _esCliente
 
     fun cargarDatos(idOferta: Int) {
@@ -155,13 +213,22 @@ class TrabajoViewModel : ViewModel() {
                 _resenas.value = listaResenas
 
                 // D. Cargar el nombre del usuario actual (Para el menu)
-                val miPerfil = RetrofitClient.api.obtenerPerfilCliente(1)
-                _nombreUsuarioLogueado.value = miPerfil.usuario.nombre
+                val idUsuarioLogueado = sessionManager.obtenerIdUsuario()
+                val rol = sessionManager.obtenerRol()
 
-                // Si mi ID es 1 (Juan), soy cliente.
-                // Mas adelante esto vendra de SharedPreferences
-                val miIdLogueado = 1
-                _esCliente.value = (miIdLogueado == 1)
+                _esCliente.value = (rol == "cliente")
+
+                // Obtengo el nombre para el menu lateral
+                if (idUsuarioLogueado != 0) {
+                    val nombreReal = if (rol == "trabajador") {
+                        val miPerfil = RetrofitClient.api.obtenerPerfilTrabajador(idUsuarioLogueado)
+                        miPerfil.usuario.nombre
+                    } else {
+                        val miPerfil = RetrofitClient.api.obtenerPerfilCliente(idUsuarioLogueado)
+                        miPerfil.usuario.nombre
+                    }
+                    _nombreUsuarioLogueado.value = nombreReal
+                }
 
             } catch (e: Exception) {
                 e.printStackTrace()
@@ -169,6 +236,16 @@ class TrabajoViewModel : ViewModel() {
                 _isLoading.value = false
             }
         }
+    }
+}
+
+class TrabajoViewModelFactory(private val context: Context) : ViewModelProvider.Factory {
+    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+        if (modelClass.isAssignableFrom(TrabajoViewModel::class.java)) {
+            @Suppress("UNCHECKED_CAST")
+            return TrabajoViewModel(context) as T
+        }
+        throw IllegalArgumentException("Unknown ViewModel class")
     }
 }
 
@@ -218,6 +295,7 @@ class PerfilViewModel(context: Context) : ViewModel() {
         }
     }
 }
+
 class PerfilViewModelFactory(private val context: Context) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(PerfilViewModel::class.java)) {
@@ -230,7 +308,9 @@ class PerfilViewModelFactory(private val context: Context) : ViewModelProvider.F
 
 //------------------------------------------------
 
-class CrearResenaViewModel : ViewModel() {
+class CrearResenaViewModel(context: Context) : ViewModel() {
+
+    val sessionManager = SessionManager(context)
 
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading
@@ -242,19 +322,22 @@ class CrearResenaViewModel : ViewModel() {
         viewModelScope.launch {
             _isLoading.value = true
             try {
-                //ID Cliente (1 = Juan).
-                // Cuando tengas Login real, esto vendra de las preferencias.
-                val miIdCliente = 1
+                val miIdCliente = sessionManager.obtenerIdUsuario()
 
-                val nuevaResena = CrearResenaDTO(
-                    idCliente = miIdCliente,
-                    idTrabajador = idTrabajador,
-                    puntuacion = puntuacion,
-                    comentario = comentario
-                )
+                if (miIdCliente != 0) {
+                    val nuevaResena = CrearResenaDTO(
+                        idCliente = miIdCliente,
+                        idTrabajador = idTrabajador,
+                        puntuacion = puntuacion,
+                        comentario = comentario
+                    )
 
-                RetrofitClient.api.publicarResena(nuevaResena)
-                _mensajeExito.value = "¡Opinión publicada correctamente!"
+                    RetrofitClient.api.publicarResena(nuevaResena)
+                    _mensajeExito.value = "Opinión publicada correctamente"
+                } else {
+                    println("Error: No hay usuario logueado")
+                }
+
             } catch (e: Exception) {
                 e.printStackTrace()
             } finally {
@@ -262,9 +345,18 @@ class CrearResenaViewModel : ViewModel() {
             }
         }
     }
-
     fun resetMensaje() {
         _mensajeExito.value = null
+    }
+}
+
+class CrearResenaViewModelFactory(private val context: Context) : ViewModelProvider.Factory {
+    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+        if (modelClass.isAssignableFrom(CrearResenaViewModel::class.java)) {
+            @Suppress("UNCHECKED_CAST")
+            return CrearResenaViewModel(context) as T
+        }
+        throw IllegalArgumentException("Unknown ViewModel class")
     }
 }
 

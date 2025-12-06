@@ -48,6 +48,7 @@ import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
@@ -160,8 +161,18 @@ fun appNavigation(navController: NavHostController) {
             Perfil(navController)
         }
 
-        composable("crear_resena") {
-            EscribirResena(navController)
+        composable(
+            route = "crear_resena/{idTrabajador}",
+            arguments = listOf(navArgument("idTrabajador") { type = NavType.IntType })
+        ) { backStackEntry ->
+            val id = backStackEntry.arguments?.getInt("idTrabajador") ?: 0
+
+            // Llamada correcta
+            EscribirResena(navController, idTrabajador = id)
+        }
+
+        composable("crear_oferta") {
+            EscribirOferta(navController)
         }
     }
 }
@@ -172,14 +183,20 @@ fun appNavigation(navController: NavHostController) {
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
 private fun BuscarOfertas(
-    navController: NavHostController, viewModel: OfertasViewModel = viewModel()
+    navController: NavHostController,
 ) {
+    val context = LocalContext.current
+    val viewModel: OfertasViewModel = viewModel(
+        factory = OfertasViewModelFactory(context)
+    )
+
     val listaOfertasReal by viewModel.ofertas.collectAsState()
 
     val nombre by viewModel.nombreUsuario.collectAsState()
 
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val scope = rememberCoroutineScope()
+    val esTrabajador by viewModel.esTrabajador.collectAsState()
 
     ModalNavigationDrawer(
         drawerState = drawerState,
@@ -240,26 +257,52 @@ private fun BuscarOfertas(
                         Text(
                             text = "WorkNearby"
                         )
-
                     },
                     navigationIcon = {
-                        IconButton(onClick = {
-                            scope.launch {
-                                if (drawerState.isClosed) {
-                                    drawerState.open()
-                                } else {
-                                    drawerState.close()
+                        FilledIconButton(
+                            colors = IconButtonDefaults.filledIconButtonColors(
+                                containerColor = MaterialTheme.colorScheme.secondaryContainer
+                            ),
+
+                            onClick = {
+                                scope.launch {
+                                    if (drawerState.isClosed) {
+                                        drawerState.open()
+                                    } else {
+                                        drawerState.close()
+                                    }
                                 }
-                            }
-                        }) {
+                            }) {
                             Icon(
                                 imageVector = Icons.Default.Menu,
                                 contentDescription = "Abrir menu"
-
                             )
                         }
+                    },
+                    actions = {
+                        // Boton solo visible para trabajador
+                        if (esTrabajador) {
+                            FilledIconButton(
+                                colors = IconButtonDefaults.filledIconButtonColors(
+                                    containerColor = MaterialTheme.colorScheme.secondaryContainer
+                                ),
+                                onClick = {
+                                    navController.navigate("crear_oferta")
+                                },
+                                modifier = Modifier.size(35.dp)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Add,
+                                    contentDescription = "Añadir oferta",
+                                )
+                            }
+                        }
                     }
+
+
                 )
+
+
             }
         ) { paddingValues ->
             if (listaOfertasReal.isEmpty()) {
@@ -365,8 +408,12 @@ fun ListaOfertas(
 @Composable
 private fun BuscarContratos(
     navController: NavHostController,
-    viewModel: ContratosViewModel = viewModel()
 ) {
+    val context = LocalContext.current
+    val viewModel: ContratosViewModel = viewModel(
+        factory = ContratosViewModelFactory(context)
+    )
+
     val listaContratosReal by viewModel.contratos.collectAsState()
     val nombre by viewModel.nombreUsuario.collectAsState()
 
@@ -435,15 +482,19 @@ private fun BuscarContratos(
 
                     },
                     navigationIcon = {
-                        IconButton(onClick = {
-                            scope.launch {
-                                if (drawerState.isClosed) {
-                                    drawerState.open()
-                                } else {
-                                    drawerState.close()
+                        FilledIconButton(
+                            colors = IconButtonDefaults.filledIconButtonColors(
+                                containerColor = MaterialTheme.colorScheme.secondaryContainer
+                            ),
+                            onClick = {
+                                scope.launch {
+                                    if (drawerState.isClosed) {
+                                        drawerState.open()
+                                    } else {
+                                        drawerState.close()
+                                    }
                                 }
-                            }
-                        }) {
+                            }) {
                             Icon(
                                 imageVector = Icons.Default.Menu,
                                 contentDescription = "Abrir menu"
@@ -568,189 +619,185 @@ private fun ListaContratos(contratos: List<ServicioDTO>, modifier: Modifier = Mo
 private fun TrabajoOfertado(
     navController: NavHostController,
     idOferta: Int,
-    viewModel: TrabajoViewModel = viewModel()
 ) {
+    val context = LocalContext.current
+    val viewModel: TrabajoViewModel = viewModel(
+        factory = TrabajoViewModelFactory(context)
+    )
+
+    val oferta by viewModel.oferta.collectAsState()
+    val trabajador by viewModel.trabajador.collectAsState()
+    val resenas by viewModel.resenas.collectAsState()
+    val isLoading by viewModel.isLoading.collectAsState()
+    val esCliente by viewModel.esCliente.collectAsState()
 
     LaunchedEffect(idOferta) {
         viewModel.cargarDatos(idOferta)
     }
 
-    val oferta by viewModel.oferta.collectAsState()
-    val trabajador by viewModel.trabajador.collectAsState()
-    val resenas by viewModel.resenas.collectAsState()
-    val nombreUsuarioMenu by viewModel.nombreUsuarioLogueado.collectAsState()
-    val isLoading by viewModel.isLoading.collectAsState()
-    val esCliente by viewModel.esCliente.collectAsState()
+    Scaffold(
+        topBar = {
+            CenterAlignedTopAppBar(
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                    // Color de fondo de la barra
+                    containerColor = MaterialTheme.colorScheme.primary,
 
-    val drawerState = rememberDrawerState(DrawerValue.Closed)
-    val scope = rememberCoroutineScope()
+                    // Color del texto del titulo (debe contrastar con el fondo)
+                    titleContentColor = MaterialTheme.colorScheme.onPrimary,
 
-    ModalNavigationDrawer(
-        drawerState = drawerState,
-        drawerContent = {
-            ModalDrawerSheet {
+                    // Color de los iconos (menu, flecha atras)
+                    navigationIconContentColor = MaterialTheme.colorScheme.onPrimary,
+                    actionIconContentColor = MaterialTheme.colorScheme.onPrimary
+                ),
 
-            }
-        }
-    ) {
-        Scaffold(
-            topBar = {
-                CenterAlignedTopAppBar(
-                    colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
-                        // Color de fondo de la barra
-                        containerColor = MaterialTheme.colorScheme.primary,
-
-                        // Color del texto del titulo (debe contrastar con el fondo)
-                        titleContentColor = MaterialTheme.colorScheme.onPrimary,
-
-                        // Color de los iconos (menu, flecha atras)
-                        navigationIconContentColor = MaterialTheme.colorScheme.onPrimary,
-                        actionIconContentColor = MaterialTheme.colorScheme.onPrimary
-                    ),
-
-                    title = { Text(text = "Detalles") },
-                    navigationIcon = {
-                        IconButton(onClick = { navController.popBackStack() }) {
-                            Icon(Icons.Default.ArrowBack, contentDescription = "Cancelar")
-                        }
+                title = { Text(text = "Detalles") },
+                navigationIcon = {
+                    FilledIconButton(
+                        colors = IconButtonDefaults.filledIconButtonColors(
+                            containerColor = MaterialTheme.colorScheme.secondaryContainer
+                        ),
+                        onClick = { navController.popBackStack() }) {
+                        Icon(Icons.Default.ArrowBack, contentDescription = "Cancelar")
                     }
-                )
-            }
-        ) { paddingValues ->
-            if (isLoading || trabajador == null) {
-                Box(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(paddingValues),
-                    contentAlignment = Alignment.Center
-                ) {
-                    CircularProgressIndicator()
                 }
-            } else {
-                val user = trabajador!!.usuario
+            )
+        }
+    ) { paddingValues ->
+        if (isLoading || trabajador == null) {
+            Box(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues),
+                contentAlignment = Alignment.Center
+            ) {
+                CircularProgressIndicator()
+            }
+        } else {
+            val user = trabajador!!.usuario
 
-                LazyColumn(
-                    modifier = Modifier
-                        .fillMaxSize()
-                        .padding(paddingValues)
-                ) {
-                    item {
-                        Row(modifier = Modifier.padding(16.dp)) {
-                            Column(modifier = Modifier.weight(1f)) {
-                                // Nombre Real
-                                Text(
-                                    text = user.nombre,
-                                    fontSize = 20.sp,
-                                    modifier = Modifier.padding(bottom = 4.dp)
-                                )
-                                // Apellidos Reales
-                                Text(
-                                    text = user.apellidos,
-                                    fontSize = 20.sp,
-                                    modifier = Modifier.padding(bottom = 8.dp)
-                                )
-                                // Profesion (Descripcion corta)
-                                Text(
-                                    text = trabajador!!.descripcion ?: "Profesional",
-                                    fontSize = 18.sp,
-                                    color = Color.Gray,
-                                    modifier = Modifier.padding(bottom = 15.dp)
-                                )
-                                // Contacto Real
-                                Text(text = "Telf.: ${user.telefono}", fontSize = 16.sp)
-                                Text(text = "Email: ${user.email}", fontSize = 16.sp)
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
+            ) {
+                item {
+                    Row(modifier = Modifier.padding(16.dp)) {
+                        Column(modifier = Modifier.weight(1f)) {
+                            // Nombre Real
+                            Text(
+                                text = user.nombre,
+                                fontSize = 20.sp,
+                                modifier = Modifier.padding(bottom = 4.dp)
+                            )
+                            // Apellidos Reales
+                            Text(
+                                text = user.apellidos,
+                                fontSize = 20.sp,
+                                modifier = Modifier.padding(bottom = 8.dp)
+                            )
+                            // Profesion (Descripcion corta)
+                            Text(
+                                text = trabajador!!.descripcion ?: "Profesional",
+                                fontSize = 18.sp,
+                                color = Color.Gray,
+                                modifier = Modifier.padding(bottom = 15.dp)
+                            )
+                            // Contacto Real
+                            Text(text = "Telf.: ${user.telefono}", fontSize = 16.sp)
+                            Text(text = "Email: ${user.email}", fontSize = 16.sp)
 
-                                // Precio Real
-                                Text(
-                                    text = "${oferta!!.precio} €/hora",
-                                    fontSize = 20.sp,
-                                    fontWeight = FontWeight.Bold,
-                                    modifier = Modifier.padding(top = 8.dp)
-                                )
-                            }
-
-                            // FOTO REAL (Coil)
-                            AsyncImage(
-                                model = user.fotoUrl ?: R.drawable.fotoperfilvacia,
-                                contentDescription = "Foto perfil",
-                                modifier = Modifier
-                                    .padding(5.dp)
-                                    .size(120.dp)
-                                    .clip(RoundedCornerShape(8.dp))
-                                    .border(1.dp, Color.Gray, RoundedCornerShape(8.dp)),
-                                contentScale = ContentScale.Crop,
-                                alignment = Alignment.TopEnd
+                            // Precio Real
+                            Text(
+                                text = "${oferta!!.precio} €/hora",
+                                fontSize = 20.sp,
+                                fontWeight = FontWeight.Bold,
+                                modifier = Modifier.padding(top = 8.dp)
                             )
                         }
 
-                        HorizontalDivider(modifier = Modifier.padding(vertical = 16.dp))
+                        // FOTO REAL (Coil)
+                        AsyncImage(
+                            model = user.fotoUrl ?: R.drawable.fotoperfilvacia,
+                            contentDescription = "Foto perfil",
+                            modifier = Modifier
+                                .padding(5.dp)
+                                .size(120.dp)
+                                .clip(RoundedCornerShape(8.dp))
+                                .border(1.dp, Color.Gray, RoundedCornerShape(8.dp)),
+                            contentScale = ContentScale.Crop,
+                            alignment = Alignment.TopEnd
+                        )
+                    }
 
-                        Row(
+                    HorizontalDivider(modifier = Modifier.padding(vertical = 16.dp))
+
+                    Row(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(start = 16.dp, end = 16.dp, bottom = 8.dp),
+                        horizontalArrangement = Arrangement.SpaceBetween,
+                        verticalAlignment = Alignment.CenterVertically
+                    ) {
+                        Text(
+                            text = "Opiniones de clientes",
+                            fontSize = 20.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+
+                        // Boton solo visible para cliente
+                        if (esCliente) {
+                            FilledIconButton(
+                                onClick = {
+                                    if (trabajador != null) {
+                                        navController.navigate("crear_resena/${trabajador!!.id}")
+                                    }
+                                },
+                                modifier = Modifier.size(35.dp)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Add,
+                                    contentDescription = "Añadir reseña"
+                                )
+                            }
+                        }
+                    }
+                }
+
+                //LISTA DE RESEÑAS
+                if (resenas.isEmpty()) {
+                    item {
+                        Text(
+                            "No hay reseñas todavía.",
+                            modifier = Modifier.padding(16.dp),
+                        )
+                    }
+                } else {
+                    items(resenas) { resena ->
+                        Card(
                             modifier = Modifier
                                 .fillMaxWidth()
-                                .padding(start = 16.dp, end = 16.dp, bottom = 8.dp),
-                            horizontalArrangement = Arrangement.SpaceBetween,
-                            verticalAlignment = Alignment.CenterVertically
+                                .padding(horizontal = 16.dp, vertical = 4.dp),
+                            colors = CardDefaults.cardColors(
+                                containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                                contentColor = MaterialTheme.colorScheme.onSecondaryContainer
+                            ),
                         ) {
-                            Text(
-                                text = "Opiniones de clientes",
-                                fontSize = 20.sp,
-                                fontWeight = FontWeight.Bold
-                            )
-
-                            // Boton solo visible para cliente
-                            if (esCliente) {
-                                FilledIconButton(
-                                    onClick = {
-                                        navController.navigate("crear_resena")
-                                    },
-                                    modifier = Modifier.size(35.dp)
+                            Column(modifier = Modifier.padding(12.dp)) {
+                                Row(
+                                    horizontalArrangement = Arrangement.SpaceBetween,
+                                    modifier = Modifier.fillMaxWidth()
                                 ) {
-                                    Icon(
-                                        imageVector = Icons.Default.Add,
-                                        contentDescription = "Añadir reseña"
+                                    Text(
+                                        text = resena.nombreCliente,
+                                        fontWeight = FontWeight.Bold
                                     )
+                                    Text(text = "${resena.puntuacion}/5")
                                 }
-                            }
-                        }
-                    }
-
-                    //LISTA DE RESEÑAS
-                    if (resenas.isEmpty()) {
-                        item {
-                            Text(
-                                "No hay reseñas todavía.",
-                                modifier = Modifier.padding(16.dp),
-                            )
-                        }
-                    } else {
-                        items(resenas) { resena ->
-                            Card(
-                                modifier = Modifier
-                                    .fillMaxWidth()
-                                    .padding(horizontal = 16.dp, vertical = 4.dp),
-                                colors = CardDefaults.cardColors(
-                                    containerColor = MaterialTheme.colorScheme.secondaryContainer,
-                                    contentColor = MaterialTheme.colorScheme.onSecondaryContainer
-                                ),
-                            ) {
-                                Column(modifier = Modifier.padding(12.dp)) {
-                                    Row(
-                                        horizontalArrangement = Arrangement.SpaceBetween,
-                                        modifier = Modifier.fillMaxWidth()
-                                    ) {
-                                        Text(
-                                            text = resena.nombreCliente,
-                                            fontWeight = FontWeight.Bold
-                                        )
-                                        Text(text = "${resena.puntuacion}/5")
-                                    }
-                                    if (!resena.comentario.isNullOrEmpty()) {
-                                        Text(
-                                            text = resena.comentario,
-                                            modifier = Modifier.padding(top = 4.dp)
-                                        )
-                                    }
+                                if (!resena.comentario.isNullOrEmpty()) {
+                                    Text(
+                                        text = resena.comentario,
+                                        modifier = Modifier.padding(top = 4.dp)
+                                    )
                                 }
                             }
                         }
@@ -847,15 +894,19 @@ private fun Perfil(
                         )
                     },
                     navigationIcon = {
-                        IconButton(onClick = {
-                            scope.launch {
-                                if (drawerState.isClosed) {
-                                    drawerState.open()
-                                } else {
-                                    drawerState.close()
+                        FilledIconButton(
+                            colors = IconButtonDefaults.filledIconButtonColors(
+                                containerColor = MaterialTheme.colorScheme.secondaryContainer
+                            ),
+                            onClick = {
+                                scope.launch {
+                                    if (drawerState.isClosed) {
+                                        drawerState.open()
+                                    } else {
+                                        drawerState.close()
+                                    }
                                 }
-                            }
-                        }) {
+                            }) {
                             Icon(
                                 imageVector = Icons.Default.Menu,
                                 contentDescription = "Abrir menu"
@@ -907,7 +958,7 @@ private fun Perfil(
                             // ROL
                             AssistChip(
                                 onClick = {},
-                                label = { Text(usuario.rol.uppercase())},
+                                label = { Text(usuario.rol.uppercase()) },
                                 leadingIcon = {
                                     Icon(
                                         Icons.Default.Person,
@@ -986,9 +1037,13 @@ fun DatoPerfil(titulo: String, valor: String) {
 @Composable
 fun EscribirResena(
     navController: NavHostController,
-    idTrabajador: Int = 2,
-    viewModel: CrearResenaViewModel = viewModel()
+    idTrabajador: Int
 ) {
+    val context = LocalContext.current
+    val viewModel: CrearResenaViewModel = viewModel(
+        factory = CrearResenaViewModelFactory(context)
+    )
+
     // Estados del formulario
     var puntuacion by remember { mutableIntStateOf(0) }
     var comentario by remember { mutableStateOf("") }
@@ -1023,7 +1078,11 @@ fun EscribirResena(
 
                 title = { Text("Escribe tu Opinión") },
                 navigationIcon = {
-                    IconButton(onClick = { navController.popBackStack() }) {
+                    FilledIconButton(
+                        colors = IconButtonDefaults.filledIconButtonColors(
+                            containerColor = MaterialTheme.colorScheme.secondaryContainer
+                        ),
+                        onClick = { navController.popBackStack() }) {
                         Icon(Icons.Default.ArrowBack, contentDescription = "Cancelar")
                     }
                 }
@@ -1104,7 +1163,7 @@ fun EscribirResena(
                         .fillMaxWidth()
                         .height(150.dp),
                     shape = RoundedCornerShape(12.dp),
-                    )
+                )
 
                 Spacer(modifier = Modifier.weight(1f))
 
@@ -1242,7 +1301,7 @@ fun VentanaLogin(
             TextButton(
                 onClick = { navController.navigate("registro") }
             ) {
-                Text("¿No tienes cuenta? Regístrate aquí")
+                Text("¿No tienes cuenta? Registrate aqui")
             }
 
             */
@@ -1251,5 +1310,155 @@ fun VentanaLogin(
     }
 }
 
+//------------------------------------------------
 
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun EscribirOferta(
+    navController: NavHostController
+) {
+    val context = LocalContext.current
+    val viewModel: CrearResenaViewModel = viewModel(
+        factory = CrearResenaViewModelFactory(context)
+    )
 
+    // Estados del formulario
+    var puntuacion by remember { mutableIntStateOf(0) }
+    var comentario by remember { mutableStateOf("") }
+
+    // Estados del ViewModel
+    val isLoading by viewModel.isLoading.collectAsState()
+    val mensajeExito by viewModel.mensajeExito.collectAsState()
+
+    // Efecto: Si se publica con exito, volvemos atras
+    LaunchedEffect(mensajeExito) {
+        if (mensajeExito != null) {
+            // Esperamos un poquito para que el usuario lea (opcional)
+            navController.popBackStack()
+            viewModel.resetMensaje()
+        }
+    }
+
+    Scaffold(
+        topBar = {
+            CenterAlignedTopAppBar(
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                    // Color de fondo de la barra
+                    containerColor = MaterialTheme.colorScheme.primary,
+
+                    // Color del texto del titulo
+                    titleContentColor = MaterialTheme.colorScheme.onPrimary,
+
+                    // Color de los iconos (menu, flecha atras)
+                    navigationIconContentColor = MaterialTheme.colorScheme.onPrimary,
+                    actionIconContentColor = MaterialTheme.colorScheme.onPrimary
+                ),
+
+                title = { Text("Crea una Oferta") },
+                navigationIcon = {
+                    FilledIconButton(
+                        colors = IconButtonDefaults.filledIconButtonColors(
+                            containerColor = MaterialTheme.colorScheme.secondaryContainer
+                        ),
+                        onClick = { navController.popBackStack() }) {
+                        Icon(Icons.Default.ArrowBack, contentDescription = "Cancelar")
+                    }
+                }
+            )
+        }
+    ) { paddingValues ->
+
+        if (isLoading) {
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                CircularProgressIndicator()
+            }
+        } else {
+            Column(
+                modifier = Modifier
+                    .padding(paddingValues)
+                    .fillMaxSize()
+                    .padding(24.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+
+                Text(
+                    text = "¿Qué tal fue el trabajo?",
+                    fontSize = 22.sp,
+                    //fontWeight = FontWeight.Bold,
+                    color = Color.Black
+                )
+
+                Spacer(modifier = Modifier.height(8.dp))
+
+                Text(
+                    text = "Tu opinión ayuda a otros usuarios a elegir.",
+                    fontSize = 14.sp,
+                    color = Color.Gray,
+                    textAlign = TextAlign.Center
+                )
+
+                Spacer(modifier = Modifier.height(32.dp))
+
+                // --- COMPONENTE DE ESTRELLAS ---
+                Row(
+                    horizontalArrangement = Arrangement.Center,
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    repeat(5) { index ->
+                        val starNumber = index + 1
+                        val isSelected = starNumber <= puntuacion
+
+                        Icon(
+                            imageVector = if (isSelected) Icons.Filled.Star else Icons.Outlined.Star,
+                            contentDescription = "Estrella $starNumber",
+                            tint = if (isSelected) Color(0xFFFFC107) else Color.LightGray,
+                            modifier = Modifier
+                                .size(48.dp)
+                                .padding(4.dp)
+                                .clickable {
+                                    puntuacion = starNumber
+                                }
+                        )
+                    }
+                }
+
+                Text(
+                    text = "$puntuacion/5",
+                    fontSize = 18.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = Color(0xFFFFC107),
+                    modifier = Modifier.padding(top = 8.dp)
+                )
+
+                Spacer(modifier = Modifier.height(32.dp))
+
+                // --- CAJA DE TEXTO ---
+                OutlinedTextField(
+                    value = comentario,
+                    onValueChange = { comentario = it },
+                    label = { Text("Escribe tu comentario...") },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(150.dp),
+                    shape = RoundedCornerShape(12.dp),
+                )
+
+                Spacer(modifier = Modifier.weight(1f))
+
+                // --- BOTON DE ENVIAR ---
+                Button(
+                    onClick = {
+                        //viewModel.enviarResena(idTrabajador, puntuacion, comentario)
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(50.dp),
+                    enabled = puntuacion > 0,
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
+                ) {
+                    Text("Publicar Reseña", fontSize = 16.sp)
+                }
+            }
+        }
+    }
+}
