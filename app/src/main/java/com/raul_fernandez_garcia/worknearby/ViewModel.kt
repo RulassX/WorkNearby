@@ -1,18 +1,23 @@
 package com.raul_fernandez_garcia.worknearby
 
 import android.content.Context
+import android.net.Uri
+import android.util.Base64
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import com.raul_fernandez_garcia.WorkNearby_API.modeloDTO.CrearOfertaDTO
 import com.raul_fernandez_garcia.WorkNearby_API.modeloDTO.CrearResenaDTO
 import com.raul_fernandez_garcia.WorkNearby_API.modeloDTO.LoginRequest
+import com.raul_fernandez_garcia.worknearby.modeloDTO.CategoriaDTO
 import com.raul_fernandez_garcia.worknearby.modeloDTO.OfertaDTO
 import com.raul_fernandez_garcia.worknearby.modeloDTO.ResenaDTO
 import com.raul_fernandez_garcia.worknearby.modeloDTO.ServicioDTO
 import com.raul_fernandez_garcia.worknearby.modeloDTO.TrabajadorDTO
+import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
@@ -100,6 +105,11 @@ class ContratosViewModel(context: Context) : ViewModel() {
     private val _isLoading = MutableStateFlow(true)
     val isLoading: StateFlow<Boolean> = _isLoading
 
+    // Con true el boton aparece 1/2 seg si eres trabajador y al comprobar rol desaparece
+    // Con false el boton no esta y si eres cliente aparecera despues de comprobar rol
+    private val _esTrabajador = MutableStateFlow(false)
+    val esTrabajador: StateFlow<Boolean> = _esTrabajador
+
     init {
         cargarContratos()
         cargarPerfilUsuario()
@@ -133,6 +143,8 @@ class ContratosViewModel(context: Context) : ViewModel() {
             try {
                 val idUsuarioLogueado = sessionManager.obtenerIdUsuario()
                 val rol = sessionManager.obtenerRol()
+
+                _esTrabajador.value = (rol == "trabajador")
 
                 if (idUsuarioLogueado != 0) {
                     val nombreReal = if (rol == "trabajador") {
@@ -318,7 +330,7 @@ class CrearResenaViewModel(context: Context) : ViewModel() {
     private val _mensajeExito = MutableStateFlow<String?>(null)
     val mensajeExito: StateFlow<String?> = _mensajeExito
 
-    fun enviarResena(idTrabajador: Int, puntuacion: Int, comentario: String) {
+    fun publicarResena(idTrabajador: Int, puntuacion: Int, comentario: String) {
         viewModelScope.launch {
             _isLoading.value = true
             try {
@@ -345,6 +357,7 @@ class CrearResenaViewModel(context: Context) : ViewModel() {
             }
         }
     }
+
     fun resetMensaje() {
         _mensajeExito.value = null
     }
@@ -412,5 +425,208 @@ class LoginViewModel(private val context: Context) : ViewModel() {
 class LoginViewModelFactory(private val context: Context) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         return LoginViewModel(context) as T
+    }
+}
+
+//------------------------------------------------
+
+class CrearOfertaViewModel(context: Context) : ViewModel() {
+
+    val sessionManager = SessionManager(context)
+
+    private val contentResolver = context.contentResolver
+
+    private val _isLoading = MutableStateFlow(false)
+    val isLoading: StateFlow<Boolean> = _isLoading
+
+    private val _mensajeExito = MutableStateFlow<String?>(null)
+    val mensajeExito: StateFlow<String?> = _mensajeExito
+
+    private val _categorias = MutableStateFlow<List<CategoriaDTO>>(emptyList())
+    val categorias: StateFlow<List<CategoriaDTO>> = _categorias
+
+    init {
+        cargarCategorias()
+    }
+
+    fun publicarOferta(
+        titulo: String,
+        descripcion: String,
+        precio: Double,
+        idCategoria: Int,
+        fotoUri: Uri?
+    ) {
+        viewModelScope.launch(Dispatchers.IO) {
+            _isLoading.value = true
+            try {
+                val miIdTrabajador = sessionManager.obtenerIdUsuario()
+
+                if (miIdTrabajador != 0) {
+                    val fotoString = fotoUri?.let { uri ->
+                        try {
+                            val inputStream = contentResolver.openInputStream(uri)
+                            val bytes = inputStream?.readBytes()
+                            inputStream?.close()
+                            if (bytes != null) Base64.encodeToString(
+                                bytes,
+                                Base64.NO_WRAP
+                            ) else null
+                        } catch (e: Exception) {
+                            e.printStackTrace()
+                            null
+                        }
+                    }
+
+                    val nuevaOferta = CrearOfertaDTO(
+                        idTrabajador = miIdTrabajador,
+                        idCategoria = idCategoria,
+                        titulo = titulo,
+                        descripcion = descripcion,
+                        precio = precio,
+                        fotoUrlOferta = fotoString
+                    )
+
+                    RetrofitClient.api.publicarOferta(nuevaOferta)
+                    _mensajeExito.value = "Oferta publicada correctamente"
+
+                } else {
+                    println("Error: No hay usuario logueado")
+                }
+
+            } catch (e: Exception) {
+                e.printStackTrace()
+            } finally {
+                _isLoading.value = false
+            }
+        }
+    }
+
+    // Funcion para descargar la lista del desplegable
+    private fun cargarCategorias() {
+        viewModelScope.launch {
+            try {
+                // Llama al endpoint @GET("/api/categorias")
+                val lista = RetrofitClient.api.obtenerCategorias()
+                _categorias.value = lista
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+    }
+
+    fun resetMensaje() {
+        _mensajeExito.value = null
+    }
+}
+
+class CrearOfertaViewModelFactory(private val context: Context) : ViewModelProvider.Factory {
+    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+        if (modelClass.isAssignableFrom(CrearOfertaViewModel::class.java)) {
+            @Suppress("UNCHECKED_CAST")
+            return CrearOfertaViewModel(context) as T
+        }
+        throw IllegalArgumentException("Unknown ViewModel class")
+    }
+}
+
+//------------------------------------------------
+
+
+class CrearContratoViewModel(context: Context) : ViewModel() {
+
+    val sessionManager = SessionManager(context)
+
+    private val contentResolver = context.contentResolver
+
+    private val _isLoading = MutableStateFlow(false)
+    val isLoading: StateFlow<Boolean> = _isLoading
+
+    private val _mensajeExito = MutableStateFlow<String?>(null)
+    val mensajeExito: StateFlow<String?> = _mensajeExito
+
+    private val _categorias = MutableStateFlow<List<CategoriaDTO>>(emptyList())
+    val categorias: StateFlow<List<CategoriaDTO>> = _categorias
+
+    init {
+        cargarCategorias()
+    }
+
+    fun publicarContrato(
+        titulo: String,
+        descripcion: String,
+        precio: Double,
+        idCategoria: Int,
+        fotoUri: Uri?
+    ) {
+        viewModelScope.launch(Dispatchers.IO) {
+            _isLoading.value = true
+            try {
+                val miIdTrabajador = sessionManager.obtenerIdUsuario()
+
+                if (miIdTrabajador != 0) {
+                    val fotoString = fotoUri?.let { uri ->
+                        try {
+                            val inputStream = contentResolver.openInputStream(uri)
+                            val bytes = inputStream?.readBytes()
+                            inputStream?.close()
+                            if (bytes != null) Base64.encodeToString(
+                                bytes,
+                                Base64.NO_WRAP
+                            ) else null
+                        } catch (e: Exception) {
+                            e.printStackTrace()
+                            null
+                        }
+                    }
+
+                    val nuevaOferta = CrearOfertaDTO(
+                        idTrabajador = miIdTrabajador,
+                        idCategoria = idCategoria,
+                        titulo = titulo,
+                        descripcion = descripcion,
+                        precio = precio,
+                        fotoUrlOferta = fotoString
+                    )
+
+                    RetrofitClient.api.publicarOferta(nuevaOferta)
+                    _mensajeExito.value = "Oferta publicada correctamente"
+
+                } else {
+                    println("Error: No hay usuario logueado")
+                }
+
+            } catch (e: Exception) {
+                e.printStackTrace()
+            } finally {
+                _isLoading.value = false
+            }
+        }
+    }
+
+    // Funcion para descargar la lista del desplegable
+    private fun cargarCategorias() {
+        viewModelScope.launch {
+            try {
+                // Llama al endpoint @GET("/api/categorias")
+                val lista = RetrofitClient.api.obtenerCategorias()
+                _categorias.value = lista
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+    }
+
+    fun resetMensaje() {
+        _mensajeExito.value = null
+    }
+}
+
+class CrearContratoViewModelFactory(private val context: Context) : ViewModelProvider.Factory {
+    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+        if (modelClass.isAssignableFrom(CrearOfertaViewModel::class.java)) {
+            @Suppress("UNCHECKED_CAST")
+            return CrearOfertaViewModel(context) as T
+        }
+        throw IllegalArgumentException("Unknown ViewModel class")
     }
 }

@@ -5,5 +5,6 @@ data class CrearOfertaDTO(
     val idCategoria: Int?,
     val titulo: String,
     val descripcion: String?,
-    val precio: Double?
+    val precio: Double?,
+    val fotoUrlOferta: String?
 )

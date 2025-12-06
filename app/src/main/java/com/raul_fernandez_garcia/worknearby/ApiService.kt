@@ -1,9 +1,11 @@
 package com.raul_fernandez_garcia.worknearby
 
+import com.raul_fernandez_garcia.WorkNearby_API.modeloDTO.CrearOfertaDTO
 import com.raul_fernandez_garcia.WorkNearby_API.modeloDTO.CrearResenaDTO
 import com.raul_fernandez_garcia.WorkNearby_API.modeloDTO.LoginRequest
 import com.raul_fernandez_garcia.WorkNearby_API.modeloDTO.RegistroDTO
 import com.raul_fernandez_garcia.WorkNearby_API.modeloDTO.SolicitarServicioDTO
+import com.raul_fernandez_garcia.worknearby.modeloDTO.CategoriaDTO
 import com.raul_fernandez_garcia.worknearby.modeloDTO.ClienteDTO
 import com.raul_fernandez_garcia.worknearby.modeloDTO.OfertaDTO
 import com.raul_fernandez_garcia.worknearby.modeloDTO.ResenaDTO
@@ -29,6 +31,9 @@ interface ApiService {
         @Body loginData: LoginRequest
     ): UsuarioDTO
 
+    @GET("/api/categorias")
+    suspend fun obtenerCategorias(): List<CategoriaDTO>
+
     @GET("/api/ofertas")
     suspend fun buscarOfertas(
         @Query("lat") lat: Double?,
@@ -39,6 +44,9 @@ interface ApiService {
     suspend fun obtenerOferta(
         @Path("id") id: Int
     ): OfertaDTO
+
+    @POST("/api/ofertas")
+    suspend fun publicarOferta(@Body resena: CrearOfertaDTO): OfertaDTO
 
     @GET("/api/trabajadores/{id}")
     suspend fun obtenerTrabajador(
@@ -68,9 +76,7 @@ interface ApiService {
     suspend fun obtenerPerfilTrabajador(@Path("id") idUsuario: Int): TrabajadorDTO
 
     @POST("/api/servicios/solicitar")
-    suspend fun solicitarServicio(
-        @Body datos: SolicitarServicioDTO
-    ): String
+    suspend fun solicitarServicio(@Body datos: SolicitarServicioDTO): ServicioDTO
 
     @GET("/api/servicios/mis-contratos")
     suspend fun obtenerMisContratos(

@@ -1,11 +1,14 @@
 package com.raul_fernandez_garcia.worknearby
 
 import android.annotation.SuppressLint
-import android.content.Context
+import android.net.Uri
 import android.os.Bundle
 import androidx.activity.ComponentActivity
+import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -43,11 +46,13 @@ import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.DrawerValue
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalDrawerSheet
@@ -58,7 +63,6 @@ import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
-import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
@@ -82,9 +86,6 @@ import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
-import androidx.lifecycle.ViewModel
-import androidx.lifecycle.ViewModelProvider
-import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import androidx.navigation.NavType
@@ -94,7 +95,7 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import coil.compose.AsyncImage
 import com.example.compose.AppTheme
-import com.raul_fernandez_garcia.WorkNearby_API.modeloDTO.LoginRequest
+import com.raul_fernandez_garcia.worknearby.modeloDTO.CategoriaDTO
 import com.raul_fernandez_garcia.worknearby.modeloDTO.ClienteDTO
 import com.raul_fernandez_garcia.worknearby.modeloDTO.OfertaDTO
 import com.raul_fernandez_garcia.worknearby.modeloDTO.ServicioDTO
@@ -174,10 +175,16 @@ fun appNavigation(navController: NavHostController) {
         composable("crear_oferta") {
             EscribirOferta(navController)
         }
+
+        composable("crear_contrato") {
+            EscribirContrato(navController)
+        }
     }
 }
 
+
 //------------------------------------------------
+
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
@@ -189,6 +196,10 @@ private fun BuscarOfertas(
     val viewModel: OfertasViewModel = viewModel(
         factory = OfertasViewModelFactory(context)
     )
+
+    LaunchedEffect(Unit) {
+        viewModel.cargarOfertas()
+    }
 
     val listaOfertasReal by viewModel.ofertas.collectAsState()
 
@@ -390,7 +401,7 @@ fun ListaOfertas(
                         contentDescription = "Foto de oferta",
                         modifier = Modifier
                             .padding(15.dp)
-                            .width(115.dp)
+                            .size(115.dp)
                             .clip(RoundedCornerShape(8.dp))
                             .fillMaxHeight(),
                         contentScale = ContentScale.Crop
@@ -401,7 +412,9 @@ fun ListaOfertas(
     }
 }
 
+
 //------------------------------------------------
+
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
@@ -419,6 +432,7 @@ private fun BuscarContratos(
 
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val scope = rememberCoroutineScope()
+    val esTrabajador by viewModel.esTrabajador.collectAsState()
 
     ModalNavigationDrawer(
         drawerState = drawerState,
@@ -499,6 +513,25 @@ private fun BuscarContratos(
                                 imageVector = Icons.Default.Menu,
                                 contentDescription = "Abrir menu"
                             )
+                        }
+                    },
+                    actions = {
+                        // Boton solo visible para trabajador
+                        if (esTrabajador) {
+                            FilledIconButton(
+                                colors = IconButtonDefaults.filledIconButtonColors(
+                                    containerColor = MaterialTheme.colorScheme.secondaryContainer
+                                ),
+                                onClick = {
+                                    navController.navigate("crear_contrato")
+                                },
+                                modifier = Modifier.size(35.dp)
+                            ) {
+                                Icon(
+                                    imageVector = Icons.Default.Add,
+                                    contentDescription = "Añadir contrato",
+                                )
+                            }
                         }
                     }
                 )
@@ -611,7 +644,9 @@ private fun ListaContratos(contratos: List<ServicioDTO>, modifier: Modifier = Mo
     }
 }
 
+
 //------------------------------------------------
+
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
@@ -697,7 +732,7 @@ private fun TrabajoOfertado(
                             )
                             // Profesion (Descripcion corta)
                             Text(
-                                text = trabajador!!.descripcion ?: "Profesional",
+                                text = oferta!!.descripcion ?: "Sin descripción",
                                 fontSize = 18.sp,
                                 color = Color.Gray,
                                 modifier = Modifier.padding(bottom = 15.dp)
@@ -808,7 +843,9 @@ private fun TrabajoOfertado(
     }
 }
 
+
 //------------------------------------------------
+
 
 @SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
 @OptIn(ExperimentalMaterial3Api::class)
@@ -1031,7 +1068,9 @@ fun DatoPerfil(titulo: String, valor: String) {
     }
 }
 
+
 //------------------------------------------------
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -1170,7 +1209,7 @@ fun EscribirResena(
                 // --- BOTON DE ENVIAR ---
                 Button(
                     onClick = {
-                        viewModel.enviarResena(idTrabajador, puntuacion, comentario)
+                        viewModel.publicarResena(idTrabajador, puntuacion, comentario)
                     },
                     modifier = Modifier
                         .fillMaxWidth()
@@ -1185,7 +1224,9 @@ fun EscribirResena(
     }
 }
 
+
 //------------------------------------------------
+
 
 @Composable
 fun VentanaLogin(
@@ -1310,7 +1351,9 @@ fun VentanaLogin(
     }
 }
 
+
 //------------------------------------------------
+
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
@@ -1318,17 +1361,30 @@ fun EscribirOferta(
     navController: NavHostController
 ) {
     val context = LocalContext.current
-    val viewModel: CrearResenaViewModel = viewModel(
-        factory = CrearResenaViewModelFactory(context)
+    val viewModel: CrearOfertaViewModel = viewModel(
+        factory = CrearOfertaViewModelFactory(context)
     )
 
     // Estados del formulario
-    var puntuacion by remember { mutableIntStateOf(0) }
-    var comentario by remember { mutableStateOf("") }
+    var titulo by remember { mutableStateOf("") }
+    var descripcion by remember { mutableStateOf("") }
+    var precioTexto by remember { mutableStateOf("") }
+    var fotoUri by remember { mutableStateOf<Uri?>(null) } // La foto seleccionada
+
+    val listaCategorias by viewModel.categorias.collectAsState()
+    var expanded by remember { mutableStateOf(false) }
+    var categoriaSeleccionada by remember { mutableStateOf<CategoriaDTO?>(null) }
+
 
     // Estados del ViewModel
     val isLoading by viewModel.isLoading.collectAsState()
     val mensajeExito by viewModel.mensajeExito.collectAsState()
+
+    val launcherImagen = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickVisualMedia()
+    ) { uri: Uri? ->
+        fotoUri = uri
+    }
 
     // Efecto: Si se publica con exito, volvemos atras
     LaunchedEffect(mensajeExito) {
@@ -1354,7 +1410,7 @@ fun EscribirOferta(
                     actionIconContentColor = MaterialTheme.colorScheme.onPrimary
                 ),
 
-                title = { Text("Crea una Oferta") },
+                title = { Text("Nueva Oferta") },
                 navigationIcon = {
                     FilledIconButton(
                         colors = IconButtonDefaults.filledIconButtonColors(
@@ -1381,82 +1437,361 @@ fun EscribirOferta(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
 
-                Text(
-                    text = "¿Qué tal fue el trabajo?",
-                    fontSize = 22.sp,
-                    //fontWeight = FontWeight.Bold,
-                    color = Color.Black
-                )
-
-                Spacer(modifier = Modifier.height(8.dp))
-
-                Text(
-                    text = "Tu opinión ayuda a otros usuarios a elegir.",
-                    fontSize = 14.sp,
-                    color = Color.Gray,
-                    textAlign = TextAlign.Center
-                )
-
-                Spacer(modifier = Modifier.height(32.dp))
-
-                // --- COMPONENTE DE ESTRELLAS ---
-                Row(
-                    horizontalArrangement = Arrangement.Center,
-                    modifier = Modifier.fillMaxWidth()
+                // --- 1. SELECCION DE FOTO ---
+                Box(
+                    modifier = Modifier
+                        .size(120.dp)
+                        .clip(RoundedCornerShape(12.dp))
+                        .background(Color(0xFFF5F5F5))
+                        .border(1.dp, Color.Gray, RoundedCornerShape(12.dp))
+                        .clickable {
+                            // Abrir galeria (solo imagenes)
+                            launcherImagen.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+                        },
+                    contentAlignment = Alignment.Center
                 ) {
-                    repeat(5) { index ->
-                        val starNumber = index + 1
-                        val isSelected = starNumber <= puntuacion
-
-                        Icon(
-                            imageVector = if (isSelected) Icons.Filled.Star else Icons.Outlined.Star,
-                            contentDescription = "Estrella $starNumber",
-                            tint = if (isSelected) Color(0xFFFFC107) else Color.LightGray,
-                            modifier = Modifier
-                                .size(48.dp)
-                                .padding(4.dp)
-                                .clickable {
-                                    puntuacion = starNumber
-                                }
+                    if (fotoUri != null) {
+                        AsyncImage(
+                            model = fotoUri,
+                            contentDescription = "Foto seleccionada",
+                            modifier = Modifier.fillMaxSize(),
+                            contentScale = ContentScale.Crop
                         )
+                    } else {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Icon(Icons.Default.Add, contentDescription = null, tint = Color.Gray)
+                            Text(
+                                "Añadir Foto (opcional)",
+                                fontSize = 12.sp,
+                                color = Color.Gray,
+                                textAlign = TextAlign.Center
+                            )
+                        }
                     }
                 }
 
-                Text(
-                    text = "$puntuacion/5",
-                    fontSize = 18.sp,
-                    fontWeight = FontWeight.Bold,
-                    color = Color(0xFFFFC107),
-                    modifier = Modifier.padding(top = 8.dp)
+                Spacer(modifier = Modifier.height(24.dp))
+
+                // --- 2. TITULO ---
+                OutlinedTextField(
+                    value = titulo,
+                    onValueChange = { titulo = it },
+                    label = { Text("Título del trabajo") },
+                    placeholder = { Text("Ej: Pintar habitación 20m2") },
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedContainerColor = Color(0xFFF5F5F5),
+                        unfocusedContainerColor = Color(0xFFF5F5F5)
+                    )
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // --- 3. CATEGORIA---
+                ExposedDropdownMenuBox(
+                    expanded = expanded,
+                    onExpandedChange = { expanded = !expanded },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    OutlinedTextField(
+                        value = categoriaSeleccionada?.nombre ?: "Seleccionar...",
+                        onValueChange = {},
+                        readOnly = true,
+                        label = { Text("Categoría") },
+                        trailingIcon = {
+                            ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .menuAnchor(),
+                        shape = RoundedCornerShape(12.dp),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedContainerColor = Color(0xFFF5F5F5),
+                            unfocusedContainerColor = Color(0xFFF5F5F5)
+                        )
+                    )
+
+                    // La lista que se despliega
+                    ExposedDropdownMenu(
+                        expanded = expanded,
+                        onDismissRequest = { expanded = false }
+                    ) {
+                        if (listaCategorias.isEmpty()) {
+                            DropdownMenuItem(
+                                text = { Text("Cargando...") },
+                                onClick = { }
+                            )
+                        } else {
+                            listaCategorias.forEach { categoria ->
+                                DropdownMenuItem(
+                                    text = { Text(text = categoria.nombre) },
+                                    onClick = {
+                                        categoriaSeleccionada = categoria
+                                        expanded = false
+                                    },
+                                    contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
+                                )
+                            }
+                        }
+                    }
+                }
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // --- 4. PRECIO ---
+                OutlinedTextField(
+                    value = precioTexto,
+                    onValueChange = {
+                        // Solo numeros y un punto decimal
+                        if (it.all { char -> char.isDigit() || char == '.' }) {
+                            precioTexto = it
+                        }
+                    },
+                    label = { Text("Precio por hora (€)") },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedContainerColor = Color(0xFFF5F5F5),
+                        unfocusedContainerColor = Color(0xFFF5F5F5)
+                    )
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // --- 5. DESCRIPCION ---
+                OutlinedTextField(
+                    value = descripcion,
+                    onValueChange = { descripcion = it },
+                    label = { Text("Descripción detallada") },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(120.dp),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedContainerColor = Color(0xFFF5F5F5),
+                        unfocusedContainerColor = Color(0xFFF5F5F5)
+                    )
                 )
 
                 Spacer(modifier = Modifier.height(32.dp))
 
-                // --- CAJA DE TEXTO ---
-                OutlinedTextField(
-                    value = comentario,
-                    onValueChange = { comentario = it },
-                    label = { Text("Escribe tu comentario...") },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(150.dp),
-                    shape = RoundedCornerShape(12.dp),
-                )
-
-                Spacer(modifier = Modifier.weight(1f))
-
-                // --- BOTON DE ENVIAR ---
+                // --- 6. BOTON PUBLICAR ---
                 Button(
                     onClick = {
-                        //viewModel.enviarResena(idTrabajador, puntuacion, comentario)
+                        val precio = precioTexto.toDoubleOrNull() ?: 0.0
+                        if (categoriaSeleccionada != null) {
+                            viewModel.publicarOferta(
+                                titulo,
+                                descripcion,
+                                precio,
+                                categoriaSeleccionada!!.id,
+                                fotoUri
+                            )
+                        }
                     },
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(50.dp),
-                    enabled = puntuacion > 0,
+                    enabled = titulo.isNotEmpty() && descripcion.isNotEmpty() && precioTexto.isNotEmpty(),
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
                 ) {
-                    Text("Publicar Reseña", fontSize = 16.sp)
+                    Text("Publicar Oferta", fontSize = 18.sp)
+                }
+            }
+        }
+    }
+}
+
+
+//------------------------------------------------
+
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun EscribirContrato(
+    navController: NavHostController
+) {
+    val context = LocalContext.current
+    val viewModel: CrearContratoViewModel = viewModel(
+        factory = CrearContratoViewModelFactory(context)
+    )
+
+    // Estados del formulario
+    var titulo by remember { mutableStateOf("") }
+    var descripcion by remember { mutableStateOf("") }
+    var precioTexto by remember { mutableStateOf("") }
+
+    val listaCategorias by viewModel.categorias.collectAsState()
+    var expanded by remember { mutableStateOf(false) }
+    var categoriaSeleccionada by remember { mutableStateOf<CategoriaDTO?>(null) }
+
+
+    // Estados del ViewModel
+    val isLoading by viewModel.isLoading.collectAsState()
+    val mensajeExito by viewModel.mensajeExito.collectAsState()
+
+
+    // Efecto: Si se publica con exito, volvemos atras
+    LaunchedEffect(mensajeExito) {
+        if (mensajeExito != null) {
+            // Esperamos un poquito para que el usuario lea (opcional)
+            navController.popBackStack()
+            viewModel.resetMensaje()
+        }
+    }
+
+    Scaffold(
+        topBar = {
+            CenterAlignedTopAppBar(
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                    // Color de fondo de la barra
+                    containerColor = MaterialTheme.colorScheme.primary,
+
+                    // Color del texto del titulo
+                    titleContentColor = MaterialTheme.colorScheme.onPrimary,
+
+                    // Color de los iconos (menu, flecha atras)
+                    navigationIconContentColor = MaterialTheme.colorScheme.onPrimary,
+                    actionIconContentColor = MaterialTheme.colorScheme.onPrimary
+                ),
+
+                title = { Text("Nuevo contrato") },
+                navigationIcon = {
+                    FilledIconButton(
+                        colors = IconButtonDefaults.filledIconButtonColors(
+                            containerColor = MaterialTheme.colorScheme.secondaryContainer
+                        ),
+                        onClick = { navController.popBackStack() }) {
+                        Icon(Icons.Default.ArrowBack, contentDescription = "Cancelar")
+                    }
+                }
+            )
+        }
+    ) { paddingValues ->
+
+        if (isLoading) {
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                CircularProgressIndicator()
+            }
+        } else {
+            Column(
+                modifier = Modifier
+                    .padding(paddingValues)
+                    .fillMaxSize()
+                    .padding(24.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+
+                // --- 2. CATEGORIA---
+                ExposedDropdownMenuBox(
+                    expanded = expanded,
+                    onExpandedChange = { expanded = !expanded },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    OutlinedTextField(
+                        value = categoriaSeleccionada?.nombre ?: "Seleccionar...",
+                        onValueChange = {},
+                        readOnly = true,
+                        label = { Text("Categoría") },
+                        trailingIcon = {
+                            ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .menuAnchor(),
+                        shape = RoundedCornerShape(12.dp),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedContainerColor = Color(0xFFF5F5F5),
+                            unfocusedContainerColor = Color(0xFFF5F5F5)
+                        )
+                    )
+
+                    // La lista que se despliega
+                    ExposedDropdownMenu(
+                        expanded = expanded,
+                        onDismissRequest = { expanded = false }
+                    ) {
+                        if (listaCategorias.isEmpty()) {
+                            DropdownMenuItem(
+                                text = { Text("Cargando...") },
+                                onClick = { }
+                            )
+                        } else {
+                            listaCategorias.forEach { categoria ->
+                                DropdownMenuItem(
+                                    text = { Text(text = categoria.nombre) },
+                                    onClick = {
+                                        categoriaSeleccionada = categoria
+                                        expanded = false
+                                    },
+                                    contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
+                                )
+                            }
+                        }
+                    }
+                }
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // --- 3. PRECIO ---
+                OutlinedTextField(
+                    value = precioTexto,
+                    onValueChange = {
+                        // Solo numeros y un punto decimal
+                        if (it.all { char -> char.isDigit() || char == '.' }) {
+                            precioTexto = it
+                        }
+                    },
+                    label = { Text("Precio por hora (€)") },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedContainerColor = Color(0xFFF5F5F5),
+                        unfocusedContainerColor = Color(0xFFF5F5F5)
+                    )
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // --- 4. DESCRIPCION ---
+                OutlinedTextField(
+                    value = descripcion,
+                    onValueChange = { descripcion = it },
+                    label = { Text("Descripción del trabajo") },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(120.dp),
+                    shape = RoundedCornerShape(12.dp),
+                    colors = OutlinedTextFieldDefaults.colors(
+                        focusedContainerColor = Color(0xFFF5F5F5),
+                        unfocusedContainerColor = Color(0xFFF5F5F5)
+                    )
+                )
+
+                Spacer(modifier = Modifier.height(32.dp))
+
+                // --- 5. BOTON PUBLICAR ---
+                Button(
+                    onClick = {
+                        val precio = precioTexto.toDoubleOrNull() ?: 0.0
+                        if (categoriaSeleccionada != null) {
+                            viewModel.publicarServicio(
+                                titulo,
+                                descripcion,
+                                precio,
+                                categoriaSeleccionada!!.id,
+                                fotoUri
+                            )
+                        }
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(50.dp),
+                    enabled = titulo.isNotEmpty() && descripcion.isNotEmpty() && precioTexto.isNotEmpty(),
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
+                ) {
+                    Text("Publicar Oferta", fontSize = 18.sp)
                 }
             }
         }
