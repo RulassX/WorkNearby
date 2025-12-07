@@ -12,6 +12,7 @@ import androidx.lifecycle.viewModelScope
 import com.raul_fernandez_garcia.WorkNearby_API.modeloDTO.CrearOfertaDTO
 import com.raul_fernandez_garcia.WorkNearby_API.modeloDTO.CrearResenaDTO
 import com.raul_fernandez_garcia.WorkNearby_API.modeloDTO.LoginRequest
+import com.raul_fernandez_garcia.WorkNearby_API.modeloDTO.SolicitarServicioDTO
 import com.raul_fernandez_garcia.worknearby.modeloDTO.CategoriaDTO
 import com.raul_fernandez_garcia.worknearby.modeloDTO.OfertaDTO
 import com.raul_fernandez_garcia.worknearby.modeloDTO.ResenaDTO
@@ -552,11 +553,10 @@ class CrearContratoViewModel(context: Context) : ViewModel() {
     }
 
     fun publicarContrato(
-        titulo: String,
-        descripcion: String,
-        precio: Double,
+        idCliente: Int,
         idCategoria: Int,
-        fotoUri: Uri?
+        descripcion: String,
+        estado: String
     ) {
         viewModelScope.launch(Dispatchers.IO) {
             _isLoading.value = true
@@ -564,32 +564,16 @@ class CrearContratoViewModel(context: Context) : ViewModel() {
                 val miIdTrabajador = sessionManager.obtenerIdUsuario()
 
                 if (miIdTrabajador != 0) {
-                    val fotoString = fotoUri?.let { uri ->
-                        try {
-                            val inputStream = contentResolver.openInputStream(uri)
-                            val bytes = inputStream?.readBytes()
-                            inputStream?.close()
-                            if (bytes != null) Base64.encodeToString(
-                                bytes,
-                                Base64.NO_WRAP
-                            ) else null
-                        } catch (e: Exception) {
-                            e.printStackTrace()
-                            null
-                        }
-                    }
-
-                    val nuevaOferta = CrearOfertaDTO(
+                    val nuevoServicio = SolicitarServicioDTO(
+                        idCliente = idCliente,
                         idTrabajador = miIdTrabajador,
                         idCategoria = idCategoria,
-                        titulo = titulo,
                         descripcion = descripcion,
-                        precio = precio,
-                        fotoUrlOferta = fotoString
+                        estado = estado
                     )
 
-                    RetrofitClient.api.publicarOferta(nuevaOferta)
-                    _mensajeExito.value = "Oferta publicada correctamente"
+                    RetrofitClient.api.solicitarServicio(nuevoServicio)
+                    _mensajeExito.value = "Contrato creado correctamente"
 
                 } else {
                     println("Error: No hay usuario logueado")
