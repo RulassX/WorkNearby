@@ -537,10 +537,9 @@ class CrearContratoViewModel(context: Context) : ViewModel() {
 
     val sessionManager = SessionManager(context)
 
-    private val contentResolver = context.contentResolver
-
     private val _isLoading = MutableStateFlow(false)
     val isLoading: StateFlow<Boolean> = _isLoading
+    var loginError by mutableStateOf<String?>(null)
 
     private val _mensajeExito = MutableStateFlow<String?>(null)
     val mensajeExito: StateFlow<String?> = _mensajeExito
@@ -553,19 +552,20 @@ class CrearContratoViewModel(context: Context) : ViewModel() {
     }
 
     fun publicarContrato(
-        idCliente: Int,
+        emailCliente: String,
         idCategoria: Int,
         descripcion: String,
         estado: String
     ) {
         viewModelScope.launch(Dispatchers.IO) {
             _isLoading.value = true
+            loginError = null
             try {
                 val miIdTrabajador = sessionManager.obtenerIdUsuario()
 
                 if (miIdTrabajador != 0) {
                     val nuevoServicio = SolicitarServicioDTO(
-                        idCliente = idCliente,
+                        emailCliente = emailCliente,
                         idTrabajador = miIdTrabajador,
                         idCategoria = idCategoria,
                         descripcion = descripcion,
@@ -581,6 +581,7 @@ class CrearContratoViewModel(context: Context) : ViewModel() {
 
             } catch (e: Exception) {
                 e.printStackTrace()
+                loginError = "Este email no existe"
             } finally {
                 _isLoading.value = false
             }
@@ -607,9 +608,9 @@ class CrearContratoViewModel(context: Context) : ViewModel() {
 
 class CrearContratoViewModelFactory(private val context: Context) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        if (modelClass.isAssignableFrom(CrearOfertaViewModel::class.java)) {
+        if (modelClass.isAssignableFrom(CrearContratoViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST")
-            return CrearOfertaViewModel(context) as T
+            return CrearContratoViewModel(context) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }

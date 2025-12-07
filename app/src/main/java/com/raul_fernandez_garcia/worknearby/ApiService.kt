@@ -75,7 +75,7 @@ interface ApiService {
     @GET("/api/usuario/trabajador/{id}")
     suspend fun obtenerPerfilTrabajador(@Path("id") idUsuario: Int): TrabajadorDTO
 
-    @POST("/api/servicios/solicitar")
+    @POST("/api/servicios")
     suspend fun solicitarServicio(@Body datos: SolicitarServicioDTO): ServicioDTO
 
     @GET("/api/servicios/mis-contratos")

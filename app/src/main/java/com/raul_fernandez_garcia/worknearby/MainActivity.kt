@@ -434,6 +434,10 @@ private fun BuscarContratos(
     val scope = rememberCoroutineScope()
     val esTrabajador by viewModel.esTrabajador.collectAsState()
 
+    LaunchedEffect(Unit) {
+        viewModel.cargarContratos()
+    }
+
     ModalNavigationDrawer(
         drawerState = drawerState,
         drawerContent = {
@@ -1287,6 +1291,7 @@ fun VentanaLogin(
                 value = viewModel.email,
                 onValueChange = { viewModel.email = it },
                 label = { Text("Correo electrónico") },
+                keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true,
                 shape = RoundedCornerShape(12.dp)
@@ -1593,7 +1598,7 @@ fun EscribirOferta(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(50.dp),
-                    enabled = titulo.isNotEmpty() && descripcion.isNotEmpty() && precioTexto.isNotEmpty(),
+                    enabled = titulo.isNotEmpty() && descripcion.isNotEmpty() && precioTexto.isNotEmpty() && categoriaSeleccionada != null,
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
                 ) {
                     Text("Publicar Oferta", fontSize = 18.sp)
@@ -1618,19 +1623,21 @@ fun EscribirContrato(
     )
 
     // Estados del formulario
-    var titulo by remember { mutableStateOf("") }
+    var emailCliente by remember { mutableStateOf("") }
     var descripcion by remember { mutableStateOf("") }
-    var precioTexto by remember { mutableStateOf("") }
 
     val listaCategorias by viewModel.categorias.collectAsState()
     var expanded by remember { mutableStateOf(false) }
     var categoriaSeleccionada by remember { mutableStateOf<CategoriaDTO?>(null) }
 
+    val listaEstados = listOf("pendiente", "aceptado", "rechazado")
+    var expandedEstado by remember { mutableStateOf(false) }
+    var estadoSeleccionado by remember { mutableStateOf("pendiente") }
+
 
     // Estados del ViewModel
     val isLoading by viewModel.isLoading.collectAsState()
     val mensajeExito by viewModel.mensajeExito.collectAsState()
-
 
     // Efecto: Si se publica con exito, volvemos atras
     LaunchedEffect(mensajeExito) {
@@ -1683,6 +1690,27 @@ fun EscribirContrato(
                 horizontalAlignment = Alignment.CenterHorizontally
             ) {
 
+                // --- 1. EMAIL CLIENTE---
+
+                if (viewModel.loginError != null) {
+                    Text(
+                        text = viewModel.loginError!!,
+                        color = MaterialTheme.colorScheme.error,
+                        fontSize = 14.sp
+                    )
+                }
+
+                OutlinedTextField(
+                    value = emailCliente,
+                    onValueChange = { emailCliente = it },
+                    label = { Text("Email del Cliente") },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(12.dp)
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
                 // --- 2. CATEGORIA---
                 ExposedDropdownMenuBox(
                     expanded = expanded,
@@ -1733,24 +1761,42 @@ fun EscribirContrato(
                 }
                 Spacer(modifier = Modifier.height(16.dp))
 
-                // --- 3. PRECIO ---
-                OutlinedTextField(
-                    value = precioTexto,
-                    onValueChange = {
-                        // Solo numeros y un punto decimal
-                        if (it.all { char -> char.isDigit() || char == '.' }) {
-                            precioTexto = it
-                        }
-                    },
-                    label = { Text("Precio por hora (€)") },
-                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
-                    modifier = Modifier.fillMaxWidth(),
-                    shape = RoundedCornerShape(12.dp),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedContainerColor = Color(0xFFF5F5F5),
-                        unfocusedContainerColor = Color(0xFFF5F5F5)
+                // --- 3. ESTADO---
+                ExposedDropdownMenuBox(
+                    expanded = expandedEstado,
+                    onExpandedChange = { expandedEstado = !expandedEstado },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    OutlinedTextField(
+                        value = estadoSeleccionado.uppercase(),
+                        onValueChange = {},
+                        readOnly = true,
+                        label = { Text("Estado Inicial") },
+                        trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedEstado) },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .menuAnchor(),
+                        shape = RoundedCornerShape(12.dp),
+                        colors = OutlinedTextFieldDefaults.colors(
+                            focusedContainerColor = Color(0xFFF5F5F5),
+                            unfocusedContainerColor = Color(0xFFF5F5F5)
+                        )
                     )
-                )
+                    ExposedDropdownMenu(
+                        expanded = expandedEstado,
+                        onDismissRequest = { expandedEstado = false }
+                    ) {
+                        listaEstados.forEach { estado ->
+                            DropdownMenuItem(
+                                text = { Text(text = estado.uppercase()) },
+                                onClick = {
+                                    estadoSeleccionado = estado
+                                    expandedEstado = false
+                                }
+                            )
+                        }
+                    }
+                }
 
                 Spacer(modifier = Modifier.height(16.dp))
 
@@ -1774,24 +1820,22 @@ fun EscribirContrato(
                 // --- 5. BOTON PUBLICAR ---
                 Button(
                     onClick = {
-                        val precio = precioTexto.toDoubleOrNull() ?: 0.0
-                        if (categoriaSeleccionada != null) {
-                            viewModel.publicarServicio(
-                                titulo,
-                                descripcion,
-                                precio,
+                        if (categoriaSeleccionada != null && emailCliente.isNotEmpty()) {
+                            viewModel.publicarContrato(
+                                emailCliente,
                                 categoriaSeleccionada!!.id,
-                                fotoUri
+                                descripcion,
+                                estadoSeleccionado
                             )
                         }
                     },
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(50.dp),
-                    enabled = titulo.isNotEmpty() && descripcion.isNotEmpty() && precioTexto.isNotEmpty(),
+                    enabled = emailCliente.isNotEmpty() && categoriaSeleccionada != null && descripcion.isNotEmpty(),
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
                 ) {
-                    Text("Publicar Oferta", fontSize = 18.sp)
+                    Text("Crear Contrato", fontSize = 18.sp)
                 }
             }
         }
