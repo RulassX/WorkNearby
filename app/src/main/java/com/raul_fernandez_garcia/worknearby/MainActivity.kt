@@ -9,6 +9,7 @@ import androidx.activity.compose.setContent
 import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
+import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -80,6 +81,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
@@ -786,7 +788,6 @@ private fun TrabajoOfertado(
                                 .clip(RoundedCornerShape(8.dp))
                                 .border(1.dp, Color.Gray, RoundedCornerShape(8.dp)),
                             contentScale = ContentScale.Crop,
-                            alignment = Alignment.TopEnd
                         )
                     }
 
@@ -1294,12 +1295,26 @@ fun VentanaLogin(
             verticalArrangement = Arrangement.Center
         ) {
             // --- LOGO O ICONO ---
+            /*
             Icon(
                 imageVector = Icons.Default.Person,
                 contentDescription = stringResource(R.string.cd_logo),
                 modifier = Modifier.size(100.dp),
                 tint = MaterialTheme.colorScheme.primary
             )
+             */
+
+            Image(
+                painter = painterResource(id = R.drawable.logoworknearby),
+                contentDescription = stringResource(R.string.cd_logo),
+                modifier = Modifier
+                    .size(100.dp)
+                    .border(3.dp, MaterialTheme.colorScheme.secondaryContainer, CircleShape)
+                    .clip(CircleShape),
+                contentScale = ContentScale.Crop,
+            )
+
+            Spacer(modifier = Modifier.height(32.dp))
 
             Text(
                 text = stringResource(R.string.app_name),
@@ -1695,7 +1710,10 @@ fun EscribirContrato(
                             containerColor = MaterialTheme.colorScheme.secondaryContainer
                         ),
                         onClick = { navController.popBackStack() }) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = stringResource(R.string.cd_cancelar))
+                        Icon(
+                            Icons.Default.ArrowBack,
+                            contentDescription = stringResource(R.string.cd_cancelar)
+                        )
                     }
                 }
             )
@@ -1743,7 +1761,8 @@ fun EscribirContrato(
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     OutlinedTextField(
-                        value = categoriaSeleccionada?.nombre ?: stringResource(R.string.placeholder_seleccionar),
+                        value = categoriaSeleccionada?.nombre
+                            ?: stringResource(R.string.placeholder_seleccionar),
                         onValueChange = {},
                         readOnly = true,
                         label = { Text(stringResource(R.string.label_categoria)) },
