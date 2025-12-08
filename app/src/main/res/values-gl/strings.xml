@@ -2,68 +2,120 @@
 <resources>
     <string name="app_name">WorkNearby</string>
 
-    <!-- Menu Lateral -->
+    <!-- ============================================== -->
+    <!-- MENU LATERAL E NAVEGACION COMUN                -->
+    <!-- ============================================== -->
     <string name="menu_hola">Ola %s</string>
     <string name="menu_perfil">O Meu Perfil</string>
     <string name="menu_ofertas">Ofertas de traballo</string>
     <string name="menu_contratos">Os Meus Contratos</string>
-    <string name="menu_volver">Volver</string>
 
-    <!-- Titulos de Pantallas -->
-    <string name="titulo_contratos">Contratos</string>
-    <string name="titulo_detalles">Detalles</string>
-    <string name="titulo_nueva_oferta">Nova Oferta</string>
-    <string name="titulo_nuevo_contrato">Novo Contrato</string>
-    <string name="titulo_escribir_opinion">Escribe a túa Opinión</string>
+    <!-- Content Descriptions -->
+    <string name="cd_abrir_menu">Abrir menú</string>
+    <string name="cd_cancelar">Cancelar</string>
+    <string name="cd_volver_atras">Voltar atrás</string>
+    <string name="cd_foto_perfil">Foto de perfil</string>
+    <string name="cd_foto_oferta">Foto da oferta</string>
+    <string name="cd_foto_seleccionada">Foto seleccionada</string>
+    <string name="cd_anadir_oferta">Engadir oferta</string>
+    <string name="cd_anadir_resena">Engadir recensión</string>
+    <string name="cd_anadir_contrato">Engadir contrato</string>
+    <string name="cd_logo">Logotipo da aplicación</string>
+    <string name="cd_estrella">Estrela</string>
 
-    <!-- Login -->
+    <!-- ============================================== -->
+    <!-- PANTALLA: LOGIN                                -->
+    <!-- ============================================== -->
+    <string name="login_titulo">WorkNearby</string>
     <string name="login_subtitulo">Inicia sesión para continuar</string>
     <string name="label_email">Correo electrónico</string>
     <string name="label_password">Contrasinal</string>
     <string name="btn_entrar">Entrar</string>
-    <string name="text_no_cuenta">¿Non tes conta? Rexístrate aquí</string>
-    <string name="error_login">Credenciais incorrectas</string>
+    <string name="login_no_cuenta">Non tes conta? Rexístrate aquí</string>
+    <string name="error_login_generico">Erro ao iniciar sesión</string>
 
-    <!-- Pantalla Buscar Ofertas -->
-    <string name="text_cargando_ofertas">Cargando ofertas ou non hai dispoñibles...</string>
+    <!-- ============================================== -->
+    <!-- PANTALLA: BUSCAR OFERTAS                       -->
+    <!-- ============================================== -->
+    <string name="titulo_worknearby">WorkNearby</string>
+    <string name="msg_cargando_ofertas">Cargando ofertas ou non hai dispoñibles...</string>
+    <string name="label_precio_formato">Prezo: %s €/h</string>
     <string name="label_por_trabajador">Por: %s</string>
-    <string name="label_precio_lista">Prezo: %s €</string>
-    <string name="text_a_convenir">A convir</string>
 
-    <!-- Pantalla Crear Oferta -->
-    <string name="label_titulo_oferta">Título do traballo</string>
-    <string name="placeholder_titulo_oferta">Ex: Pintar habitación 20m2</string>
-    <string name="label_precio_hora">Prezo por hora (€)</string>
-    <string name="text_anadir_foto">Engadir Foto</string>
-    <string name="text_foto_seleccionada">Foto seleccionada</string>
+    <!-- ============================================== -->
+    <!-- PANTALLA: DETALLES (TraballoOfertado)           -->
+    <!-- ============================================== -->
+    <string name="titulo_detalles">Detalles</string>
+    <string name="texto_profesional_default">Profesional</string>
+    <string name="label_telf">Telf.: %s</string>
+    <string name="label_email_info">Email: %s</string>
+    <string name="precio_hora_simple">%s €/hora</string>
+    <string name="sin_descripcion">Sen descrición</string>
+    <string name="titulo_opiniones">Opinións de clientes</string>
+    <string name="msg_no_hay_resenas">Aínda non hai recensións.</string>
+
+    <!-- ============================================== -->
+    <!-- PANTALLA: PERFIL                               -->
+    <!-- ============================================== -->
+    <string name="titulo_perfil">O Meu Perfil</string>
+    <string name="dato_telefono">Teléfono</string>
+    <string name="dato_email">Email</string>
+    <string name="dato_precio_hora">Prezo Hora</string>
+    <string name="dato_radio">Radio Acción</string>
+    <string name="dato_descripcion">Descrición</string>
+    <string name="dato_ciudad">Cidade</string>
+    <string name="dato_direccion">Enderezo</string>
+    <string name="valor_no_especificada">Non especificada</string>
+    <string name="valor_sin_descripcion">Sen descrición</string>
+
+    <!-- ============================================== -->
+    <!-- PANTALLA: ESCRIBIR RESEÑA                      -->
+    <!-- ============================================== -->
+    <string name="titulo_escribir_opinion">Escribe a túa Opinión</string>
+    <string name="texto_que_tal">Que tal foi o traballo?</string>
+    <string name="texto_ayuda_opinion">A túa opinión axuda a outros usuarios a elixir.</string>
+    <string name="label_puntuacion">Puntuación (1-5)</string>
+    <string name="error_puntuacion_invalida">Introduce un número do 1 ao 5</string>
+    <string name="label_comentario">Escribe o teu comentario...</string>
+    <string name="placeholder_comentario">Ex: Foi moi puntual e limpo...</string>
+    <string name="btn_publicar_resena">Publicar Recensión</string>
+
+    <!-- ============================================== -->
+    <!-- PANTALLA: ESCRIBIR OFERTA                      -->
+    <!-- ============================================== -->
+    <string name="titulo_nueva_oferta">Nova Oferta</string>
+    <string name="text_anadir_foto_opcional">Engadir Foto (opcional)</string>
+    <string name="label_titulo_trabajo">Título do traballo</string>
+    <string name="placeholder_titulo_trabajo">Ex: Pintar habitación 20m2</string>
+    <string name="label_precio_hora_euro">Prezo por hora (€)</string>
+    <string name="label_categoria">Categoría</string>
+    <string name="placeholder_seleccionar">Seleccionar...</string>
+    <string name="placeholder_cargando">Cargando...</string>
+    <string name="label_descripcion_detallada">Descrición detallada</string>
     <string name="btn_publicar_oferta">Publicar Oferta</string>
-    <string name="msg_oferta_exito">¡Oferta publicada con éxito!</string>
 
-    <!-- Formulario Contrato -->
+    <!-- ============================================== -->
+    <!-- PANTALLA: ESCRIBIR CONTRATO                    -->
+    <!-- ============================================== -->
+    <string name="titulo_nuevo_contrato">Novo contrato</string>
     <string name="label_id_cliente">ID do Cliente</string>
     <string name="placeholder_id_cliente">Ex: 5</string>
-    <string name="label_categoria">Categoría</string>
-    <string name="label_estado">Estado Inicial</string>
-    <string name="label_descripcion">Descrición</string>
+    <string name="label_email_cliente">Email do Cliente</string>
+    <string name="label_estado_inicial">Estado Inicial</string>
+    <string name="label_descripcion_trabajo">Descrición do traballo</string>
     <string name="btn_crear_contrato">Crear Contrato</string>
-    <string name="texto_ayuda_contrato">Rexistra un traballo realizado ou pendente.</string>
+
+    <!-- ============================================== -->
+    <!-- PANTALLA: BUSCAR CONTRATOS (Lista)             -->
+    <!-- ============================================== -->
+    <string name="titulo_mis_contratos">Os Meus Contratos</string>
+    <string name="msg_cargando_contratos">Cargando contratos ou non tes ningún...</string>
+    <string name="label_servicio_categoria">Servizo: %s</string>
+    <string name="label_fecha">Data: %s</string>
 
     <!-- Estados -->
     <string name="estado_pendiente">Pendente</string>
     <string name="estado_aceptado">Aceptado</string>
     <string name="estado_rechazado">Rexeitado</string>
 
-    <!-- Errores y Carga -->
-    <string name="loading">Cargando...</string>
-    <string name="error_sin_datos">Non hai datos dispoñibles.</string>
-
-    <!-- Content Descriptions -->
-    <string name="cd_abrir_menu">Abrir menú lateral</string>
-    <string name="cd_volver_atras">Voltar atrás</string>
-    <string name="cd_cancelar">Cancelar</string>
-    <string name="cd_foto_perfil">Foto de perfil do usuario</string>
-    <string name="cd_foto_oferta">Imaxe do traballo ofertado</string>
-    <string name="cd_anadir_oferta">Engadir nova oferta</string>
-    <string name="cd_anadir_resena">Engadir recensión</string>
-    <string name="cd_anadir_contrato">Engadir contrato</string>
 </resources>

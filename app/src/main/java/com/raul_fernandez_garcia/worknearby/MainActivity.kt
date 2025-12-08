@@ -217,7 +217,7 @@ private fun BuscarOfertas(
 
                 Spacer(modifier = Modifier.height(15.dp))
                 Text(
-                    text = stringResource(R.string.menu_hola),
+                    text = stringResource(R.string.menu_hola, nombre),
                     modifier = Modifier.padding(15.dp),
                     style = MaterialTheme.typography.titleLarge
                 )
@@ -324,7 +324,7 @@ private fun BuscarOfertas(
                         .padding(paddingValues),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text(stringResource(R.string.loading))
+                    Text(stringResource(R.string.msg_cargando_ofertas))
                 }
             } else {
                 ListaOfertas(
@@ -346,6 +346,7 @@ fun ListaOfertas(
     modifier: Modifier = Modifier
 ) {
 
+
     LazyColumn(
         modifier
             .fillMaxSize()
@@ -353,6 +354,8 @@ fun ListaOfertas(
             .padding(top = 10.dp)
     ) {
         items(ofertas) { oferta ->
+
+            val precio = oferta.precio
 
             Card(
                 colors = CardDefaults.cardColors(
@@ -390,8 +393,8 @@ fun ListaOfertas(
                         Spacer(modifier = Modifier.weight(1f))
 
                         Text(
-                            //text = "Precio: ${oferta.precio} €/h",
-                            text = stringResource(R.string.label_precio_hora),
+
+                            text = stringResource(R.string.label_precio_formato, precio ?: 0.0),
                             fontSize = 17.sp,
                             modifier = Modifier
                                 .padding(start = 15.dp, bottom = 15.dp),
@@ -447,8 +450,7 @@ private fun BuscarContratos(
 
                 Spacer(modifier = Modifier.height(15.dp))
                 Text(
-                    //text = "Hola $nombre",
-                    text = stringResource(R.string.menu_hola),
+                    text = stringResource(R.string.menu_hola, nombre),
                     modifier = Modifier.padding(15.dp),
                     style = MaterialTheme.typography.titleLarge
                 )
@@ -498,7 +500,7 @@ private fun BuscarContratos(
 
                     title = {
                         Text(
-                            text = stringResource(R.string.titulo_contratos)
+                            text = stringResource(R.string.titulo_nuevo_contrato)
                         )
 
                     },
@@ -551,7 +553,7 @@ private fun BuscarContratos(
                         .padding(paddingValues),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text("No tienes contratos activos.")
+                    Text(stringResource(R.string.msg_cargando_contratos))
                 }
             } else {
                 ListaContratos(
@@ -576,6 +578,8 @@ private fun ListaContratos(contratos: List<ServicioDTO>, modifier: Modifier = Mo
     ) {
         items(contratos) { contrato ->
 
+            val nameCatg = contrato.nombreCategoria
+
             Card(
                 colors = CardDefaults.cardColors(
                     containerColor = MaterialTheme.colorScheme.secondaryContainer,
@@ -595,7 +599,7 @@ private fun ListaContratos(contratos: List<ServicioDTO>, modifier: Modifier = Mo
                         modifier = Modifier.fillMaxHeight(),
                     ) {
                         Text(
-                            text = "Servicio: ${contrato.nombreCategoria}",
+                            text = stringResource(R.string.label_servicio_categoria, nameCatg),
                             fontSize = 17.sp,
                             modifier = Modifier
                                 .padding(start = 15.dp, top = 15.dp),
@@ -623,23 +627,31 @@ private fun ListaContratos(contratos: List<ServicioDTO>, modifier: Modifier = Mo
                         Spacer(modifier = Modifier.weight(1f))
 
                         val colorEstado = when (contrato.estado.lowercase()) {
-                            "pendiente" -> Color(0xFFFFA000) //Naranja
-                            "aceptado" -> Color(0xFF388E3C)  //Verde
-                            "rechazado" -> Color.Red                //Rojo
+                            "pendiente" -> Color(0xFFFFA000)    // Naranja
+                            "aceptado" -> Color(0xFF388E3C)     // Verde
+                            "rechazado" -> Color.Red                    // Rojo
                             else -> Color.Gray
                         }
 
+                        val textoEstado = when (contrato.estado.lowercase()) {
+                            "pendiente" -> stringResource(R.string.estado_pendiente)
+                            "aceptado" -> stringResource(R.string.estado_aceptado)
+                            "rechazado" -> stringResource(R.string.estado_rechazado)
+                            else -> contrato.estado
+                        }
+
                         Text(
-                            text = contrato.estado.uppercase(),
+                            text = textoEstado.uppercase(),
                             fontSize = 17.sp,
                             color = colorEstado,
-                            modifier = Modifier
-                                .padding(start = 15.dp)
+                            modifier = Modifier.padding(start = 15.dp)
                         )
 
                         contrato.fechaSolicitud?.let {
+                            val date = it
                             Text(
-                                text = "Fecha: $it", fontSize = 17.sp,
+                                text = stringResource(R.string.label_fecha, date),
+                                fontSize = 17.sp,
                                 modifier = Modifier
                                     .padding(start = 15.dp, bottom = 15.dp)
                             )
@@ -692,14 +704,17 @@ private fun TrabajoOfertado(
                     actionIconContentColor = MaterialTheme.colorScheme.onPrimary
                 ),
 
-                title = { Text(text = "Detalles") },
+                title = { Text(stringResource(R.string.titulo_detalles)) },
                 navigationIcon = {
                     FilledIconButton(
                         colors = IconButtonDefaults.filledIconButtonColors(
                             containerColor = MaterialTheme.colorScheme.secondaryContainer
                         ),
                         onClick = { navController.popBackStack() }) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Cancelar")
+                        Icon(
+                            Icons.Default.ArrowBack,
+                            contentDescription = stringResource(R.string.cd_cancelar)
+                        )
                     }
                 }
             )
@@ -716,6 +731,9 @@ private fun TrabajoOfertado(
             }
         } else {
             val user = trabajador!!.usuario
+            val telf = user.telefono
+            val email = user.email
+            val precio = oferta!!.precio
 
             LazyColumn(
                 modifier = Modifier
@@ -739,18 +757,19 @@ private fun TrabajoOfertado(
                             )
                             // Profesion (Descripcion corta)
                             Text(
-                                text = oferta!!.descripcion ?: "Sin descripción",
+                                text = oferta!!.descripcion
+                                    ?: stringResource(R.string.sin_descripcion),
                                 fontSize = 18.sp,
                                 color = Color.Gray,
                                 modifier = Modifier.padding(bottom = 15.dp)
                             )
                             // Contacto Real
-                            Text(text = "Telf.: ${user.telefono}", fontSize = 16.sp)
-                            Text(text = "Email: ${user.email}", fontSize = 16.sp)
+                            Text(stringResource(R.string.label_telf, telf), fontSize = 16.sp)
+                            Text(stringResource(R.string.label_email_info, email), fontSize = 16.sp)
 
                             // Precio Real
                             Text(
-                                text = "${oferta!!.precio} €/hora",
+                                text = stringResource(R.string.precio_hora_simple, precio ?: 0.0),
                                 fontSize = 20.sp,
                                 fontWeight = FontWeight.Bold,
                                 modifier = Modifier.padding(top = 8.dp)
@@ -760,7 +779,7 @@ private fun TrabajoOfertado(
                         // FOTO REAL (Coil)
                         AsyncImage(
                             model = user.fotoUrl ?: R.drawable.fotoperfilvacia,
-                            contentDescription = "Foto perfil",
+                            contentDescription = stringResource(R.string.cd_foto_perfil),
                             modifier = Modifier
                                 .padding(5.dp)
                                 .size(120.dp)
@@ -781,7 +800,7 @@ private fun TrabajoOfertado(
                         verticalAlignment = Alignment.CenterVertically
                     ) {
                         Text(
-                            text = "Opiniones de clientes",
+                            text = stringResource(R.string.titulo_opiniones),
                             fontSize = 20.sp,
                             fontWeight = FontWeight.Bold
                         )
@@ -798,7 +817,7 @@ private fun TrabajoOfertado(
                             ) {
                                 Icon(
                                     imageVector = Icons.Default.Add,
-                                    contentDescription = "Añadir reseña"
+                                    contentDescription = stringResource(R.string.cd_anadir_resena)
                                 )
                             }
                         }
@@ -809,7 +828,7 @@ private fun TrabajoOfertado(
                 if (resenas.isEmpty()) {
                     item {
                         Text(
-                            "No hay reseñas todavía.",
+                            stringResource(R.string.msg_no_hay_resenas),
                             modifier = Modifier.padding(16.dp),
                         )
                     }
@@ -884,7 +903,7 @@ private fun Perfil(
             ModalDrawerSheet {
                 Spacer(modifier = Modifier.height(15.dp))
                 Text(
-                    text = "Hola $nombreUsuarioMenu",
+                    text = stringResource(R.string.menu_hola, nombreUsuarioMenu),
                     modifier = Modifier.padding(15.dp),
                     style = MaterialTheme.typography.titleLarge
                 )
@@ -892,7 +911,7 @@ private fun Perfil(
                 Spacer(modifier = Modifier.height(15.dp))
 
                 NavigationDrawerItem(
-                    label = { Text(text = "Ofertas de trabajo") },
+                    label = { Text(text = stringResource(R.string.menu_ofertas)) },
                     selected = false,
                     onClick = {
                         scope.launch {
@@ -904,7 +923,7 @@ private fun Perfil(
                 )
 
                 NavigationDrawerItem(
-                    label = { Text(text = "Mis Contratos") },
+                    label = { Text(stringResource(R.string.menu_contratos)) },
                     selected = false,
                     onClick = {
                         scope.launch {
@@ -934,7 +953,7 @@ private fun Perfil(
 
                     title = {
                         Text(
-                            text = "Perfil"
+                            text = stringResource(R.string.titulo_perfil)
                         )
                     },
                     navigationIcon = {
@@ -953,7 +972,7 @@ private fun Perfil(
                             }) {
                             Icon(
                                 imageVector = Icons.Default.Menu,
-                                contentDescription = "Abrir menu"
+                                contentDescription = stringResource(R.string.cd_abrir_menu)
                             )
                         }
                     }
@@ -985,7 +1004,7 @@ private fun Perfil(
                             // FOTO Y NOMBRE (Comun para ambos)
                             AsyncImage(
                                 model = usuario.fotoUrl ?: R.drawable.fotoperfilvacia,
-                                contentDescription = "Foto perfil",
+                                contentDescription = stringResource(R.string.cd_foto_perfil),
                                 modifier = Modifier
                                     .size(140.dp)
                                     .clip(CircleShape)
@@ -1026,26 +1045,35 @@ private fun Perfil(
                                 ),
                             ) {
                                 Column(modifier = Modifier.padding(16.dp)) {
-                                    DatoPerfil("Teléfono", usuario.telefono)
-                                    DatoPerfil("Email", usuario.email)
+                                    DatoPerfil(
+                                        stringResource(R.string.dato_telefono),
+                                        usuario.telefono
+                                    )
+                                    DatoPerfil(stringResource(R.string.dato_email), usuario.email)
 
                                     // DATOS ESPECIFICOS SEGUN ROL
                                     if (esTrabajador) {
                                         val p = perfil as TrabajadorDTO
-                                        DatoPerfil("Radio Acción", "${p.radioKm} km")
                                         DatoPerfil(
-                                            "Descripción",
-                                            p.descripcion ?: "Sin descripción"
+                                            stringResource(R.string.dato_radio),
+                                            "${p.radioKm} km"
+                                        )
+                                        DatoPerfil(
+                                            stringResource(R.string.dato_descripcion),
+                                            p.descripcion
+                                                ?: stringResource(R.string.valor_sin_descripcion)
                                         )
                                     } else {
                                         val c = perfil as ClienteDTO
                                         DatoPerfil(
-                                            "Ciudad",
-                                            c.ciudad ?: "No especificada"
+                                            stringResource(R.string.dato_ciudad),
+                                            c.ciudad
+                                                ?: stringResource(R.string.valor_no_especificada)
                                         )
                                         DatoPerfil(
-                                            "Dirección",
-                                            c.direccion ?: "No especificada"
+                                            stringResource(R.string.dato_direccion),
+                                            c.direccion
+                                                ?: stringResource(R.string.valor_no_especificada)
                                         )
                                     }
                                 }
@@ -1122,14 +1150,17 @@ fun EscribirResena(
                     actionIconContentColor = MaterialTheme.colorScheme.onPrimary
                 ),
 
-                title = { Text("Escribe tu Opinión") },
+                title = { Text(stringResource(R.string.titulo_escribir_opinion)) },
                 navigationIcon = {
                     FilledIconButton(
                         colors = IconButtonDefaults.filledIconButtonColors(
                             containerColor = MaterialTheme.colorScheme.secondaryContainer
                         ),
                         onClick = { navController.popBackStack() }) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Cancelar")
+                        Icon(
+                            Icons.Default.ArrowBack,
+                            contentDescription = stringResource(R.string.cd_cancelar)
+                        )
                     }
                 }
             )
@@ -1150,7 +1181,7 @@ fun EscribirResena(
             ) {
 
                 Text(
-                    text = "¿Qué tal fue el trabajo?",
+                    text = stringResource(R.string.texto_que_tal),
                     fontSize = 22.sp,
                     //fontWeight = FontWeight.Bold,
                     color = Color.Black
@@ -1159,7 +1190,7 @@ fun EscribirResena(
                 Spacer(modifier = Modifier.height(8.dp))
 
                 Text(
-                    text = "Tu opinión ayuda a otros usuarios a elegir.",
+                    text = stringResource(R.string.texto_ayuda_opinion),
                     fontSize = 14.sp,
                     color = Color.Gray,
                     textAlign = TextAlign.Center
@@ -1178,7 +1209,7 @@ fun EscribirResena(
 
                         Icon(
                             imageVector = if (isSelected) Icons.Filled.Star else Icons.Outlined.Star,
-                            contentDescription = "Estrella $starNumber",
+                            contentDescription = stringResource(R.string.cd_estrella, starNumber),
                             tint = if (isSelected) Color(0xFFFFC107) else Color.LightGray,
                             modifier = Modifier
                                 .size(48.dp)
@@ -1204,7 +1235,7 @@ fun EscribirResena(
                 OutlinedTextField(
                     value = comentario,
                     onValueChange = { comentario = it },
-                    label = { Text("Escribe tu comentario...") },
+                    label = { Text(stringResource(R.string.label_comentario)) },
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(150.dp),
@@ -1224,7 +1255,7 @@ fun EscribirResena(
                     enabled = puntuacion > 0,
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
                 ) {
-                    Text("Publicar Reseña", fontSize = 16.sp)
+                    Text(stringResource(R.string.btn_publicar_resena), fontSize = 16.sp)
                 }
             }
         }
@@ -1265,13 +1296,13 @@ fun VentanaLogin(
             // --- LOGO O ICONO ---
             Icon(
                 imageVector = Icons.Default.Person,
-                contentDescription = "Logo",
+                contentDescription = stringResource(R.string.cd_logo),
                 modifier = Modifier.size(100.dp),
                 tint = MaterialTheme.colorScheme.primary
             )
 
             Text(
-                text = "WorkNearby",
+                text = stringResource(R.string.app_name),
                 fontSize = 32.sp,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.primary
@@ -1280,7 +1311,7 @@ fun VentanaLogin(
             Spacer(modifier = Modifier.height(8.dp))
 
             Text(
-                text = "Inicia sesión para continuar",
+                text = stringResource(R.string.login_subtitulo),
                 fontSize = 16.sp,
                 color = Color.Gray
             )
@@ -1293,7 +1324,7 @@ fun VentanaLogin(
             OutlinedTextField(
                 value = viewModel.email,
                 onValueChange = { viewModel.email = it },
-                label = { Text("Correo electrónico") },
+                label = { Text(stringResource(R.string.label_email)) },
                 keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true,
@@ -1306,7 +1337,7 @@ fun VentanaLogin(
             OutlinedTextField(
                 value = viewModel.password,
                 onValueChange = { viewModel.password = it },
-                label = { Text("Contraseña") },
+                label = { Text(stringResource(R.string.label_password)) },
                 modifier = Modifier.fillMaxWidth(),
                 singleLine = true,
                 shape = RoundedCornerShape(12.dp),
@@ -1333,12 +1364,12 @@ fun VentanaLogin(
                     .fillMaxWidth()
                     .height(50.dp),
                 shape = RoundedCornerShape(12.dp),
-                enabled = !viewModel.isLoading // Deshabilitar si carga
+                enabled = !viewModel.isLoading
             ) {
                 if (viewModel.isLoading) {
                     CircularProgressIndicator(color = Color.White, modifier = Modifier.size(24.dp))
                 } else {
-                    Text("Entrar", fontSize = 18.sp)
+                    Text(stringResource(R.string.btn_entrar), fontSize = 18.sp)
                 }
             }
 
@@ -1350,7 +1381,7 @@ fun VentanaLogin(
             TextButton(
                 onClick = { navController.navigate("registro") }
             ) {
-                Text("¿No tienes cuenta? Registrate aqui")
+                Text("stringResource(R.string.login_no_cuenta))
             }
 
             */
@@ -1418,14 +1449,17 @@ fun EscribirOferta(
                     actionIconContentColor = MaterialTheme.colorScheme.onPrimary
                 ),
 
-                title = { Text("Nueva Oferta") },
+                title = { Text(stringResource(R.string.titulo_nueva_oferta)) },
                 navigationIcon = {
                     FilledIconButton(
                         colors = IconButtonDefaults.filledIconButtonColors(
                             containerColor = MaterialTheme.colorScheme.secondaryContainer
                         ),
                         onClick = { navController.popBackStack() }) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Cancelar")
+                        Icon(
+                            Icons.Default.ArrowBack,
+                            contentDescription = stringResource(R.string.cd_cancelar)
+                        )
                     }
                 }
             )
@@ -1460,7 +1494,7 @@ fun EscribirOferta(
                     if (fotoUri != null) {
                         AsyncImage(
                             model = fotoUri,
-                            contentDescription = "Foto seleccionada",
+                            contentDescription = stringResource(R.string.cd_foto_seleccionada),
                             modifier = Modifier.fillMaxSize(),
                             contentScale = ContentScale.Crop
                         )
@@ -1468,7 +1502,7 @@ fun EscribirOferta(
                         Column(horizontalAlignment = Alignment.CenterHorizontally) {
                             Icon(Icons.Default.Add, contentDescription = null, tint = Color.Gray)
                             Text(
-                                "Añadir Foto (opcional)",
+                                stringResource(R.string.text_anadir_foto_opcional),
                                 fontSize = 12.sp,
                                 color = Color.Gray,
                                 textAlign = TextAlign.Center
@@ -1483,8 +1517,8 @@ fun EscribirOferta(
                 OutlinedTextField(
                     value = titulo,
                     onValueChange = { titulo = it },
-                    label = { Text("Título del trabajo") },
-                    placeholder = { Text("Ej: Pintar habitación 20m2") },
+                    label = { Text(stringResource(R.string.label_titulo_trabajo)) },
+                    placeholder = { Text(stringResource(R.string.placeholder_titulo_trabajo)) },
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(12.dp),
                 )
@@ -1498,10 +1532,11 @@ fun EscribirOferta(
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     OutlinedTextField(
-                        value = categoriaSeleccionada?.nombre ?: "Seleccionar...",
+                        value = categoriaSeleccionada?.nombre
+                            ?: stringResource(R.string.placeholder_seleccionar),
                         onValueChange = {},
                         readOnly = true,
-                        label = { Text("Categoría") },
+                        label = { Text(stringResource(R.string.label_categoria)) },
                         trailingIcon = {
                             ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
                         },
@@ -1518,7 +1553,7 @@ fun EscribirOferta(
                     ) {
                         if (listaCategorias.isEmpty()) {
                             DropdownMenuItem(
-                                text = { Text("Cargando...") },
+                                text = { Text(stringResource(R.string.valor_no_especificada)) },
                                 onClick = { }
                             )
                         } else {
@@ -1546,7 +1581,7 @@ fun EscribirOferta(
                             precioTexto = it
                         }
                     },
-                    label = { Text("Precio por hora (€)") },
+                    label = { Text(stringResource(R.string.label_precio_hora_euro)) },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(12.dp),
@@ -1558,7 +1593,7 @@ fun EscribirOferta(
                 OutlinedTextField(
                     value = descripcion,
                     onValueChange = { descripcion = it },
-                    label = { Text("Descripción detallada") },
+                    label = { Text(stringResource(R.string.label_descripcion_detallada)) },
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(120.dp),
@@ -1587,7 +1622,7 @@ fun EscribirOferta(
                     enabled = titulo.isNotEmpty() && descripcion.isNotEmpty() && precioTexto.isNotEmpty() && categoriaSeleccionada != null,
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
                 ) {
-                    Text("Publicar Oferta", fontSize = 18.sp)
+                    Text(stringResource(R.string.btn_publicar_oferta), fontSize = 18.sp)
                 }
             }
         }
@@ -1616,7 +1651,11 @@ fun EscribirContrato(
     var expanded by remember { mutableStateOf(false) }
     var categoriaSeleccionada by remember { mutableStateOf<CategoriaDTO?>(null) }
 
-    val listaEstados = listOf("pendiente", "aceptado", "rechazado")
+    val listaEstados = listOf(
+        stringResource(R.string.estado_pendiente),
+        stringResource(R.string.estado_aceptado),
+        stringResource(R.string.estado_rechazado)
+    )
     var expandedEstado by remember { mutableStateOf(false) }
     var estadoSeleccionado by remember { mutableStateOf("pendiente") }
 
@@ -1649,14 +1688,14 @@ fun EscribirContrato(
                     actionIconContentColor = MaterialTheme.colorScheme.onPrimary
                 ),
 
-                title = { Text("Nuevo contrato") },
+                title = { Text(stringResource(R.string.titulo_nuevo_contrato)) },
                 navigationIcon = {
                     FilledIconButton(
                         colors = IconButtonDefaults.filledIconButtonColors(
                             containerColor = MaterialTheme.colorScheme.secondaryContainer
                         ),
                         onClick = { navController.popBackStack() }) {
-                        Icon(Icons.Default.ArrowBack, contentDescription = "Cancelar")
+                        Icon(Icons.Default.ArrowBack, contentDescription = stringResource(R.string.cd_cancelar))
                     }
                 }
             )
@@ -1689,7 +1728,7 @@ fun EscribirContrato(
                 OutlinedTextField(
                     value = emailCliente,
                     onValueChange = { emailCliente = it },
-                    label = { Text("Email del Cliente") },
+                    label = { Text(stringResource(R.string.label_email_cliente)) },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Email),
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(12.dp)
@@ -1704,10 +1743,10 @@ fun EscribirContrato(
                     modifier = Modifier.fillMaxWidth()
                 ) {
                     OutlinedTextField(
-                        value = categoriaSeleccionada?.nombre ?: "Seleccionar...",
+                        value = categoriaSeleccionada?.nombre ?: stringResource(R.string.placeholder_seleccionar),
                         onValueChange = {},
                         readOnly = true,
-                        label = { Text("Categoría") },
+                        label = { Text(stringResource(R.string.label_categoria)) },
                         trailingIcon = {
                             ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
                         },
@@ -1724,7 +1763,7 @@ fun EscribirContrato(
                     ) {
                         if (listaCategorias.isEmpty()) {
                             DropdownMenuItem(
-                                text = { Text("Cargando...") },
+                                text = { Text(stringResource(R.string.placeholder_cargando)) },
                                 onClick = { }
                             )
                         } else {
@@ -1753,13 +1792,13 @@ fun EscribirContrato(
                         value = estadoSeleccionado.uppercase(),
                         onValueChange = {},
                         readOnly = true,
-                        label = { Text("Estado Inicial") },
+                        label = { Text(stringResource(R.string.label_estado_inicial)) },
                         trailingIcon = { ExposedDropdownMenuDefaults.TrailingIcon(expanded = expandedEstado) },
                         modifier = Modifier
                             .fillMaxWidth()
                             .menuAnchor(),
                         shape = RoundedCornerShape(12.dp),
-                        )
+                    )
 
                     ExposedDropdownMenu(
                         expanded = expandedEstado,
@@ -1783,7 +1822,7 @@ fun EscribirContrato(
                 OutlinedTextField(
                     value = descripcion,
                     onValueChange = { descripcion = it },
-                    label = { Text("Descripción del trabajo") },
+                    label = { Text(stringResource(R.string.label_descripcion_trabajo)) },
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(120.dp),
@@ -1810,7 +1849,7 @@ fun EscribirContrato(
                     enabled = emailCliente.isNotEmpty() && categoriaSeleccionada != null && descripcion.isNotEmpty(),
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
                 ) {
-                    Text("Crear Contrato", fontSize = 18.sp)
+                    Text(stringResource(R.string.btn_crear_contrato), fontSize = 18.sp)
                 }
             }
         }
