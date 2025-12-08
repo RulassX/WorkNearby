@@ -502,7 +502,7 @@ private fun BuscarContratos(
 
                     title = {
                         Text(
-                            text = stringResource(R.string.titulo_nuevo_contrato)
+                            text = stringResource(R.string.titulo_mis_contratos)
                         )
 
                     },
@@ -622,7 +622,7 @@ private fun ListaContratos(contratos: List<ServicioDTO>, modifier: Modifier = Mo
                                 maxLines = 2,
                                 color = Color.Gray,
                                 modifier = Modifier
-                                    .padding(start = 15.dp, bottom = 15.dp)
+                                    .padding(start = 15.dp, bottom = 15.dp, end = 15.dp)
                             )
                         }
 
@@ -1284,7 +1284,6 @@ fun VentanaLogin(
     }
 
     Scaffold(
-        containerColor = Color.White
     ) { padding ->
         Column(
             modifier = Modifier
