@@ -80,6 +80,7 @@ import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
@@ -216,7 +217,7 @@ private fun BuscarOfertas(
 
                 Spacer(modifier = Modifier.height(15.dp))
                 Text(
-                    text = "Hola $nombre",
+                    text = stringResource(R.string.menu_hola),
                     modifier = Modifier.padding(15.dp),
                     style = MaterialTheme.typography.titleLarge
                 )
@@ -224,7 +225,7 @@ private fun BuscarOfertas(
                 Spacer(modifier = Modifier.height(15.dp))
 
                 NavigationDrawerItem(
-                    label = { Text(text = "Mi Perfil") },
+                    label = { Text(stringResource(R.string.menu_perfil)) },
                     selected = false,
                     onClick = {
                         scope.launch {
@@ -236,7 +237,7 @@ private fun BuscarOfertas(
                 )
 
                 NavigationDrawerItem(
-                    label = { Text(text = "Mis Contratos") },
+                    label = { Text(stringResource(R.string.menu_contratos)) },
                     selected = false,
                     onClick = {
                         scope.launch {
@@ -266,7 +267,7 @@ private fun BuscarOfertas(
 
                     title = {
                         Text(
-                            text = "WorkNearby"
+                            text = stringResource(R.string.app_name)
                         )
                     },
                     navigationIcon = {
@@ -286,7 +287,7 @@ private fun BuscarOfertas(
                             }) {
                             Icon(
                                 imageVector = Icons.Default.Menu,
-                                contentDescription = "Abrir menu"
+                                contentDescription = stringResource(R.string.cd_abrir_menu)
                             )
                         }
                     },
@@ -304,7 +305,7 @@ private fun BuscarOfertas(
                             ) {
                                 Icon(
                                     imageVector = Icons.Default.Add,
-                                    contentDescription = "Añadir oferta",
+                                    contentDescription = stringResource(R.string.cd_anadir_oferta),
                                 )
                             }
                         }
@@ -323,7 +324,7 @@ private fun BuscarOfertas(
                         .padding(paddingValues),
                     contentAlignment = Alignment.Center
                 ) {
-                    Text("Cargando ofertas o no hay disponibles...")
+                    Text(stringResource(R.string.loading))
                 }
             } else {
                 ListaOfertas(
@@ -389,7 +390,8 @@ fun ListaOfertas(
                         Spacer(modifier = Modifier.weight(1f))
 
                         Text(
-                            text = "Precio: ${oferta.precio} €/h",
+                            //text = "Precio: ${oferta.precio} €/h",
+                            text = stringResource(R.string.label_precio_hora),
                             fontSize = 17.sp,
                             modifier = Modifier
                                 .padding(start = 15.dp, bottom = 15.dp),
@@ -398,7 +400,7 @@ fun ListaOfertas(
 
                     AsyncImage(
                         model = oferta.fotoUrlOferta ?: R.drawable.imagenvacia,
-                        contentDescription = "Foto de oferta",
+                        contentDescription = stringResource(R.string.cd_foto_oferta),
                         modifier = Modifier
                             .padding(15.dp)
                             .size(115.dp)
@@ -445,7 +447,8 @@ private fun BuscarContratos(
 
                 Spacer(modifier = Modifier.height(15.dp))
                 Text(
-                    text = "Hola $nombre",
+                    //text = "Hola $nombre",
+                    text = stringResource(R.string.menu_hola),
                     modifier = Modifier.padding(15.dp),
                     style = MaterialTheme.typography.titleLarge
                 )
@@ -453,7 +456,7 @@ private fun BuscarContratos(
                 Spacer(modifier = Modifier.height(15.dp))
 
                 NavigationDrawerItem(
-                    label = { Text(text = "Mi Perfil") },
+                    label = { Text(stringResource(R.string.menu_perfil)) },
                     selected = false,
                     onClick = {
                         scope.launch {
@@ -465,7 +468,7 @@ private fun BuscarContratos(
                 )
 
                 NavigationDrawerItem(
-                    label = { Text(text = "Ofertas de trabajo") },
+                    label = { Text(stringResource(R.string.menu_ofertas)) },
                     selected = false,
                     onClick = {
                         scope.launch {
@@ -495,7 +498,7 @@ private fun BuscarContratos(
 
                     title = {
                         Text(
-                            text = "Contratos"
+                            text = stringResource(R.string.titulo_contratos)
                         )
 
                     },
@@ -515,7 +518,7 @@ private fun BuscarContratos(
                             }) {
                             Icon(
                                 imageVector = Icons.Default.Menu,
-                                contentDescription = "Abrir menu"
+                                contentDescription = stringResource(R.string.cd_abrir_menu)
                             )
                         }
                     },
@@ -533,7 +536,7 @@ private fun BuscarContratos(
                             ) {
                                 Icon(
                                     imageVector = Icons.Default.Add,
-                                    contentDescription = "Añadir contrato",
+                                    contentDescription = stringResource(R.string.cd_anadir_contrato),
                                 )
                             }
                         }
@@ -1447,7 +1450,6 @@ fun EscribirOferta(
                     modifier = Modifier
                         .size(120.dp)
                         .clip(RoundedCornerShape(12.dp))
-                        .background(Color(0xFFF5F5F5))
                         .border(1.dp, Color.Gray, RoundedCornerShape(12.dp))
                         .clickable {
                             // Abrir galeria (solo imagenes)
@@ -1485,10 +1487,6 @@ fun EscribirOferta(
                     placeholder = { Text("Ej: Pintar habitación 20m2") },
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(12.dp),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedContainerColor = Color(0xFFF5F5F5),
-                        unfocusedContainerColor = Color(0xFFF5F5F5)
-                    )
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -1511,10 +1509,6 @@ fun EscribirOferta(
                             .fillMaxWidth()
                             .menuAnchor(),
                         shape = RoundedCornerShape(12.dp),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedContainerColor = Color(0xFFF5F5F5),
-                            unfocusedContainerColor = Color(0xFFF5F5F5)
-                        )
                     )
 
                     // La lista que se despliega
@@ -1556,10 +1550,6 @@ fun EscribirOferta(
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
                     modifier = Modifier.fillMaxWidth(),
                     shape = RoundedCornerShape(12.dp),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedContainerColor = Color(0xFFF5F5F5),
-                        unfocusedContainerColor = Color(0xFFF5F5F5)
-                    )
                 )
 
                 Spacer(modifier = Modifier.height(16.dp))
@@ -1573,10 +1563,6 @@ fun EscribirOferta(
                         .fillMaxWidth()
                         .height(120.dp),
                     shape = RoundedCornerShape(12.dp),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedContainerColor = Color(0xFFF5F5F5),
-                        unfocusedContainerColor = Color(0xFFF5F5F5)
-                    )
                 )
 
                 Spacer(modifier = Modifier.height(32.dp))
@@ -1729,10 +1715,6 @@ fun EscribirContrato(
                             .fillMaxWidth()
                             .menuAnchor(),
                         shape = RoundedCornerShape(12.dp),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedContainerColor = Color(0xFFF5F5F5),
-                            unfocusedContainerColor = Color(0xFFF5F5F5)
-                        )
                     )
 
                     // La lista que se despliega
@@ -1777,11 +1759,8 @@ fun EscribirContrato(
                             .fillMaxWidth()
                             .menuAnchor(),
                         shape = RoundedCornerShape(12.dp),
-                        colors = OutlinedTextFieldDefaults.colors(
-                            focusedContainerColor = Color(0xFFF5F5F5),
-                            unfocusedContainerColor = Color(0xFFF5F5F5)
                         )
-                    )
+
                     ExposedDropdownMenu(
                         expanded = expandedEstado,
                         onDismissRequest = { expandedEstado = false }
@@ -1809,10 +1788,6 @@ fun EscribirContrato(
                         .fillMaxWidth()
                         .height(120.dp),
                     shape = RoundedCornerShape(12.dp),
-                    colors = OutlinedTextFieldDefaults.colors(
-                        focusedContainerColor = Color(0xFFF5F5F5),
-                        unfocusedContainerColor = Color(0xFFF5F5F5)
-                    )
                 )
 
                 Spacer(modifier = Modifier.height(32.dp))
