@@ -36,6 +36,8 @@ import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.ArrowBack
+import androidx.compose.material.icons.filled.Build
+import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.Star
 import androidx.compose.material3.AssistChip
@@ -64,6 +66,7 @@ import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
+import androidx.compose.material3.TextButton
 import androidx.compose.material3.TopAppBarDefaults
 import androidx.compose.material3.rememberDrawerState
 import androidx.compose.runtime.Composable
@@ -79,6 +82,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
 import androidx.compose.ui.graphics.Color
+import androidx.compose.ui.graphics.vector.ImageVector
 import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.platform.LocalContext
 import androidx.compose.ui.res.painterResource
@@ -1294,14 +1298,6 @@ fun VentanaLogin(
             verticalArrangement = Arrangement.Center
         ) {
             // --- LOGO O ICONO ---
-            /*
-            Icon(
-                imageVector = Icons.Default.Person,
-                contentDescription = stringResource(R.string.cd_logo),
-                modifier = Modifier.size(100.dp),
-                tint = MaterialTheme.colorScheme.primary
-            )
-             */
 
             Image(
                 painter = painterResource(id = R.drawable.logoworknearby),
@@ -1389,21 +1385,66 @@ fun VentanaLogin(
 
             Spacer(modifier = Modifier.height(16.dp))
 
-            /*
-
             // BOTON IR A REGISTRO
             TextButton(
                 onClick = { navController.navigate("registro") }
             ) {
-                Text("stringResource(R.string.login_no_cuenta))
+                Text("stringResource(R.string.login_no_cuenta)")
             }
-
-            */
 
         }
     }
 }
 
+@Composable
+fun VentanaSeleccionRol(navController: NavHostController) {
+    Column(
+        modifier = Modifier.fillMaxSize().padding(24.dp),
+        horizontalAlignment = Alignment.CenterHorizontally,
+        verticalArrangement = Arrangement.Center
+    ) {
+        Text("¡Bienvenido!", fontSize = 28.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
+        Text("¿Cómo quieres usar WorkNearby?", fontSize = 16.sp, color = Color.Gray)
+
+        Spacer(modifier = Modifier.height(40.dp))
+
+        // como Cliente
+        RolCard(
+            titulo = "Busco Servicios",
+            subtitulo = "Quiero contratar profesionales",
+            icon = Icons.Default.Search,
+            onClick = { navController.navigate("registro_cliente") }
+        )
+
+        Spacer(modifier = Modifier.height(20.dp))
+
+        // como Trabajador
+        RolCard(
+            titulo = "Ofrezco Servicios",
+            subtitulo = "Quiero trabajar y ganar dinero",
+            icon = Icons.Default.Build,
+            onClick = { navController.navigate("registro_trabajador") }
+        )
+    }
+}
+
+@Composable
+fun RolCard(titulo: String, subtitulo: String, icon: ImageVector, onClick: () -> Unit) {
+    Card(
+        modifier = Modifier.fillMaxWidth().clickable { onClick() },
+        shape = RoundedCornerShape(16.dp),
+        colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
+    ) {
+        Row(modifier = Modifier.padding(24.dp), verticalAlignment = Alignment.CenterVertically) {
+            Icon(icon, contentDescription = null, modifier = Modifier.size(40.dp), tint = MaterialTheme.colorScheme.primary)
+            Spacer(modifier = Modifier.width(16.dp))
+            Column {
+                Text(titulo, fontWeight = FontWeight.Bold, fontSize = 18.sp)
+                Text(subtitulo, fontSize = 14.sp, color = Color.Gray)
+            }
+        }
+    }
+}
 
 //------------------------------------------------
 
