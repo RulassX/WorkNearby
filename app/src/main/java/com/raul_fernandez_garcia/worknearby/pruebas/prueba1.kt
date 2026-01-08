@@ -34,6 +34,7 @@ import androidx.navigation.NavHostController
 @Preview(showBackground = true)
 @Composable
 fun VentanaSeleccionRol() {
+
     Column(
         modifier = Modifier.fillMaxSize().padding(24.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
