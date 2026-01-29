@@ -143,7 +143,8 @@ private fun appWorkNearby(navController: NavHostController) {
 fun appNavigation(navController: NavHostController) {
 
     val context = LocalContext.current
-    val registroViewModel: RegistroViewModel = viewModel(factory = RegistroViewModelFactory(context))
+    val registroViewModel: RegistroViewModel =
+        viewModel(factory = RegistroViewModelFactory(context))
 
     NavHost(
         navController = navController,
@@ -1533,7 +1534,10 @@ fun VentanaSeleccionRol(
             titulo = "Busco Servicios",
             subtitulo = "Quiero contratar profesionales",
             icon = Icons.Default.Search,
-            onClick = { navController.navigate("registro_cliente") }
+            onClick = {
+                viewModel.rol = "cliente"
+                navController.navigate("registro_cliente")
+            }
         )
 
         Spacer(modifier = Modifier.height(20.dp))
@@ -1543,7 +1547,10 @@ fun VentanaSeleccionRol(
             titulo = "Ofrezco Servicios",
             subtitulo = "Quiero trabajar y ganar dinero",
             icon = Icons.Default.Build,
-            onClick = { navController.navigate("registro_trabajador") }
+            onClick = {
+                viewModel.rol = "trabajador"
+                navController.navigate("registro_trabajador")
+            }
         )
     }
 }

@@ -451,9 +451,27 @@ class RegistroViewModel(private val context: Context) : ViewModel() {
     var radioKm by mutableStateOf("")
 
     fun registrarUsuario() {
-        // llamada a tu API/Base de datos
-        // insertando primero en 'usuario' y luego en la tabla correspondiente segun el 'rol'.
-        println("Registrando usuario: $nombre, Rol: $rol")
+        viewModelScope.launch {
+            try {
+                // 1. Validar que los campos básicos no estén vacíos
+                if (email.isBlank() || password.isBlank()) return@launch
+
+                // 2. Crear el objeto de registro (DTO)
+                // Aquí llamarías a tu servicio de Retrofit
+                // val response = apiService.register(nombre, apellidos, email, password, telefono, rol, ...)
+
+                // 3. Lógica condicional en el servidor o aquí:
+                if (rol == "cliente") {
+                    // Enviar también direccion y ciudad
+                } else {
+                    // Enviar también descripcion y radioKm
+                }
+
+                println("Registro exitoso: $nombre como $rol")
+            } catch (e: Exception) {
+                println("Error en el registro: ${e.message}")
+            }
+        }
     }
 }
 
