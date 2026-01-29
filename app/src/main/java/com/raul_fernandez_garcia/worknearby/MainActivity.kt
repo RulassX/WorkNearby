@@ -141,6 +141,10 @@ private fun appWorkNearby(navController: NavHostController) {
 
 @Composable
 fun appNavigation(navController: NavHostController) {
+
+    val context = LocalContext.current
+    val registroViewModel: RegistroViewModel = viewModel(factory = RegistroViewModelFactory(context))
+
     NavHost(
         navController = navController,
         startDestination = "login"
@@ -151,19 +155,19 @@ fun appNavigation(navController: NavHostController) {
         }
 
         composable("registro_usuario") {
-            VentanaRegistroUsuario(navController)
+            VentanaRegistroUsuario(navController, registroViewModel)
         }
 
         composable("escoger_rol") {
-            VentanaSeleccionRol(navController)
+            VentanaSeleccionRol(navController, registroViewModel)
         }
 
         composable("registro_cliente") {
-            VentanaRegistroCliente(navController)
+            VentanaRegistroCliente(navController, registroViewModel)
         }
 
         composable("registro_trabajador") {
-            VentanaRegistroTrabajador(navController)
+            VentanaRegistroTrabajador(navController, registroViewModel)
         }
 
         composable("ofertas") {
@@ -1417,9 +1421,8 @@ fun VentanaLogin(
 @Composable
 fun VentanaRegistroUsuario(
     navController: NavHostController,
+    viewModel: RegistroViewModel
 ) {
-    val context = LocalContext.current
-    val viewModel: RegistroViewModel = viewModel(factory = RegistroViewModelFactory(context))
 
     Scaffold { padding ->
         LazyColumn(
@@ -1504,7 +1507,10 @@ fun VentanaRegistroUsuario(
 }
 
 @Composable
-fun VentanaSeleccionRol(navController: NavHostController) {
+fun VentanaSeleccionRol(
+    navController: NavHostController,
+    viewModel: RegistroViewModel
+) {
     Column(
         modifier = Modifier
             .fillMaxSize()
@@ -1569,10 +1575,9 @@ fun RolCard(titulo: String, subtitulo: String, icon: ImageVector, onClick: () ->
 
 @Composable
 fun VentanaRegistroCliente(
-    navController: NavHostController
+    navController: NavHostController,
+    viewModel: RegistroViewModel
 ) {
-    val context = LocalContext.current
-    val viewModel: RegistroViewModel = viewModel(factory = RegistroViewModelFactory(context))
 
     Scaffold { padding ->
         Column(
@@ -1624,10 +1629,9 @@ fun VentanaRegistroCliente(
 
 @Composable
 fun VentanaRegistroTrabajador(
-    navController: NavHostController
+    navController: NavHostController,
+    viewModel: RegistroViewModel
 ) {
-    val context = LocalContext.current
-    val viewModel: RegistroViewModel = viewModel(factory = RegistroViewModelFactory(context))
 
     Scaffold { padding ->
         LazyColumn(
