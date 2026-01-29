@@ -48,6 +48,7 @@ import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
+import androidx.compose.material3.Divider
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -90,6 +91,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
+import androidx.compose.ui.text.input.VisualTransformation
 import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
@@ -146,6 +148,22 @@ fun appNavigation(navController: NavHostController) {
 
         composable("login") {
             VentanaLogin(navController)
+        }
+
+        composable("registro_usuario") {
+            VentanaRegistroUsuario(navController)
+        }
+
+        composable("escoger_rol") {
+            VentanaSeleccionRol(navController)
+        }
+
+        composable("registro_cliente") {
+            VentanaRegistroCliente(navController)
+        }
+
+        composable("registro_trabajador") {
+            VentanaRegistroTrabajador(navController)
         }
 
         composable("ofertas") {
@@ -1387,9 +1405,9 @@ fun VentanaLogin(
 
             // BOTON IR A REGISTRO
             TextButton(
-                onClick = { navController.navigate("registro") }
+                onClick = { navController.navigate("registro_usuario") }
             ) {
-                Text("stringResource(R.string.login_no_cuenta)")
+                Text(stringResource(R.string.login_no_cuenta))
             }
 
         }
@@ -1397,13 +1415,109 @@ fun VentanaLogin(
 }
 
 @Composable
+fun VentanaRegistroUsuario(
+    navController: NavHostController,
+) {
+    val context = LocalContext.current
+    val viewModel: RegistroViewModel = viewModel(factory = RegistroViewModelFactory(context))
+
+    Scaffold { padding ->
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)
+                .padding(horizontal = 24.dp),
+            horizontalAlignment = Alignment.CenterHorizontally,
+            contentPadding = PaddingValues(vertical = 24.dp)
+        ) {
+            item {
+                // Header (Logo y Titulos)
+                Image(
+                    painter = painterResource(id = R.drawable.logoworknearby),
+                    contentDescription = "Logo",
+                    modifier = Modifier
+                        .size(80.dp)
+                        .border(2.dp, MaterialTheme.colorScheme.secondaryContainer, CircleShape)
+                        .clip(CircleShape),
+                    contentScale = ContentScale.Crop,
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+                Text(
+                    "Crea tu perfil",
+                    fontSize = 28.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.primary
+                )
+                Text("Paso 1 de 3: Datos Personales", fontSize = 14.sp, color = Color.Gray)
+                Spacer(modifier = Modifier.height(32.dp))
+
+                // Formulario
+                CustomTextField(
+                    value = viewModel.nombre,
+                    onValueChange = { viewModel.nombre = it },
+                    label = "Nombre"
+                )
+                CustomTextField(
+                    value = viewModel.apellidos,
+                    onValueChange = { viewModel.apellidos = it },
+                    label = "Apellidos"
+                )
+                CustomTextField(
+                    value = viewModel.email,
+                    onValueChange = { viewModel.email = it },
+                    label = "Email",
+                    type = KeyboardType.Email
+                )
+                CustomTextField(
+                    value = viewModel.telefono,
+                    onValueChange = { viewModel.telefono = it },
+                    label = "Teléfono",
+                    type = KeyboardType.Phone
+                )
+
+                // Password
+                OutlinedTextField(
+                    value = viewModel.password,
+                    onValueChange = { viewModel.password = it },
+                    label = { Text("Contraseña") },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true,
+                    shape = RoundedCornerShape(12.dp),
+                    visualTransformation = PasswordVisualTransformation(),
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Password)
+                )
+
+                Spacer(modifier = Modifier.height(32.dp))
+
+                Button(
+                    onClick = { navController.navigate("escoger_rol") },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(50.dp),
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    Text("Siguiente", fontSize = 18.sp)
+                }
+            }
+        }
+    }
+}
+
+@Composable
 fun VentanaSeleccionRol(navController: NavHostController) {
     Column(
-        modifier = Modifier.fillMaxSize().padding(24.dp),
+        modifier = Modifier
+            .fillMaxSize()
+            .padding(24.dp),
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
-        Text("¡Bienvenido!", fontSize = 28.sp, fontWeight = FontWeight.Bold, color = MaterialTheme.colorScheme.primary)
+        Text(
+            "¡Bienvenido!",
+            fontSize = 28.sp,
+            fontWeight = FontWeight.Bold,
+            color = MaterialTheme.colorScheme.primary
+        )
         Text("¿Cómo quieres usar WorkNearby?", fontSize = 16.sp, color = Color.Gray)
 
         Spacer(modifier = Modifier.height(40.dp))
@@ -1431,12 +1545,19 @@ fun VentanaSeleccionRol(navController: NavHostController) {
 @Composable
 fun RolCard(titulo: String, subtitulo: String, icon: ImageVector, onClick: () -> Unit) {
     Card(
-        modifier = Modifier.fillMaxWidth().clickable { onClick() },
+        modifier = Modifier
+            .fillMaxWidth()
+            .clickable { onClick() },
         shape = RoundedCornerShape(16.dp),
         colors = CardDefaults.cardColors(containerColor = MaterialTheme.colorScheme.surfaceVariant)
     ) {
         Row(modifier = Modifier.padding(24.dp), verticalAlignment = Alignment.CenterVertically) {
-            Icon(icon, contentDescription = null, modifier = Modifier.size(40.dp), tint = MaterialTheme.colorScheme.primary)
+            Icon(
+                icon,
+                contentDescription = null,
+                modifier = Modifier.size(40.dp),
+                tint = MaterialTheme.colorScheme.primary
+            )
             Spacer(modifier = Modifier.width(16.dp))
             Column {
                 Text(titulo, fontWeight = FontWeight.Bold, fontSize = 18.sp)
@@ -1444,6 +1565,147 @@ fun RolCard(titulo: String, subtitulo: String, icon: ImageVector, onClick: () ->
             }
         }
     }
+}
+
+@Composable
+fun VentanaRegistroCliente(
+    navController: NavHostController
+) {
+    val context = LocalContext.current
+    val viewModel: RegistroViewModel = viewModel(factory = RegistroViewModelFactory(context))
+
+    Scaffold { padding ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)
+                .padding(24.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            Text(
+                "Detalles de Cliente",
+                fontSize = 24.sp,
+                fontWeight = FontWeight.Bold,
+                color = MaterialTheme.colorScheme.primary
+            )
+            Text("Paso 3 de 3: Tu ubicación", fontSize = 14.sp, color = Color.Gray)
+            Spacer(modifier = Modifier.height(32.dp))
+
+            CustomTextField(
+                value = viewModel.direccion,
+                onValueChange = { viewModel.direccion = it },
+                label = "Dirección"
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+            CustomTextField(
+                value = viewModel.ciudad,
+                onValueChange = { viewModel.ciudad = it },
+                label = "Ciudad"
+            )
+
+            Spacer(modifier = Modifier.height(32.dp))
+
+            Button(
+                onClick = {
+                    viewModel.registrarUsuario()
+                    // Navegar al home o login tras registro
+                    navController.navigate("login") { popUpTo(0) }
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(50.dp),
+                shape = RoundedCornerShape(12.dp)
+            ) {
+                Text("Finalizar Registro")
+            }
+        }
+    }
+}
+
+@Composable
+fun VentanaRegistroTrabajador(
+    navController: NavHostController
+) {
+    val context = LocalContext.current
+    val viewModel: RegistroViewModel = viewModel(factory = RegistroViewModelFactory(context))
+
+    Scaffold { padding ->
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)
+                .padding(24.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            item {
+                Text(
+                    "Perfil Profesional",
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.primary
+                )
+                Text("Paso 3 de 3: Tus servicios", fontSize = 14.sp, color = Color.Gray)
+                Spacer(modifier = Modifier.height(32.dp))
+
+                OutlinedTextField(
+                    value = viewModel.descripcion,
+                    onValueChange = { viewModel.descripcion = it },
+                    label = { Text("Descripción de servicios") },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(120.dp),
+                    shape = RoundedCornerShape(12.dp),
+                    maxLines = 5
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                CustomTextField(
+                    value = viewModel.radioKm,
+                    onValueChange = { viewModel.radioKm = it },
+                    label = "Radio de acción (KM)",
+                    type = KeyboardType.Number
+                )
+
+                Spacer(modifier = Modifier.height(32.dp))
+
+                Button(
+                    onClick = {
+                        viewModel.registrarUsuario()
+                        navController.navigate("login") { popUpTo(0) }
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(50.dp),
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    Text("Finalizar Registro")
+                }
+            }
+        }
+    }
+}
+
+@Composable
+fun CustomTextField(
+    value: String,
+    onValueChange: (String) -> Unit,
+    label: String,
+    type: KeyboardType = KeyboardType.Text,
+    isPassword: Boolean = false
+) {
+    OutlinedTextField(
+        value = value,
+        onValueChange = onValueChange,
+        label = { Text(label) },
+        modifier = Modifier
+            .fillMaxWidth()
+            .padding(bottom = 12.dp),
+        singleLine = true,
+        shape = RoundedCornerShape(12.dp),
+        keyboardOptions = KeyboardOptions(keyboardType = type),
+        visualTransformation = if (isPassword) PasswordVisualTransformation() else VisualTransformation.None
+    )
 }
 
 //------------------------------------------------

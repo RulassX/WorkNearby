@@ -431,6 +431,40 @@ class LoginViewModelFactory(private val context: Context) : ViewModelProvider.Fa
 
 //------------------------------------------------
 
+class RegistroViewModel(private val context: Context) : ViewModel() {
+    // Datos Tabla Usuario (Pantalla 1)
+    var nombre by mutableStateOf("")
+    var apellidos by mutableStateOf("")
+    var email by mutableStateOf("")
+    var password by mutableStateOf("")
+    var telefono by mutableStateOf("")
+
+    // Rol (Pantalla 2)
+    var rol by mutableStateOf("cliente") // 'cliente' o 'trabajador'
+
+    // Datos Tabla Cliente (Pantalla 3a)
+    var direccion by mutableStateOf("")
+    var ciudad by mutableStateOf("")
+
+    // Datos Tabla Trabajador (Pantalla 3b)
+    var descripcion by mutableStateOf("")
+    var radioKm by mutableStateOf("")
+
+    fun registrarUsuario() {
+        // llamada a tu API/Base de datos
+        // insertando primero en 'usuario' y luego en la tabla correspondiente segun el 'rol'.
+        println("Registrando usuario: $nombre, Rol: $rol")
+    }
+}
+
+class RegistroViewModelFactory(private val context: Context) : ViewModelProvider.Factory {
+    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+        return RegistroViewModel(context) as T
+    }
+}
+
+//------------------------------------------------
+
 class CrearOfertaViewModel(context: Context) : ViewModel() {
 
     val sessionManager = SessionManager(context)
