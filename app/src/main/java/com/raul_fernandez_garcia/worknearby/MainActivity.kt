@@ -55,6 +55,7 @@ import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.ExposedDropdownMenuBox
 import androidx.compose.material3.ExposedDropdownMenuDefaults
 import androidx.compose.material3.FilledIconButton
+import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButtonDefaults
@@ -321,30 +322,30 @@ private fun BuscarOfertas(
                         }
                     },
                     actions = {
-                        // Boton solo visible para trabajador
-                        if (esTrabajador) {
-                            FilledIconButton(
-                                colors = IconButtonDefaults.filledIconButtonColors(
-                                    containerColor = MaterialTheme.colorScheme.secondaryContainer
-                                ),
-                                onClick = {
-                                    navController.navigate("crear_oferta")
-                                },
-                                modifier = Modifier.size(35.dp)
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.Add,
-                                    contentDescription = stringResource(R.string.cd_anadir_oferta),
-                                )
-                            }
-                        }
+
                     }
 
 
                 )
 
 
+            },
+            // Boton solo visible para trabajador
+
+            floatingActionButton = {
+                if (esTrabajador) {
+
+                    FloatingActionButton(
+                        onClick = { navController.navigate("crear_oferta") },
+                        modifier = Modifier
+                            .size(70.dp)
+                    ) {
+                        Icon(Icons.Filled.Add, stringResource(R.string.cd_anadir_oferta))
+                    }
+                }
             }
+
+
         ) { paddingValues ->
             if (listaOfertasReal.isEmpty()) {
                 Box(
@@ -554,25 +555,23 @@ private fun BuscarContratos(
                         }
                     },
                     actions = {
-                        // Boton solo visible para trabajador
-                        if (esTrabajador) {
-                            FilledIconButton(
-                                colors = IconButtonDefaults.filledIconButtonColors(
-                                    containerColor = MaterialTheme.colorScheme.secondaryContainer
-                                ),
-                                onClick = {
-                                    navController.navigate("crear_contrato")
-                                },
-                                modifier = Modifier.size(35.dp)
-                            ) {
-                                Icon(
-                                    imageVector = Icons.Default.Add,
-                                    contentDescription = stringResource(R.string.cd_anadir_contrato),
-                                )
-                            }
-                        }
+
                     }
                 )
+            },
+            // Boton solo visible para trabajador
+
+            floatingActionButton = {
+                if (esTrabajador) {
+
+                    FloatingActionButton(
+                        onClick = { navController.navigate("crear_contrato") },
+                        modifier = Modifier
+                            .size(70.dp)
+                    ) {
+                        Icon(Icons.Filled.Add, stringResource(R.string.cd_anadir_oferta))
+                    }
+                }
             }
         ) { paddingValues ->
             if (listaContratosReal.isEmpty()) {
