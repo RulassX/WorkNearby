@@ -32,6 +32,8 @@
     <string name="label_password">Contrasinal</string>
     <string name="btn_entrar">Entrar</string>
     <string name="login_no_cuenta">Non tes conta? Rexístrate aquí</string>
+    <string name="error_campo_vacio">Enche todos os campos</string>
+    <string name="error_dato_incorrecto">Email ou contrasinal incorrectos</string>
     <string name="error_login_generico">Erro ao iniciar sesión</string>
 
     <!-- ============================================== -->

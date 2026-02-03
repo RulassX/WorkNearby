@@ -3,9 +3,11 @@ package com.raul_fernandez_garcia.worknearby
 import android.content.Context
 import android.net.Uri
 import android.util.Base64
+import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
 import androidx.compose.runtime.setValue
+import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
@@ -391,7 +393,7 @@ class LoginViewModel(private val context: Context) : ViewModel() {
 
     fun login() {
         if (email.isBlank() || password.isBlank()) {
-            loginError = "Rellena todos los campos"
+            loginError = context.getString(R.string.error_campo_vacio)
             return
         }
 
@@ -415,7 +417,7 @@ class LoginViewModel(private val context: Context) : ViewModel() {
 
             } catch (e: Exception) {
                 e.printStackTrace()
-                loginError = "Email o contraseña incorrectos"
+                loginError = context.getString(R.string.error_dato_incorrecto)
             } finally {
                 isLoading = false
             }

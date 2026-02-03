@@ -31,6 +31,47 @@
     <string name="label_password">Contraseña</string>
     <string name="btn_entrar">Entrar</string>
     <string name="login_no_cuenta">¿No tienes cuenta? Regístrate aquí</string>
+    <string name="error_campo_vacio">Rellena todos los campos</string>
+    <string name="error_dato_incorrecto">Email o contraseña incorrectos</string>
+    <string name="error_login_generico">Error al iniciar sesión</string>
+
+    <!-- ============================================== -->
+    <!-- PANTALLA: REGISTRO 1                                -->
+    <!-- ============================================== -->
+    <string name="registro1_titulo">WorkNearby</string>
+    <string name="registro1_subtitulo">Inicia sesión para continuar</string>
+    <string name="label_email">Correo electrónico</string>
+    <string name="label_password">Contraseña</string>
+    <string name="btn_entrar">Entrar</string>
+    <string name="login_no_cuenta">¿No tienes cuenta? Regístrate aquí</string>
+    <string name="error_campo_vacio">Rellena todos los campos</string>
+    <string name="error_dato_incorrecto">Email o contraseña incorrectos</string>
+    <string name="error_login_generico">Error al iniciar sesión</string>
+
+    <!-- ============================================== -->
+    <!-- PANTALLA: REGISTRO 2                                -->
+    <!-- ============================================== -->
+    <string name="login_titulo">WorkNearby</string>
+    <string name="login_subtitulo">Inicia sesión para continuar</string>
+    <string name="label_email">Correo electrónico</string>
+    <string name="label_password">Contraseña</string>
+    <string name="btn_entrar">Entrar</string>
+    <string name="login_no_cuenta">¿No tienes cuenta? Regístrate aquí</string>
+    <string name="error_campo_vacio">Rellena todos los campos</string>
+    <string name="error_dato_incorrecto">Email o contraseña incorrectos</string>
+    <string name="error_login_generico">Error al iniciar sesión</string>
+
+    <!-- ============================================== -->
+    <!-- PANTALLA: REGISTRO 3                                -->
+    <!-- ============================================== -->
+    <string name="login_titulo">WorkNearby</string>
+    <string name="login_subtitulo">Inicia sesión para continuar</string>
+    <string name="label_email">Correo electrónico</string>
+    <string name="label_password">Contraseña</string>
+    <string name="btn_entrar">Entrar</string>
+    <string name="login_no_cuenta">¿No tienes cuenta? Regístrate aquí</string>
+    <string name="error_campo_vacio">Rellena todos los campos</string>
+    <string name="error_dato_incorrecto">Email o contraseña incorrectos</string>
     <string name="error_login_generico">Error al iniciar sesión</string>
 
     <!-- ============================================== -->

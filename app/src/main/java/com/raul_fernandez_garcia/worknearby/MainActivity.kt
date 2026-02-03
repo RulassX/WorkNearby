@@ -13,6 +13,7 @@ import androidx.compose.foundation.Image
 import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
+import androidx.compose.foundation.gestures.snapping.SnapPosition
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -43,6 +44,7 @@ import androidx.compose.material.icons.outlined.Star
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.AssistChipDefaults
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
@@ -287,7 +289,7 @@ private fun BuscarOfertas(
                         // Color de fondo de la barra
                         containerColor = MaterialTheme.colorScheme.primary,
 
-                        // Color del texto del titulo (debe contrastar con el fondo)
+                        // Color del texto del titulo
                         titleContentColor = MaterialTheme.colorScheme.onPrimary,
 
                         // Color de los iconos (menu, flecha atras)
@@ -520,7 +522,7 @@ private fun BuscarContratos(
                         // Color de fondo de la barra
                         containerColor = MaterialTheme.colorScheme.primary,
 
-                        // Color del texto del titulo (debe contrastar con el fondo)
+                        // Color del texto del titulo
                         titleContentColor = MaterialTheme.colorScheme.onPrimary,
 
                         // Color de los iconos (menu, flecha atras)
@@ -1395,6 +1397,7 @@ fun VentanaLogin(
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(50.dp),
+                colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.primary),
                 shape = RoundedCornerShape(12.dp),
                 enabled = !viewModel.isLoading
             ) {
@@ -1518,13 +1521,26 @@ fun VentanaSeleccionRol(
         horizontalAlignment = Alignment.CenterHorizontally,
         verticalArrangement = Arrangement.Center
     ) {
+        Image(
+            painter = painterResource(id = R.drawable.logoworknearby),
+            contentDescription = "Logo",
+            modifier = Modifier
+                .size(80.dp)
+                .border(2.dp, MaterialTheme.colorScheme.secondaryContainer, CircleShape)
+                .clip(CircleShape),
+            contentScale = ContentScale.Crop,
+        )
+        Spacer(modifier = Modifier.height(16.dp))
+
         Text(
-            "¡Bienvenido!",
+            "¿Cómo quieres usar WorkNearby?",
             fontSize = 28.sp,
             fontWeight = FontWeight.Bold,
-            color = MaterialTheme.colorScheme.primary
+            color = MaterialTheme.colorScheme.primary,
+            textAlign = TextAlign.Center
         )
-        Text("¿Cómo quieres usar WorkNearby?", fontSize = 16.sp, color = Color.Gray)
+        Text("Paso 2 de 3: Datos Personales", fontSize = 14.sp, color = Color.Gray)
+        Spacer(modifier = Modifier.height(32.dp))
 
         Spacer(modifier = Modifier.height(40.dp))
 
@@ -1593,6 +1609,17 @@ fun VentanaRegistroCliente(
                 .padding(24.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
+            Image(
+                painter = painterResource(id = R.drawable.logoworknearby),
+                contentDescription = "Logo",
+                modifier = Modifier
+                    .size(80.dp)
+                    .border(2.dp, MaterialTheme.colorScheme.secondaryContainer, CircleShape)
+                    .clip(CircleShape),
+                contentScale = ContentScale.Crop,
+            )
+            Spacer(modifier = Modifier.height(16.dp))
+
             Text(
                 "Detalles de Cliente",
                 fontSize = 24.sp,
@@ -1648,6 +1675,17 @@ fun VentanaRegistroTrabajador(
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
             item {
+                Image(
+                    painter = painterResource(id = R.drawable.logoworknearby),
+                    contentDescription = "Logo",
+                    modifier = Modifier
+                        .size(80.dp)
+                        .border(2.dp, MaterialTheme.colorScheme.secondaryContainer, CircleShape)
+                        .clip(CircleShape),
+                    contentScale = ContentScale.Crop,
+                )
+                Spacer(modifier = Modifier.height(16.dp))
+
                 Text(
                     "Perfil Profesional",
                     fontSize = 24.sp,
