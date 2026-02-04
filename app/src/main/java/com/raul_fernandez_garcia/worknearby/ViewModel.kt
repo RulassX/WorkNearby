@@ -14,6 +14,7 @@ import androidx.lifecycle.viewModelScope
 import com.raul_fernandez_garcia.WorkNearby_API.modeloDTO.CrearOfertaDTO
 import com.raul_fernandez_garcia.WorkNearby_API.modeloDTO.CrearResenaDTO
 import com.raul_fernandez_garcia.WorkNearby_API.modeloDTO.LoginRequest
+import com.raul_fernandez_garcia.WorkNearby_API.modeloDTO.RegistroDTO
 import com.raul_fernandez_garcia.WorkNearby_API.modeloDTO.SolicitarServicioDTO
 import com.raul_fernandez_garcia.worknearby.modeloDTO.CategoriaDTO
 import com.raul_fernandez_garcia.worknearby.modeloDTO.OfertaDTO
@@ -444,34 +445,57 @@ class RegistroViewModel(private val context: Context) : ViewModel() {
     // Rol (Pantalla 2)
     var rol by mutableStateOf("cliente") // 'cliente' o 'trabajador'
 
-    // Datos Tabla Cliente (Pantalla 3a)
+    // Datos Tabla Cliente
     var direccion by mutableStateOf("")
     var ciudad by mutableStateOf("")
 
-    // Datos Tabla Trabajador (Pantalla 3b)
+    // Datos Tabla Trabajador
     var descripcion by mutableStateOf("")
     var radioKm by mutableStateOf("")
 
+    var isLoading by mutableStateOf(false)       // Para mostrar ruedita de carga
+    var errorRegistro by mutableStateOf<String?>(null) // Para mostrar mensajes de error
+    var registroExitoso by mutableStateOf(false) // Para navegar al login automáticamente
+
     fun registrarUsuario() {
+        if (email.isBlank() || password.isBlank()) {
+            errorRegistro = context.getString(R.string.error_campo_vacio)
+            return
+        }
         viewModelScope.launch {
+            isLoading = true
+            errorRegistro = null
+
             try {
-                // 1. Validar que los campos básicos no estén vacíos
-                if (email.isBlank() || password.isBlank()) return@launch
+                // 2. Preparamos el objeto a enviar (DTO)
+                val datos = RegistroDTO(
+                    nombre = nombre,
+                    apellidos = apellidos,
+                    email = email,
+                    password = password, // <--- AQUÍ SE ENVÍA SIN ENCRIPTAR
+                    telefono = telefono,
+                    rol = rol,
 
-                // 2. Crear el objeto de registro (DTO)
-                // Aquí llamarías a tu servicio de Retrofit
-                // val response = apiService.register(nombre, apellidos, email, password, telefono, rol, ...)
+                    // Solo enviamos los datos correspondientes al rol elegido
+                    direccion = if (rol == "cliente") direccion else null,
+                    ciudad = if (rol == "cliente") ciudad else null,
+                    descripcion = if (rol == "trabajador") descripcion else null,
+                    radioKm = if (rol == "trabajador") radioKm.toDoubleOrNull() else null
+                )
 
-                // 3. Lógica condicional en el servidor o aquí:
-                if (rol == "cliente") {
-                    // Enviar también direccion y ciudad
-                } else {
-                    // Enviar también descripcion y radioKm
-                }
+                // 3. Llamada a la API
+                // RetrofitClient ya lo tienes configurado en tu proyecto
+                RetrofitClient.api.registrarUsuario(datos)
 
-                println("Registro exitoso: $nombre como $rol")
+                // Si no salta al 'catch', es que todo fue bien
+                registroExitoso = true
+
             } catch (e: Exception) {
-                println("Error en el registro: ${e.message}")
+                // Si falla (ej: email repetido, servidor caído)
+                e.printStackTrace()
+                errorRegistro = "Error: ${e.message}"
+            } finally {
+                isLoading = false
             }
         }
     }
@@ -479,9 +503,14 @@ class RegistroViewModel(private val context: Context) : ViewModel() {
 
 class RegistroViewModelFactory(private val context: Context) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        return RegistroViewModel(context) as T
+        if (modelClass.isAssignableFrom(RegistroViewModel::class.java)) {
+            @Suppress("UNCHECKED_CAST")
+            return RegistroViewModel(context) as T
+        }
+        throw IllegalArgumentException("Unknown ViewModel class")
     }
 }
+
 
 //------------------------------------------------
 

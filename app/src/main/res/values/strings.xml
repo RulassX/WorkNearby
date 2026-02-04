@@ -38,41 +38,39 @@
     <!-- ============================================== -->
     <!-- PANTALLA: REGISTRO 1                                -->
     <!-- ============================================== -->
-    <string name="registro1_titulo">WorkNearby</string>
-    <string name="registro1_subtitulo">Inicia sesión para continuar</string>
-    <string name="label_email">Correo electrónico</string>
-    <string name="label_password">Contraseña</string>
-    <string name="btn_entrar">Entrar</string>
-    <string name="login_no_cuenta">¿No tienes cuenta? Regístrate aquí</string>
-    <string name="error_campo_vacio">Rellena todos los campos</string>
-    <string name="error_dato_incorrecto">Email o contraseña incorrectos</string>
-    <string name="error_login_generico">Error al iniciar sesión</string>
+    <string name="registro1_titulo">Crea tu perfil</string>
+    <string name="registro1_subtitulo">Paso 1 de 3: Datos Personales</string>
+    <string name="label_nombre">Nombre</string>
+    <string name="label_apellidos">Apellidos</string>
+    <string name="label_telefono">Teléfono</string>
+    <string name="btn_next">Siguiente</string>
 
     <!-- ============================================== -->
     <!-- PANTALLA: REGISTRO 2                                -->
     <!-- ============================================== -->
-    <string name="login_titulo">WorkNearby</string>
-    <string name="login_subtitulo">Inicia sesión para continuar</string>
-    <string name="label_email">Correo electrónico</string>
-    <string name="label_password">Contraseña</string>
-    <string name="btn_entrar">Entrar</string>
-    <string name="login_no_cuenta">¿No tienes cuenta? Regístrate aquí</string>
-    <string name="error_campo_vacio">Rellena todos los campos</string>
-    <string name="error_dato_incorrecto">Email o contraseña incorrectos</string>
-    <string name="error_login_generico">Error al iniciar sesión</string>
+    <string name="registro2_titulo">¿Cómo quieres usar WorkNearby?</string>
+    <string name="registro2_subtitulo">Paso 2 de 3: Elige tu rol</string>
+    <string name="btn_cliente_titulo">Busco Servicios</string>
+    <string name="btn_cliente_subtitulo">Quiero contratar profesionales</string>
+    <string name="btn_trabajador_titulo">Ofrezco Servicios</string>
+    <string name="btn_trabajador_subtitulo">Quiero trabajar y ganar dinero</string>
 
     <!-- ============================================== -->
-    <!-- PANTALLA: REGISTRO 3                                -->
+    <!-- PANTALLA: REGISTRO CLI                                -->
     <!-- ============================================== -->
-    <string name="login_titulo">WorkNearby</string>
-    <string name="login_subtitulo">Inicia sesión para continuar</string>
-    <string name="label_email">Correo electrónico</string>
-    <string name="label_password">Contraseña</string>
-    <string name="btn_entrar">Entrar</string>
-    <string name="login_no_cuenta">¿No tienes cuenta? Regístrate aquí</string>
-    <string name="error_campo_vacio">Rellena todos los campos</string>
-    <string name="error_dato_incorrecto">Email o contraseña incorrectos</string>
-    <string name="error_login_generico">Error al iniciar sesión</string>
+    <string name="registro_cli_titulo">Detalles de Cliente</string>
+    <string name="registro_cli_subtitulo">Paso 3 de 3: Tu ubicación</string>
+    <string name="label_direccion">Dirección</string>
+    <string name="label_ciudad">Ciudad</string>
+    <string name="btn_finalizar">Finalizar Registro</string>
+
+    <!-- ============================================== -->
+    <!-- PANTALLA: REGISTRO TRAB                                -->
+    <!-- ============================================== -->
+    <string name="registro_trab_titulo">Perfil Profesional</string>
+    <string name="registro_trab_subtitulo">Paso 3 de 3: Tus servicios</string>
+    <string name="label_desc">Descripción de servicios</string>
+    <string name="label_radio">Radio de acción (km)</string>
 
     <!-- ============================================== -->
     <!-- PANTALLA: BUSCAR OFERTAS                       -->

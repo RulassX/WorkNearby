@@ -37,6 +37,43 @@
     <string name="error_login_generico">Erro ao iniciar sesión</string>
 
     <!-- ============================================== -->
+    <!-- PANTALLA: REGISTRO 1                                -->
+    <!-- ============================================== -->
+    <string name="registro1_titulo">Crea o teu perfil</string>
+    <string name="registro1_subtitulo">Paso 1 de 3: Datos Persoais</string>
+    <string name="label_nombre">Nome</string>
+    <string name="label_apellidos">Apelidos</string>
+    <string name="label_telefono">Teléfono</string>
+    <string name="btn_next">Seguinte</string>
+
+    <!-- ============================================== -->
+    <!-- PANTALLA: REGISTRO 2                                -->
+    <!-- ============================================== -->
+    <string name="registro2_titulo">Como queres usar WorkNearby?</string>
+    <string name="registro2_subtitulo">Paso 2 de 3: Escolle o teu rol</string>
+    <string name="btn_cliente_titulo">Busco Servizos</string>
+    <string name="btn_cliente_subtitulo">Quero contratar profesionais</string>
+    <string name="btn_trabajador_titulo">Ofrezo Servizos</string>
+    <string name="btn_trabajador_subtitulo">Quero traballar e gañar cartos</string>
+
+    <!-- ============================================== -->
+    <!-- PANTALLA: REGISTRO CLI                                -->
+    <!-- ============================================== -->
+    <string name="registro_cli_titulo">Detalles de Cliente</string>
+    <string name="registro_cli_subtitulo">Paso 3 de 3: A túa localización</string>
+    <string name="label_direccion">Enderezo</string>
+    <string name="label_ciudad">Cidade</string>
+    <string name="btn_finalizar">Finalizar Rexistro</string>
+
+    <!-- ============================================== -->
+    <!-- PANTALLA: REGISTRO TRAB                                -->
+    <!-- ============================================== -->
+    <string name="registro_trab_titulo">Perfil Profesional</string>
+    <string name="registro_trab_subtitulo">Paso 3 de 3: Os teus servizos</string>
+    <string name="label_desc">Descrición de servizos</string>
+    <string name="label_radio">Radio de acción (km)</string>
+
+    <!-- ============================================== -->
     <!-- PANTALLA: BUSCAR OFERTAS                       -->
     <!-- ============================================== -->
     <string name="titulo_worknearby">WorkNearby</string>

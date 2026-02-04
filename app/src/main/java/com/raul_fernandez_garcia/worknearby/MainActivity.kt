@@ -1449,35 +1449,35 @@ fun VentanaRegistroUsuario(
                 )
                 Spacer(modifier = Modifier.height(16.dp))
                 Text(
-                    "Crea tu perfil",
+                    stringResource(R.string.registro1_titulo),
                     fontSize = 28.sp,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.primary
                 )
-                Text("Paso 1 de 3: Datos Personales", fontSize = 14.sp, color = Color.Gray)
+                Text(stringResource(R.string.registro1_subtitulo), fontSize = 14.sp, color = Color.Gray)
                 Spacer(modifier = Modifier.height(32.dp))
 
                 // Formulario
                 CustomTextField(
                     value = viewModel.nombre,
                     onValueChange = { viewModel.nombre = it },
-                    label = "Nombre"
+                    label = stringResource(R.string.label_nombre)
                 )
                 CustomTextField(
                     value = viewModel.apellidos,
                     onValueChange = { viewModel.apellidos = it },
-                    label = "Apellidos"
+                    label = stringResource(R.string.label_apellidos)
                 )
                 CustomTextField(
                     value = viewModel.email,
                     onValueChange = { viewModel.email = it },
-                    label = "Email",
+                    label = stringResource(R.string.label_email),
                     type = KeyboardType.Email
                 )
                 CustomTextField(
                     value = viewModel.telefono,
                     onValueChange = { viewModel.telefono = it },
-                    label = "Teléfono",
+                    label = stringResource(R.string.label_telefono),
                     type = KeyboardType.Phone
                 )
 
@@ -1485,7 +1485,7 @@ fun VentanaRegistroUsuario(
                 OutlinedTextField(
                     value = viewModel.password,
                     onValueChange = { viewModel.password = it },
-                    label = { Text("Contraseña") },
+                    label = { Text(stringResource(R.string.label_password)) },
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
                     shape = RoundedCornerShape(12.dp),
@@ -1502,7 +1502,7 @@ fun VentanaRegistroUsuario(
                         .height(50.dp),
                     shape = RoundedCornerShape(12.dp)
                 ) {
-                    Text("Siguiente", fontSize = 18.sp)
+                    Text(stringResource(R.string.btn_next), fontSize = 18.sp)
                 }
             }
         }
@@ -1533,21 +1533,21 @@ fun VentanaSeleccionRol(
         Spacer(modifier = Modifier.height(16.dp))
 
         Text(
-            "¿Cómo quieres usar WorkNearby?",
+            stringResource(R.string.registro2_titulo),
             fontSize = 28.sp,
             fontWeight = FontWeight.Bold,
             color = MaterialTheme.colorScheme.primary,
             textAlign = TextAlign.Center
         )
-        Text("Paso 2 de 3: Datos Personales", fontSize = 14.sp, color = Color.Gray)
+        Text(stringResource(R.string.registro1_subtitulo), fontSize = 14.sp, color = Color.Gray)
         Spacer(modifier = Modifier.height(32.dp))
 
         Spacer(modifier = Modifier.height(40.dp))
 
         // como Cliente
         RolCard(
-            titulo = "Busco Servicios",
-            subtitulo = "Quiero contratar profesionales",
+            titulo = stringResource(R.string.btn_cliente_titulo),
+            subtitulo = stringResource(R.string.btn_cliente_titulo),
             icon = Icons.Default.Search,
             onClick = {
                 viewModel.rol = "cliente"
@@ -1559,8 +1559,8 @@ fun VentanaSeleccionRol(
 
         // como Trabajador
         RolCard(
-            titulo = "Ofrezco Servicios",
-            subtitulo = "Quiero trabajar y ganar dinero",
+            titulo = stringResource(R.string.btn_trabajador_titulo),
+            subtitulo = stringResource(R.string.btn_trabajador_subtitulo),
             icon = Icons.Default.Build,
             onClick = {
                 viewModel.rol = "trabajador"
@@ -1601,6 +1601,14 @@ fun VentanaRegistroCliente(
     viewModel: RegistroViewModel
 ) {
 
+    LaunchedEffect(viewModel.registroExitoso) {
+        if (viewModel.registroExitoso) {
+            navController.navigate("login") {
+                popUpTo("registro_usuario") { inclusive = true }
+            }
+        }
+    }
+
     Scaffold { padding ->
         Column(
             modifier = Modifier
@@ -1621,40 +1629,42 @@ fun VentanaRegistroCliente(
             Spacer(modifier = Modifier.height(16.dp))
 
             Text(
-                "Detalles de Cliente",
+                stringResource(R.string.registro_cli_titulo),
                 fontSize = 24.sp,
                 fontWeight = FontWeight.Bold,
                 color = MaterialTheme.colorScheme.primary
             )
-            Text("Paso 3 de 3: Tu ubicación", fontSize = 14.sp, color = Color.Gray)
+            Text( stringResource(R.string.registro_cli_subtitulo), fontSize = 14.sp, color = Color.Gray)
             Spacer(modifier = Modifier.height(32.dp))
 
             CustomTextField(
                 value = viewModel.direccion,
                 onValueChange = { viewModel.direccion = it },
-                label = "Dirección"
+                label =  stringResource(R.string.label_direccion)
             )
             Spacer(modifier = Modifier.height(16.dp))
             CustomTextField(
                 value = viewModel.ciudad,
                 onValueChange = { viewModel.ciudad = it },
-                label = "Ciudad"
+                label =  stringResource(R.string.label_ciudad)
             )
 
             Spacer(modifier = Modifier.height(32.dp))
 
             Button(
-                onClick = {
-                    viewModel.registrarUsuario()
-                    // Navegar al home o login tras registro
-                    navController.navigate("login") { popUpTo(0) }
-                },
+                onClick = { viewModel.registrarUsuario() },
                 modifier = Modifier
                     .fillMaxWidth()
                     .height(50.dp),
-                shape = RoundedCornerShape(12.dp)
+                colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.primary),
+                shape = RoundedCornerShape(12.dp),
+                enabled = !viewModel.isLoading,
             ) {
-                Text("Finalizar Registro")
+                if (viewModel.isLoading) {
+                    CircularProgressIndicator(color = Color.White, modifier = Modifier.size(24.dp))
+                } else {
+                    Text(stringResource(R.string.btn_finalizar), fontSize = 18.sp)
+                }
             }
         }
     }
@@ -1665,6 +1675,14 @@ fun VentanaRegistroTrabajador(
     navController: NavHostController,
     viewModel: RegistroViewModel
 ) {
+
+    LaunchedEffect(viewModel.registroExitoso) {
+        if (viewModel.registroExitoso) {
+            navController.navigate("login") {
+                popUpTo("registro_usuario") { inclusive = true }
+            }
+        }
+    }
 
     Scaffold { padding ->
         LazyColumn(
@@ -1687,18 +1705,18 @@ fun VentanaRegistroTrabajador(
                 Spacer(modifier = Modifier.height(16.dp))
 
                 Text(
-                    "Perfil Profesional",
+                    stringResource(R.string.registro_trab_titulo),
                     fontSize = 24.sp,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.primary
                 )
-                Text("Paso 3 de 3: Tus servicios", fontSize = 14.sp, color = Color.Gray)
+                Text(stringResource(R.string.registro_trab_subtitulo), fontSize = 14.sp, color = Color.Gray)
                 Spacer(modifier = Modifier.height(32.dp))
 
                 OutlinedTextField(
                     value = viewModel.descripcion,
                     onValueChange = { viewModel.descripcion = it },
-                    label = { Text("Descripción de servicios") },
+                    label = { Text(stringResource(R.string.label_desc)) },
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(120.dp),
@@ -1711,23 +1729,26 @@ fun VentanaRegistroTrabajador(
                 CustomTextField(
                     value = viewModel.radioKm,
                     onValueChange = { viewModel.radioKm = it },
-                    label = "Radio de acción (KM)",
+                    label = stringResource(R.string.label_radio),
                     type = KeyboardType.Number
                 )
 
                 Spacer(modifier = Modifier.height(32.dp))
 
                 Button(
-                    onClick = {
-                        viewModel.registrarUsuario()
-                        navController.navigate("login") { popUpTo(0) }
-                    },
+                    onClick = { viewModel.registrarUsuario() },
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(50.dp),
-                    shape = RoundedCornerShape(12.dp)
+                    colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.primary),
+                    shape = RoundedCornerShape(12.dp),
+                    enabled = !viewModel.isLoading,
                 ) {
-                    Text("Finalizar Registro")
+                    if (viewModel.isLoading) {
+                        CircularProgressIndicator(color = Color.White, modifier = Modifier.size(24.dp))
+                    } else {
+                        Text(stringResource(R.string.btn_finalizar), fontSize = 18.sp)
+                    }
                 }
             }
         }

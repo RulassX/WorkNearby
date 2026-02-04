@@ -8,8 +8,8 @@ data class RegistroDTO(
     val telefono: String,
     val rol: String,
 
-    val latitud: Double,
-    val longitud: Double,
+    //val latitud: Double,
+    //val longitud: Double,
 
     val direccion: String? = null,
     val ciudad: String? = null,
