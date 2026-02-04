@@ -449,6 +449,9 @@ class RegistroViewModel(private val context: Context) : ViewModel() {
     var direccion by mutableStateOf("")
     var ciudad by mutableStateOf("")
 
+    var latitud by mutableStateOf(42.8782) // Coordenada inicial
+    var longitud by mutableStateOf(-8.5448)
+
     // Datos Tabla Trabajador
     var descripcion by mutableStateOf("")
     var radioKm by mutableStateOf("")
@@ -475,6 +478,9 @@ class RegistroViewModel(private val context: Context) : ViewModel() {
                     password = password, // <--- AQUÍ SE ENVÍA SIN ENCRIPTAR
                     telefono = telefono,
                     rol = rol,
+
+                    latitud = latitud,
+                    longitud = longitud,
 
                     // Solo enviamos los datos correspondientes al rol elegido
                     direccion = if (rol == "cliente") direccion else null,

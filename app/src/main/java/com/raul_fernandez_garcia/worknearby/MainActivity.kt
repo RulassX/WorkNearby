@@ -1,6 +1,8 @@
 package com.raul_fernandez_garcia.worknearby
 
 import android.annotation.SuppressLint
+import android.content.Context
+import android.location.Geocoder
 import android.net.Uri
 import android.os.Bundle
 import androidx.activity.ComponentActivity
@@ -38,6 +40,7 @@ import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Build
+import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.Star
@@ -65,6 +68,7 @@ import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.NavigationDrawerItem
+import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
@@ -107,6 +111,14 @@ import androidx.navigation.compose.rememberNavController
 import androidx.navigation.navArgument
 import coil.compose.AsyncImage
 import com.example.compose.AppTheme
+import com.google.android.gms.location.LocationServices
+import com.google.android.gms.maps.model.CameraPosition
+import com.google.android.gms.maps.model.LatLng
+import com.google.maps.android.compose.CameraPositionState
+import com.google.maps.android.compose.GoogleMap
+import com.google.maps.android.compose.Marker
+import com.google.maps.android.compose.MarkerState
+import com.google.maps.android.compose.rememberCameraPositionState
 import com.raul_fernandez_garcia.worknearby.modeloDTO.CategoriaDTO
 import com.raul_fernandez_garcia.worknearby.modeloDTO.ClienteDTO
 import com.raul_fernandez_garcia.worknearby.modeloDTO.OfertaDTO
@@ -1454,7 +1466,11 @@ fun VentanaRegistroUsuario(
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.primary
                 )
-                Text(stringResource(R.string.registro1_subtitulo), fontSize = 14.sp, color = Color.Gray)
+                Text(
+                    stringResource(R.string.registro1_subtitulo),
+                    fontSize = 14.sp,
+                    color = Color.Gray
+                )
                 Spacer(modifier = Modifier.height(32.dp))
 
                 // Formulario
@@ -1601,6 +1617,23 @@ fun VentanaRegistroCliente(
     viewModel: RegistroViewModel
 ) {
 
+    val context = LocalContext.current
+    val scope = rememberCoroutineScope()
+
+    // Estado de la cámara del mapa (Santiago de Compostela por defecto)
+    val cameraPositionState = rememberCameraPositionState {
+        position = CameraPosition.fromLatLngZoom(LatLng(42.8782, -8.5448), 15f)
+    }
+
+    // Lanzador para permisos de GPS
+    val permissionLauncher = rememberLauncherForActivityResult(
+        ActivityResultContracts.RequestMultiplePermissions()
+    ) { permissions ->
+        if (permissions[android.Manifest.permission.ACCESS_FINE_LOCATION] == true) {
+            obtenerUbicacionGPS(context, viewModel, cameraPositionState)
+        }
+    }
+
     LaunchedEffect(viewModel.registroExitoso) {
         if (viewModel.registroExitoso) {
             navController.navigate("login") {
@@ -1610,60 +1643,121 @@ fun VentanaRegistroCliente(
     }
 
     Scaffold { padding ->
-        Column(
+        LazyColumn(
             modifier = Modifier
                 .fillMaxSize()
                 .padding(padding)
                 .padding(24.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            Image(
-                painter = painterResource(id = R.drawable.logoworknearby),
-                contentDescription = "Logo",
-                modifier = Modifier
-                    .size(80.dp)
-                    .border(2.dp, MaterialTheme.colorScheme.secondaryContainer, CircleShape)
-                    .clip(CircleShape),
-                contentScale = ContentScale.Crop,
-            )
-            Spacer(modifier = Modifier.height(16.dp))
+            item {
+                Image(
+                    painter = painterResource(id = R.drawable.logoworknearby),
+                    contentDescription = "Logo",
+                    modifier = Modifier
+                        .size(80.dp)
+                        .border(2.dp, MaterialTheme.colorScheme.secondaryContainer, CircleShape)
+                        .clip(CircleShape),
+                    contentScale = ContentScale.Crop,
+                )
+                Spacer(modifier = Modifier.height(16.dp))
 
-            Text(
-                stringResource(R.string.registro_cli_titulo),
-                fontSize = 24.sp,
-                fontWeight = FontWeight.Bold,
-                color = MaterialTheme.colorScheme.primary
-            )
-            Text( stringResource(R.string.registro_cli_subtitulo), fontSize = 14.sp, color = Color.Gray)
-            Spacer(modifier = Modifier.height(32.dp))
+                Text(
+                    stringResource(R.string.registro_cli_titulo),
+                    fontSize = 24.sp,
+                    fontWeight = FontWeight.Bold,
+                    color = MaterialTheme.colorScheme.primary
+                )
+                Text(
+                    stringResource(R.string.registro_cli_subtitulo),
+                    fontSize = 14.sp,
+                    color = Color.Gray
+                )
+                Spacer(modifier = Modifier.height(32.dp))
 
-            CustomTextField(
-                value = viewModel.direccion,
-                onValueChange = { viewModel.direccion = it },
-                label =  stringResource(R.string.label_direccion)
-            )
-            Spacer(modifier = Modifier.height(16.dp))
-            CustomTextField(
-                value = viewModel.ciudad,
-                onValueChange = { viewModel.ciudad = it },
-                label =  stringResource(R.string.label_ciudad)
-            )
+                // CAMPO DIRECCION
+                CustomTextField(
+                    value = viewModel.direccion,
+                    onValueChange = {
+                        viewModel.direccion = it
+                        // Al escribir, buscamos en el mapa (opcional poner un debounce aquí)
+                        buscarDireccionEnMapa(context, it, cameraPositionState, viewModel)
+                    },
+                    label = stringResource(R.string.label_direccion)
+                )
+                Spacer(modifier = Modifier.height(16.dp))
 
-            Spacer(modifier = Modifier.height(32.dp))
+                /*
+                CustomTextField(
+                    value = viewModel.ciudad,
+                    onValueChange = { viewModel.ciudad = it },
+                    label = stringResource(R.string.label_ciudad)
+                )
+                 */
 
-            Button(
-                onClick = { viewModel.registrarUsuario() },
-                modifier = Modifier
-                    .fillMaxWidth()
-                    .height(50.dp),
-                colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.primary),
-                shape = RoundedCornerShape(12.dp),
-                enabled = !viewModel.isLoading,
-            ) {
-                if (viewModel.isLoading) {
-                    CircularProgressIndicator(color = Color.White, modifier = Modifier.size(24.dp))
-                } else {
-                    Text(stringResource(R.string.btn_finalizar), fontSize = 18.sp)
+                // BOTON PARA GPS
+                OutlinedButton(
+                    onClick = {
+                        permissionLauncher.launch(
+                            arrayOf(
+                                android.Manifest.permission.ACCESS_FINE_LOCATION,
+                                android.Manifest.permission.ACCESS_COARSE_LOCATION
+                            )
+                        )
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .padding(vertical = 8.dp),
+                    shape = RoundedCornerShape(12.dp)
+                ) {
+                    Icon(Icons.Default.LocationOn, contentDescription = null)
+                    Spacer(Modifier.width(8.dp))
+                    Text("Usar mi ubicación actual (GPS)")
+                }
+
+                // VISTA DEL MAPA
+                Box(
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(250.dp)
+                        .clip(RoundedCornerShape(16.dp))
+                        .border(1.dp, Color.LightGray, RoundedCornerShape(16.dp))
+                ) {
+                    GoogleMap(
+                        modifier = Modifier.fillMaxSize(),
+                        cameraPositionState = cameraPositionState
+                    ) {
+                        Marker(
+                            state = MarkerState(
+                                position = LatLng(
+                                    viewModel.latitud,
+                                    viewModel.longitud
+                                )
+                            ),
+                            title = "Tu ubicación"
+                        )
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(32.dp))
+
+                Button(
+                    onClick = { viewModel.registrarUsuario() },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(50.dp),
+                    colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.primary),
+                    shape = RoundedCornerShape(12.dp),
+                    enabled = !viewModel.isLoading,
+                ) {
+                    if (viewModel.isLoading) {
+                        CircularProgressIndicator(
+                            color = Color.White,
+                            modifier = Modifier.size(24.dp)
+                        )
+                    } else {
+                        Text(stringResource(R.string.btn_finalizar), fontSize = 18.sp)
+                    }
                 }
             }
         }
@@ -1710,7 +1804,11 @@ fun VentanaRegistroTrabajador(
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.primary
                 )
-                Text(stringResource(R.string.registro_trab_subtitulo), fontSize = 14.sp, color = Color.Gray)
+                Text(
+                    stringResource(R.string.registro_trab_subtitulo),
+                    fontSize = 14.sp,
+                    color = Color.Gray
+                )
                 Spacer(modifier = Modifier.height(32.dp))
 
                 OutlinedTextField(
@@ -1745,11 +1843,63 @@ fun VentanaRegistroTrabajador(
                     enabled = !viewModel.isLoading,
                 ) {
                     if (viewModel.isLoading) {
-                        CircularProgressIndicator(color = Color.White, modifier = Modifier.size(24.dp))
+                        CircularProgressIndicator(
+                            color = Color.White,
+                            modifier = Modifier.size(24.dp)
+                        )
                     } else {
                         Text(stringResource(R.string.btn_finalizar), fontSize = 18.sp)
                     }
                 }
+            }
+        }
+    }
+}
+
+// FUNCION 1: Buscar lo que el usuario escribe
+fun buscarDireccionEnMapa(
+    context: Context,
+    direccion: String,
+    cameraState: CameraPositionState,
+    viewModel: RegistroViewModel
+) {
+    if (direccion.length < 5) return
+    val geocoder = Geocoder(context)
+    try {
+        val direcciones = geocoder.getFromLocationName(direccion, 1)
+        if (!direcciones.isNullOrEmpty()) {
+            val loc = direcciones[0]
+            val latLng = LatLng(loc.latitude, loc.longitude)
+            viewModel.latitud = loc.latitude
+            viewModel.longitud = loc.longitude
+            cameraState.position = CameraPosition.fromLatLngZoom(latLng, 15f)
+        }
+    } catch (e: Exception) {
+        e.printStackTrace()
+    }
+}
+
+// FUNCION 2: Obtener ubicacion por GPS
+@SuppressLint("MissingPermission")
+fun obtenerUbicacionGPS(
+    context: Context,
+    viewModel: RegistroViewModel,
+    cameraState: CameraPositionState
+) {
+    val fusedLocationClient = LocationServices.getFusedLocationProviderClient(context)
+    fusedLocationClient.lastLocation.addOnSuccessListener { location ->
+        location?.let {
+            viewModel.latitud = it.latitude
+            viewModel.longitud = it.longitude
+            val latLng = LatLng(it.latitude, it.longitude)
+            cameraState.position = CameraPosition.fromLatLngZoom(latLng, 15f)
+
+            // Opcional: Rellenar el texto de dirección automáticamente desde las coordenadas
+            val geocoder = Geocoder(context)
+            val direcciones = geocoder.getFromLocation(it.latitude, it.longitude, 1)
+            if (!direcciones.isNullOrEmpty()) {
+                viewModel.direccion = direcciones[0].getAddressLine(0)
+                viewModel.ciudad = direcciones[0].locality ?: ""
             }
         }
     }
