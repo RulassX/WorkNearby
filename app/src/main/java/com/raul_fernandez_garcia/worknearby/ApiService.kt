@@ -7,13 +7,16 @@ import com.raul_fernandez_garcia.WorkNearby_API.modeloDTO.RegistroDTO
 import com.raul_fernandez_garcia.WorkNearby_API.modeloDTO.SolicitarServicioDTO
 import com.raul_fernandez_garcia.worknearby.modeloDTO.CategoriaDTO
 import com.raul_fernandez_garcia.worknearby.modeloDTO.ClienteDTO
+import com.raul_fernandez_garcia.worknearby.modeloDTO.NotificacionDTO
 import com.raul_fernandez_garcia.worknearby.modeloDTO.OfertaDTO
 import com.raul_fernandez_garcia.worknearby.modeloDTO.ResenaDTO
 import com.raul_fernandez_garcia.worknearby.modeloDTO.ServicioDTO
 import com.raul_fernandez_garcia.worknearby.modeloDTO.TrabajadorDTO
 import com.raul_fernandez_garcia.worknearby.modeloDTO.UsuarioDTO
+import retrofit2.Response
 import retrofit2.http.Body
 import retrofit2.http.GET
+import retrofit2.http.PATCH
 import retrofit2.http.POST
 import retrofit2.http.PUT
 import retrofit2.http.Path
@@ -83,4 +86,31 @@ interface ApiService {
         @Query("idUsuario") idUsuario: Int,
         @Query("esTrabajador") esTrabajador: Boolean
     ): List<ServicioDTO>
+
+    /**
+     * Actualiza el token de Firebase del usuario.
+     * Se debe llamar cada vez que el usuario hace login o el token cambia.
+     */
+    @PUT("/api/usuario/{id}/token")
+    suspend fun actualizarTokenFCM(
+        @Path("id") idUsuario: Int,
+        @Query("token") token: String
+    ): Response<Unit> // Usamos Response<Unit> porque a veces solo nos importa si fue OK (200)
+
+    /**
+     * Obtiene el historial de notificaciones del usuario (el buzón)
+     */
+    @GET("/api/notificaciones/{idUsuario}")
+    suspend fun obtenerNotificaciones(
+        @Path("idUsuario") idUsuario: Int
+    ): List<NotificacionDTO>
+
+    /**
+     * Marca una notificación como leída
+     */
+    @PATCH("/api/notificaciones/{id}/leer")
+    suspend fun marcarComoLeida(
+        @Path("id") idNotificacion: Int
+    ): Response<Unit>
+
 }

@@ -3,6 +3,7 @@ package com.raul_fernandez_garcia.worknearby
 import android.content.Context
 import android.net.Uri
 import android.util.Base64
+import android.util.Log
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.getValue
 import androidx.compose.runtime.mutableStateOf
@@ -11,6 +12,7 @@ import androidx.compose.ui.res.stringResource
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.ViewModelProvider
 import androidx.lifecycle.viewModelScope
+import com.google.firebase.messaging.FirebaseMessaging
 import com.raul_fernandez_garcia.WorkNearby_API.modeloDTO.CrearOfertaDTO
 import com.raul_fernandez_garcia.WorkNearby_API.modeloDTO.CrearResenaDTO
 import com.raul_fernandez_garcia.WorkNearby_API.modeloDTO.LoginRequest
@@ -414,6 +416,8 @@ class LoginViewModel(private val context: Context) : ViewModel() {
                     nombre = usuarioDTO.nombre
                 )
 
+                enviarTokenAlServidor(usuarioDTO.id)
+
                 loginExitoso = true
 
             } catch (e: Exception) {
@@ -421,6 +425,32 @@ class LoginViewModel(private val context: Context) : ViewModel() {
                 loginError = context.getString(R.string.error_dato_incorrecto)
             } finally {
                 isLoading = false
+            }
+        }
+    }
+
+    fun enviarTokenAlServidor(idUsuario: Int) {
+        // 1. Le pedimos a Google el token único de este móvil
+        FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
+            if (!task.isSuccessful) {
+                Log.w("FCM", "Error al obtener el token", task.exception)
+                return@addOnCompleteListener
+            }
+
+            // 2. El token es una cadena larga (ej: "fK3z...")
+            val token = task.result
+
+            // 3. Lo enviamos a nuestro servidor (Backend)
+            // Usamos un Coroutine para la llamada de red
+            viewModelScope.launch {
+                try {
+                    val response = RetrofitClient.api.actualizarTokenFCM(idUsuario, token)
+                    if (response.isSuccessful) {
+                        Log.d("FCM", "Token actualizado con éxito en el servidor")
+                    }
+                } catch (e: Exception) {
+                    Log.e("FCM", "Error al conectar con el servidor: ${e.message}")
+                }
             }
         }
     }
