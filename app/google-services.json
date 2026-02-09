@@ -1,0 +1,29 @@
+{
+  "project_info": {
+    "project_number": "126474447101",
+    "project_id": "worknearby-ef27d",
+    "storage_bucket": "worknearby-ef27d.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:126474447101:android:ca5a34e50098b8a916f694",
+        "android_client_info": {
+          "package_name": "com.raul_fernandez_garcia.worknearby"
+        }
+      },
+      "oauth_client": [],
+      "api_key": [
+        {
+          "current_key": "AIzaSyDGhwnbeEUw6ecwdy9bIC0-gX06T4OeD-g"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": []
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}
