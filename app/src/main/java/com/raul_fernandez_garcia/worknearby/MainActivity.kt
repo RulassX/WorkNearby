@@ -35,11 +35,14 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.automirrored.filled.Send
 import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Build
+import androidx.compose.material.icons.filled.Send
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Star
@@ -754,7 +757,7 @@ private fun TrabajoOfertado(
                         ),
                         onClick = { navController.popBackStack() }) {
                         Icon(
-                            Icons.Default.ArrowBack,
+                            Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = stringResource(R.string.cd_cancelar)
                         )
                     }
@@ -817,18 +820,36 @@ private fun TrabajoOfertado(
                                 modifier = Modifier.padding(top = 8.dp)
                             )
                         }
+                        Column(modifier = Modifier
+                            .fillMaxHeight(),
+                            verticalArrangement = Arrangement.SpaceBetween,
+                            horizontalAlignment = Alignment.CenterHorizontally) {
 
-                        // FOTO REAL (Coil)
-                        AsyncImage(
-                            model = user.fotoUrl ?: R.drawable.fotoperfilvacia,
-                            contentDescription = stringResource(R.string.cd_foto_perfil),
-                            modifier = Modifier
-                                .padding(5.dp)
-                                .size(120.dp)
-                                .clip(RoundedCornerShape(8.dp))
-                                .border(1.dp, Color.Gray, RoundedCornerShape(8.dp)),
-                            contentScale = ContentScale.Crop,
-                        )
+                            // FOTO REAL (Coil)
+                            AsyncImage(
+                                model = user.fotoUrl ?: R.drawable.fotoperfilvacia,
+                                contentDescription = stringResource(R.string.cd_foto_perfil),
+                                modifier = Modifier
+                                    .padding(5.dp)
+                                    .padding(bottom = 30.dp)
+                                    .size(120.dp)
+                                    .clip(RoundedCornerShape(8.dp))
+                                    .border(1.dp, Color.Gray, RoundedCornerShape(8.dp)),
+                                contentScale = ContentScale.Crop,
+                            )
+
+                            //Boton para enviar notificacion
+                            FloatingActionButton(
+                                onClick = { navController.navigate("") },
+                                modifier = Modifier
+                                    .size(70.dp)
+                            ) {
+                                Icon(
+                                    Icons.AutoMirrored.Filled.Send,
+                                    stringResource(R.string.cd_notificar)
+                                )
+                            }
+                        }
                     }
 
                     HorizontalDivider(modifier = Modifier.padding(vertical = 16.dp))
@@ -848,6 +869,8 @@ private fun TrabajoOfertado(
 
                         // Boton solo visible para cliente
                         if (esCliente) {
+
+                            //Boton para reseñas
                             FilledIconButton(
                                 onClick = {
                                     if (trabajador != null) {
@@ -1199,7 +1222,7 @@ fun EscribirResena(
                         ),
                         onClick = { navController.popBackStack() }) {
                         Icon(
-                            Icons.Default.ArrowBack,
+                            Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = stringResource(R.string.cd_cancelar)
                         )
                     }
@@ -1994,7 +2017,7 @@ fun EscribirOferta(
                         ),
                         onClick = { navController.popBackStack() }) {
                         Icon(
-                            Icons.Default.ArrowBack,
+                            Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = stringResource(R.string.cd_cancelar)
                         )
                     }
@@ -2233,7 +2256,7 @@ fun EscribirContrato(
                         ),
                         onClick = { navController.popBackStack() }) {
                         Icon(
-                            Icons.Default.ArrowBack,
+                            Icons.AutoMirrored.Filled.ArrowBack,
                             contentDescription = stringResource(R.string.cd_cancelar)
                         )
                     }

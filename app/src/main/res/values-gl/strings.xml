@@ -91,6 +91,7 @@
     <string name="precio_hora_simple">%s €/hora</string>
     <string name="sin_descripcion">Sen descrición</string>
     <string name="titulo_opiniones">Opinións de clientes</string>
+    <string name="cd_notificar">Enviar notificación</string>
     <string name="msg_no_hay_resenas">Aínda non hai recensións.</string>
 
     <!-- ============================================== -->
