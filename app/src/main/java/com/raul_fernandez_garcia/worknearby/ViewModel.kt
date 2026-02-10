@@ -19,6 +19,7 @@ import com.raul_fernandez_garcia.WorkNearby_API.modeloDTO.LoginRequest
 import com.raul_fernandez_garcia.WorkNearby_API.modeloDTO.RegistroDTO
 import com.raul_fernandez_garcia.WorkNearby_API.modeloDTO.SolicitarServicioDTO
 import com.raul_fernandez_garcia.worknearby.modeloDTO.CategoriaDTO
+import com.raul_fernandez_garcia.worknearby.modeloDTO.NotificacionDTO
 import com.raul_fernandez_garcia.worknearby.modeloDTO.OfertaDTO
 import com.raul_fernandez_garcia.worknearby.modeloDTO.ResenaDTO
 import com.raul_fernandez_garcia.worknearby.modeloDTO.ServicioDTO
@@ -98,7 +99,9 @@ class OfertasViewModelFactory(private val context: Context) : ViewModelProvider.
     }
 }
 
+
 //------------------------------------------------
+
 
 class ContratosViewModel(context: Context) : ViewModel() {
     val sessionManager = SessionManager(context)
@@ -183,7 +186,9 @@ class ContratosViewModelFactory(private val context: Context) : ViewModelProvide
     }
 }
 
+
 //------------------------------------------------
+
 
 class TrabajoViewModel(context: Context) : ViewModel() {
     val sessionManager = SessionManager(context)
@@ -267,7 +272,9 @@ class TrabajoViewModelFactory(private val context: Context) : ViewModelProvider.
     }
 }
 
+
 //------------------------------------------------
+
 
 class PerfilViewModel(context: Context) : ViewModel() {
     val sessionManager = SessionManager(context)
@@ -324,7 +331,9 @@ class PerfilViewModelFactory(private val context: Context) : ViewModelProvider.F
     }
 }
 
+
 //------------------------------------------------
+
 
 class CrearResenaViewModel(context: Context) : ViewModel() {
 
@@ -379,7 +388,9 @@ class CrearResenaViewModelFactory(private val context: Context) : ViewModelProvi
     }
 }
 
+
 //------------------------------------------------
+
 
 class LoginViewModel(private val context: Context) : ViewModel() {
 
@@ -462,7 +473,9 @@ class LoginViewModelFactory(private val context: Context) : ViewModelProvider.Fa
     }
 }
 
+
 //------------------------------------------------
+
 
 class RegistroViewModel(private val context: Context) : ViewModel() {
     // Datos Tabla Usuario (Pantalla 1)
@@ -549,6 +562,7 @@ class RegistroViewModelFactory(private val context: Context) : ViewModelProvider
 
 
 //------------------------------------------------
+
 
 class CrearOfertaViewModel(context: Context) : ViewModel() {
 
@@ -649,6 +663,7 @@ class CrearOfertaViewModelFactory(private val context: Context) : ViewModelProvi
     }
 }
 
+
 //------------------------------------------------
 
 
@@ -732,5 +747,76 @@ class CrearContratoViewModelFactory(private val context: Context) : ViewModelPro
             return CrearContratoViewModel(context) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
+    }
+}
+
+
+//------------------------------------------------
+
+
+class NotificacionesViewModel(context: Context) : ViewModel() {
+    val sessionManager = SessionManager(context)
+    private val _notificaciones = MutableStateFlow<List<NotificacionDTO>>(emptyList())
+    val notificaciones: StateFlow<List<NotificacionDTO>> = _notificaciones
+
+    private val _isLoading = MutableStateFlow(true)
+    val isLoading: StateFlow<Boolean> = _isLoading
+
+    private val _nombreUsuario = MutableStateFlow("Cargando...")
+    val nombreUsuario: StateFlow<String> = _nombreUsuario
+
+    init {
+        cargarNotificaciones()
+        cargarPerfilUsuario()
+    }
+
+    fun cargarNotificaciones() {
+        viewModelScope.launch {
+            _isLoading.value = true
+            try {
+                val idUsuario = sessionManager.obtenerIdUsuario()
+                // Asumiendo que tienes este endpoint en tu ApiService
+                val lista = RetrofitClient.api.obtenerNotificaciones(idUsuario)
+                _notificaciones.value = lista
+            } catch (e: Exception) {
+                e.printStackTrace()
+            } finally {
+                _isLoading.value = false
+            }
+        }
+    }
+
+    private fun cargarPerfilUsuario() {
+        viewModelScope.launch {
+            try {
+                val idUsuarioLogueado = sessionManager.obtenerIdUsuario()
+                val rol = sessionManager.obtenerRol()
+
+                if (idUsuarioLogueado != 0) {
+                    // Accedemos a .usuario.nombre dentro de cada caso para que Kotlin sepa el tipo exacto
+                    val nombreReal = if (rol == "trabajador") {
+                        val perfil = RetrofitClient.api.obtenerPerfilTrabajador(idUsuarioLogueado)
+                        perfil.usuario.nombre
+                    } else {
+                        val perfil = RetrofitClient.api.obtenerPerfilCliente(idUsuarioLogueado)
+                        perfil.usuario.nombre
+                    }
+
+                    _nombreUsuario.value = nombreReal
+                } else {
+                    _nombreUsuario.value = "Invitado"
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+                _nombreUsuario.value = "Usuario"
+            }
+        }
+    }
+}
+
+// Factory para el ViewModel
+class NotificacionesViewModelFactory(private val context: Context) : ViewModelProvider.Factory {
+    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+        return NotificacionesViewModel(context) as T
     }
 }

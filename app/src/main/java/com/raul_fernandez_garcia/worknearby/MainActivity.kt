@@ -44,6 +44,7 @@ import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.Send
 import androidx.compose.material.icons.filled.LocationOn
+import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.Star
@@ -66,6 +67,7 @@ import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.FloatingActionButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalDrawerSheet
@@ -124,6 +126,7 @@ import com.google.maps.android.compose.MarkerState
 import com.google.maps.android.compose.rememberCameraPositionState
 import com.raul_fernandez_garcia.worknearby.modeloDTO.CategoriaDTO
 import com.raul_fernandez_garcia.worknearby.modeloDTO.ClienteDTO
+import com.raul_fernandez_garcia.worknearby.modeloDTO.NotificacionDTO
 import com.raul_fernandez_garcia.worknearby.modeloDTO.OfertaDTO
 import com.raul_fernandez_garcia.worknearby.modeloDTO.ServicioDTO
 import com.raul_fernandez_garcia.worknearby.modeloDTO.TrabajadorDTO
@@ -2414,6 +2417,178 @@ fun EscribirContrato(
                     colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
                 ) {
                     Text(stringResource(R.string.btn_crear_contrato), fontSize = 18.sp)
+                }
+            }
+        }
+    }
+}
+
+
+//------------------------------------------------
+
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun HistorialNotificaciones(navController: NavHostController) {
+    val context = LocalContext.current
+    val viewModel: NotificacionesViewModel = viewModel(
+        factory = NotificacionesViewModelFactory(context)
+    )
+
+    val listaNotificaciones by viewModel.notificaciones.collectAsState()
+    val nombre by viewModel.nombreUsuario.collectAsState()
+    val isLoading by viewModel.isLoading.collectAsState()
+
+
+
+    val drawerState = rememberDrawerState(DrawerValue.Closed)
+    val scope = rememberCoroutineScope()
+
+    ModalNavigationDrawer(
+        drawerState = drawerState,
+        drawerContent = {
+            ModalDrawerSheet {
+                Spacer(modifier = Modifier.height(15.dp))
+                Text(
+                    text = stringResource(R.string.menu_hola, nombre),
+                    modifier = Modifier.padding(15.dp),
+                    style = MaterialTheme.typography.titleLarge
+                )
+                HorizontalDivider()
+                Spacer(modifier = Modifier.height(15.dp))
+
+                NavigationDrawerItem(
+                    label = { Text(text = stringResource(R.string.menu_ofertas)) },
+                    selected = false,
+                    onClick = {
+                        scope.launch {
+                            drawerState.close()
+                            navController.navigate("ofertas")
+                        }
+                    },
+                    modifier = Modifier.padding(horizontal = 12.dp)
+                )
+
+                NavigationDrawerItem(
+                    label = { Text(stringResource(R.string.menu_contratos)) },
+                    selected = false,
+                    onClick = {
+                        scope.launch {
+                            drawerState.close()
+                            navController.navigate("contratos")
+                        }
+                    },
+                    modifier = Modifier.padding(horizontal = 12.dp)
+                )
+            }
+        }
+    ) {
+        Scaffold(
+            topBar = {
+                CenterAlignedTopAppBar(
+                    colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                        // Color de fondo de la barra
+                        containerColor = MaterialTheme.colorScheme.primary,
+
+                        // Color del texto del titulo (debe contrastar con el fondo)
+                        titleContentColor = MaterialTheme.colorScheme.onPrimary,
+
+                        // Color de los iconos (menu, flecha atras)
+                        navigationIconContentColor = MaterialTheme.colorScheme.onPrimary,
+                        actionIconContentColor = MaterialTheme.colorScheme.onPrimary
+                    ),
+
+                    title = {
+                        Text(
+                            text = stringResource(R.string.titulo_perfil)
+                        )
+                    },
+                    navigationIcon = {
+                        FilledIconButton(
+                            colors = IconButtonDefaults.filledIconButtonColors(
+                                containerColor = MaterialTheme.colorScheme.secondaryContainer
+                            ),
+                            onClick = {
+                                scope.launch {
+                                    if (drawerState.isClosed) {
+                                        drawerState.open()
+                                    } else {
+                                        drawerState.close()
+                                    }
+                                }
+                            }) {
+                            Icon(
+                                imageVector = Icons.Default.Menu,
+                                contentDescription = stringResource(R.string.cd_abrir_menu)
+                            )
+                        }
+                    }
+                )
+            }
+        ) { paddingValues ->
+            if (isLoading) {
+                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    CircularProgressIndicator()
+                }
+            } else if (listaNotificaciones.isEmpty()) {
+                Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                    Text("No tienes notificaciones aún")
+                }
+            } else {
+                ListaNotificaciones(
+                    notificaciones = listaNotificaciones,
+                    modifier = Modifier.padding(paddingValues)
+                )
+            }
+        }
+    }
+}
+
+@Composable
+fun ListaNotificaciones(notificaciones: List<NotificacionDTO>, modifier: Modifier = Modifier) {
+    LazyColumn(modifier.fillMaxSize().padding(top = 10.dp)) {
+        items(notificaciones) { notificacion ->
+            Card(
+                colors = CardDefaults.cardColors(
+                    containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                    contentColor = MaterialTheme.colorScheme.onSecondaryContainer
+                ),
+                modifier = Modifier
+                    .padding(vertical = 8.dp, horizontal = 16.dp)
+                    .fillMaxWidth()
+            ) {
+                Row(
+                    modifier = Modifier.padding(16.dp),
+                    verticalAlignment = Alignment.CenterVertically
+                ) {
+                    // Icono de campana a la izquierda
+                    Icon(
+                        imageVector = Icons.Default.Notifications,
+                        contentDescription = null,
+                        modifier = Modifier.size(32.dp),
+                        tint = MaterialTheme.colorScheme.primary
+                    )
+
+                    Spacer(modifier = Modifier.width(16.dp))
+
+                    Column {
+                        Text(
+                            text = notificacion.titulo,
+                            fontSize = 18.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Text(
+                            text = notificacion.mensaje,
+                            fontSize = 14.sp,
+                            color = Color.DarkGray
+                        )
+                        Spacer(modifier = Modifier.height(8.dp))
+                        Text(
+                            text = notificacion.fechaEnvio ?: "--/--/--",
+                            fontSize = 12.sp,
+                            color = Color.Gray
+                        )
+                    }
                 }
             }
         }
