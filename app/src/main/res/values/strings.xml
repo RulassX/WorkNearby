@@ -8,6 +8,7 @@
     <string name="menu_perfil">Mi Perfil</string>
     <string name="menu_ofertas">Ofertas de trabajo</string>
     <string name="menu_contratos">Mis Contratos</string>
+    <string name="menu_notificaciones">Historial de Notificaciones</string>
 
     <!-- Content Descriptions -->
     <string name="cd_abrir_menu">Abrir menú</string>
@@ -157,5 +158,11 @@
     <string name="estado_pendiente">Pendiente</string>
     <string name="estado_aceptado">Aceptado</string>
     <string name="estado_rechazado">Rechazado</string>
+
+    <!-- ============================================== -->
+    <!-- PANTALLA: HISTORIAL NOTIFICACIONES             -->
+    <!-- ============================================== -->
+    <string name="titulo_notificaciones">Notificaciones</string>
+    <string name="msg_no_hay_notificaciones">No tienes notificaciones aún</string>
 
 </resources>

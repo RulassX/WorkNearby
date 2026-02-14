@@ -230,6 +230,10 @@ fun appNavigation(navController: NavHostController) {
         composable("crear_contrato") {
             EscribirContrato(navController)
         }
+
+        composable("historial_notificacion") {
+            HistorialNotificaciones(navController)
+        }
     }
 }
 
@@ -526,6 +530,18 @@ private fun BuscarContratos(
                         scope.launch {
                             drawerState.close()
                             navController.navigate("ofertas")
+                        }
+                    },
+                    modifier = Modifier.padding(horizontal = 12.dp)
+                )
+
+                NavigationDrawerItem(
+                    label = { Text(stringResource(R.string.menu_notificaciones)) },
+                    selected = false,
+                    onClick = {
+                        scope.launch {
+                            drawerState.close()
+                            navController.navigate("historial_notificacion")
                         }
                     },
                     modifier = Modifier.padding(horizontal = 12.dp)
@@ -996,6 +1012,18 @@ private fun Perfil(
                         scope.launch {
                             drawerState.close()
                             navController.navigate("contratos")
+                        }
+                    },
+                    modifier = Modifier.padding(horizontal = 12.dp)
+                )
+
+                NavigationDrawerItem(
+                    label = { Text(stringResource(R.string.menu_notificaciones)) },
+                    selected = false,
+                    onClick = {
+                        scope.launch {
+                            drawerState.close()
+                            navController.navigate("historial_notificacion")
                         }
                     },
                     modifier = Modifier.padding(horizontal = 12.dp)
@@ -2490,17 +2518,17 @@ fun HistorialNotificaciones(navController: NavHostController) {
                         // Color de fondo de la barra
                         containerColor = MaterialTheme.colorScheme.primary,
 
-                        // Color del texto del titulo (debe contrastar con el fondo)
+                        // Color del texto del titulo
                         titleContentColor = MaterialTheme.colorScheme.onPrimary,
 
-                        // Color de los iconos (menu, flecha atras)
+                        // Color de los iconos
                         navigationIconContentColor = MaterialTheme.colorScheme.onPrimary,
                         actionIconContentColor = MaterialTheme.colorScheme.onPrimary
                     ),
 
                     title = {
                         Text(
-                            text = stringResource(R.string.titulo_perfil)
+                            text = stringResource(R.string.titulo_notificaciones)
                         )
                     },
                     navigationIcon = {
@@ -2532,7 +2560,7 @@ fun HistorialNotificaciones(navController: NavHostController) {
                 }
             } else if (listaNotificaciones.isEmpty()) {
                 Box(Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
-                    Text("No tienes notificaciones aún")
+                    Text(text = stringResource(R.string.msg_no_hay_notificaciones))
                 }
             } else {
                 ListaNotificaciones(
