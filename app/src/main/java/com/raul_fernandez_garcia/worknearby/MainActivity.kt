@@ -1807,7 +1807,8 @@ fun VentanaRegistroCliente(
                         .height(50.dp),
                     colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.primary),
                     shape = RoundedCornerShape(12.dp),
-                    enabled = !viewModel.isLoading,
+                    //enabled = !viewModel.isLoading,
+                    enabled = viewModel.direccion.isNotBlank()
                 ) {
                     if (viewModel.isLoading) {
                         CircularProgressIndicator(
@@ -1899,7 +1900,8 @@ fun VentanaRegistroTrabajador(
                         .height(50.dp),
                     colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.primary),
                     shape = RoundedCornerShape(12.dp),
-                    enabled = !viewModel.isLoading,
+                    //enabled = !viewModel.isLoading,
+                    enabled = viewModel.descripcion.isNotBlank() && viewModel.radioKm.isNotBlank()
                 ) {
                     if (viewModel.isLoading) {
                         CircularProgressIndicator(
