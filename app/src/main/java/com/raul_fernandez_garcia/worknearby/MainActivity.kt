@@ -1570,7 +1570,12 @@ fun VentanaRegistroUsuario(
                     modifier = Modifier
                         .fillMaxWidth()
                         .height(50.dp),
-                    shape = RoundedCornerShape(12.dp)
+                    shape = RoundedCornerShape(12.dp),
+                    enabled = viewModel.nombre.isNotBlank() &&
+                            viewModel.apellidos.isNotBlank() &&
+                            viewModel.email.isNotBlank() &&
+                            viewModel.password.isNotBlank() &&
+                            viewModel.telefono.isNotBlank()
                 ) {
                     Text(stringResource(R.string.btn_next), fontSize = 18.sp)
                 }
