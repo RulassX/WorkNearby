@@ -301,6 +301,18 @@ private fun BuscarOfertas(
                     },
                     modifier = Modifier.padding(horizontal = 12.dp)
                 )
+
+                NavigationDrawerItem(
+                    label = { Text(stringResource(R.string.menu_notificaciones)) },
+                    selected = false,
+                    onClick = {
+                        scope.launch {
+                            drawerState.close()
+                            navController.navigate("historial_notificacion")
+                        }
+                    },
+                    modifier = Modifier.padding(horizontal = 12.dp)
+                )
             }
         }
     ) {
@@ -2491,6 +2503,18 @@ fun HistorialNotificaciones(navController: NavHostController) {
                 )
                 HorizontalDivider()
                 Spacer(modifier = Modifier.height(15.dp))
+
+                NavigationDrawerItem(
+                    label = { Text(stringResource(R.string.menu_perfil)) },
+                    selected = false,
+                    onClick = {
+                        scope.launch {
+                            drawerState.close()
+                            navController.navigate("perfil")
+                        }
+                    },
+                    modifier = Modifier.padding(horizontal = 12.dp)
+                )
 
                 NavigationDrawerItem(
                     label = { Text(text = stringResource(R.string.menu_ofertas)) },
