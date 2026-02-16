@@ -5,6 +5,7 @@ import android.content.Context
 import android.location.Geocoder
 import android.net.Uri
 import android.os.Bundle
+import android.util.Log
 import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
@@ -887,8 +888,18 @@ private fun TrabajoOfertado(
                             //Boton para enviar notificacion
                             FloatingActionButton(
                                 onClick = {
+                                    /*
                                     val id = oferta?.idTrabajador ?: 0
-                                    navController.navigate("escribir_notificacion/$id")
+                                    navController.navigate("escribir_notificacion/${oferta.idUsuario}")
+                                    */
+
+                                    val idParaNotificar = trabajador?.usuario?.id ?: 0
+
+                                    if (idParaNotificar != 0) {
+                                        navController.navigate("escribir_notificacion/$idParaNotificar")
+                                    } else {
+                                        Toast.makeText(context, "Error: No se pudo encontrar el destinatario", Toast.LENGTH_SHORT).show()
+                                    }
                                 },
                                 modifier = Modifier
                                     .size(70.dp)
@@ -2508,6 +2519,10 @@ fun HistorialNotificaciones(navController: NavHostController) {
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val scope = rememberCoroutineScope()
 
+    LaunchedEffect(Unit) {
+        viewModel.cargarNotificaciones()
+    }
+
     ModalNavigationDrawer(
         drawerState = drawerState,
         drawerContent = {
@@ -2676,7 +2691,7 @@ fun ListaNotificaciones(notificaciones: List<NotificacionDTO>, modifier: Modifie
                         Text(
                             text = hora,
                             fontSize = 11.sp,
-                            color = Color.LightGray
+                            color = Color.Gray
                         )
                     }
                 }
@@ -2689,7 +2704,7 @@ fun formatearFechaHora(fechaCompleta: String?): Pair<String, String> {
     if (fechaCompleta.isNullOrBlank()) return "--/--/--" to "--:--"
 
     return try {
-        val partes = fechaCompleta.split(" ")
+        val partes = fechaCompleta.split("T", " ")
         val fecha = partes.getOrNull(0) ?: "--/--/--"
         val hora = partes.getOrNull(1)?.substring(0, 5) ?: "--:--"
         Pair(fecha, hora)
@@ -2708,6 +2723,10 @@ fun EscribirNotificacion(
     navController: NavHostController,
     idUsuarioDestino: Int
 ) {
+    LaunchedEffect(Unit) {
+        Log.d("DEBUG_ID", "El ID del destinatario que he recibido es: $idUsuarioDestino")
+    }
+
     val context = LocalContext.current
     val viewModel: NotificacionesViewModel = viewModel(
         factory = NotificacionesViewModelFactory(context)

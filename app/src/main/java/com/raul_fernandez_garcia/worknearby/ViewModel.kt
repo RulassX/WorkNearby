@@ -775,7 +775,6 @@ class NotificacionesViewModel(context: Context) : ViewModel() {
     }
 
 
-
     fun cargarNotificaciones() {
         viewModelScope.launch {
             _isLoading.value = true
@@ -829,26 +828,15 @@ class NotificacionesViewModel(context: Context) : ViewModel() {
                     titulo = titulo,
                     mensaje = mensaje
                 )
-                /*
-                RetrofitClient.api.enviarNotificacion(nuevaNotificacion)
-                _mensajeExito.value = "Notificacion enviada correctamente"
-                */
-
-                Log.d("DEBUG_APP", "Enviando JSON: $nuevaNotificacion") // 1. Ver qué enviamos
 
                 val response = RetrofitClient.api.enviarNotificacion(nuevaNotificacion)
 
                 if (response.isSuccessful) {
-                    Log.d("DEBUG_APP", " ÉXITO: Código ${response.code()}")
-                    _mensajeExito.value = "Notificación enviada"
-                } else {
-                    // 2. AQUÍ ESTÁ LA CLAVE: Leer el error del servidor
-                    val errorBody = response.errorBody()?.string()
-                    Log.e("DEBUG_APP", " ERROR SERVIDOR: Código ${response.code()}")
-                    Log.e("DEBUG_APP", " DETALLE: $errorBody")
+                    _mensajeExito.value = "Notificacion enviada correctamente"
+                    cargarNotificaciones()
                 }
+
             } catch (e: Exception) {
-                Log.e("DEBUG_APP", " ERROR RED: ${e.message}")
                 e.printStackTrace()
             } finally {
                 _isLoading.value = false
