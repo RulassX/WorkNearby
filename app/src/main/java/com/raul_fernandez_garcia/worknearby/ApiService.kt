@@ -114,7 +114,7 @@ interface ApiService {
         @Path("id") idNotificacion: Int
     ): Response<Unit>
 
-    @POST("/api/notificaciones")
+    @POST("/api/notificaciones/enviar")
     suspend fun enviarNotificacion(@Body dto: CrearNotificacionDTO): Response<Unit>
 
 }
