@@ -2651,6 +2651,8 @@ fun ListaNotificaciones(notificaciones: List<NotificacionDTO>, modifier: Modifie
 
                     Spacer(modifier = Modifier.width(16.dp))
 
+                    val (fecha, hora) = formatearFechaHora(notificacion.fechaEnvio)
+
                     Column {
                         Text(
                             text = notificacion.titulo,
@@ -2662,16 +2664,37 @@ fun ListaNotificaciones(notificaciones: List<NotificacionDTO>, modifier: Modifie
                             fontSize = 14.sp,
                             color = Color.DarkGray
                         )
+
                         Spacer(modifier = Modifier.height(8.dp))
+
                         Text(
-                            text = notificacion.fechaEnvio ?: "--/--/--",
+                            text = fecha,
                             fontSize = 12.sp,
-                            color = Color.Gray
+                            color = Color.Gray,
+                            fontWeight = FontWeight.Medium
+                        )
+                        Text(
+                            text = hora,
+                            fontSize = 11.sp,
+                            color = Color.LightGray
                         )
                     }
                 }
             }
         }
+    }
+}
+
+fun formatearFechaHora(fechaCompleta: String?): Pair<String, String> {
+    if (fechaCompleta.isNullOrBlank()) return "--/--/--" to "--:--"
+
+    return try {
+        val partes = fechaCompleta.split(" ")
+        val fecha = partes.getOrNull(0) ?: "--/--/--"
+        val hora = partes.getOrNull(1)?.substring(0, 5) ?: "--:--"
+        Pair(fecha, hora)
+    } catch (e: Exception) {
+        Pair("--/--/--", "--:--")
     }
 }
 
@@ -2759,9 +2782,7 @@ fun EscribirNotificacion(
             Button(
                 onClick = {
                     if (titulo.isNotEmpty() && mensaje.isNotEmpty()) {
-                        // Llamamos a la funcion sin pasarle el ID
                         viewModel.enviarNotificacion(idUsuarioDestino, titulo, mensaje)
-                        navController.popBackStack()
                     }
                 },
                 modifier = Modifier

@@ -844,7 +844,6 @@ class NotificacionesViewModel(context: Context) : ViewModel() {
     }
 }
 
-// Factory para el ViewModel
 class NotificacionesViewModelFactory(private val context: Context) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         return NotificacionesViewModel(context) as T
