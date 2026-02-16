@@ -2719,7 +2719,7 @@ fun EscribirNotificacion(
             OutlinedTextField(
                 value = titulo,
                 onValueChange = { titulo = it },
-                label = { Text("") },
+                label = { Text(stringResource(R.string.label_titulo_mensaje)) },
                 modifier = Modifier.fillMaxWidth(),
                 shape = RoundedCornerShape(12.dp),
                 singleLine = true
