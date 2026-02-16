@@ -820,16 +820,15 @@ class NotificacionesViewModel(context: Context) : ViewModel() {
     }
 
     // Funcion para enviar la notificacion al servidor
-    fun enviarNotificacion(idUsuarioDestino: Int, titulo: String, mensaje: String) {
+    fun enviarNotificacion(idDestino: Int, titulo: String, mensaje: String) {
         viewModelScope.launch {
             _isLoading.value = true
             try {
                 val nuevaNotificacion = CrearNotificacionDTO(
-                    idUsuario = idUsuarioDestino,
+                    idUsuario = idDestino,
                     titulo = titulo,
                     mensaje = mensaje
                 )
-                // Llama a tu API (Asegurate de tener este metodo en tu ApiService)
                 RetrofitClient.api.enviarNotificacion(nuevaNotificacion)
                 _mensajeExito.value = "Notificacion enviada correctamente"
             } catch (e: Exception) {

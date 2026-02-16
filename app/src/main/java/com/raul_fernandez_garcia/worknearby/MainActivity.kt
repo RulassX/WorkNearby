@@ -235,6 +235,17 @@ fun appNavigation(navController: NavHostController) {
         composable("historial_notificacion") {
             HistorialNotificaciones(navController)
         }
+
+        composable(
+            route = "escribir_notificacion/{idDestino}",
+            arguments = listOf(navArgument("idDestino") { type = NavType.IntType })
+        ) { backStackEntry ->
+            // Extraer el ID de la URL
+            val idDestino = backStackEntry.arguments?.getInt("idDestino") ?: 0
+
+            // Se lo pasamos a la ventana
+            EscribirNotificacion(navController, idDestino)
+        }
     }
 }
 
@@ -875,7 +886,10 @@ private fun TrabajoOfertado(
 
                             //Boton para enviar notificacion
                             FloatingActionButton(
-                                onClick = { navController.navigate("") },
+                                onClick = {
+                                    val id = oferta?.idTrabajador ?: 0
+                                    navController.navigate("escribir_notificacion/$id")
+                                },
                                 modifier = Modifier
                                     .size(70.dp)
                             ) {
@@ -884,8 +898,6 @@ private fun TrabajoOfertado(
                                     stringResource(R.string.cd_notificar)
                                 )
                             }
-
-
                         }
                     }
 
@@ -2610,9 +2622,11 @@ fun HistorialNotificaciones(navController: NavHostController) {
 
 @Composable
 fun ListaNotificaciones(notificaciones: List<NotificacionDTO>, modifier: Modifier = Modifier) {
-    LazyColumn(modifier
-        .fillMaxSize()
-        .padding(top = 10.dp)) {
+    LazyColumn(
+        modifier
+            .fillMaxSize()
+            .padding(top = 10.dp)
+    ) {
         items(notificaciones) { notificacion ->
             Card(
                 colors = CardDefaults.cardColors(
@@ -2669,7 +2683,7 @@ fun ListaNotificaciones(notificaciones: List<NotificacionDTO>, modifier: Modifie
 @Composable
 fun EscribirNotificacion(
     navController: NavHostController,
-    idUsuarioDestino: Int // ID del usuario que recibira la notificacion
+    idUsuarioDestino: Int
 ) {
     val context = LocalContext.current
     val viewModel: NotificacionesViewModel = viewModel(
@@ -2745,6 +2759,7 @@ fun EscribirNotificacion(
             Button(
                 onClick = {
                     if (titulo.isNotEmpty() && mensaje.isNotEmpty()) {
+                        // Llamamos a la funcion sin pasarle el ID
                         viewModel.enviarNotificacion(idUsuarioDestino, titulo, mensaje)
                         navController.popBackStack()
                     }
