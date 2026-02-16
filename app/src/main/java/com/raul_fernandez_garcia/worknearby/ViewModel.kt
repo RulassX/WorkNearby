@@ -19,6 +19,7 @@ import com.raul_fernandez_garcia.WorkNearby_API.modeloDTO.LoginRequest
 import com.raul_fernandez_garcia.WorkNearby_API.modeloDTO.RegistroDTO
 import com.raul_fernandez_garcia.WorkNearby_API.modeloDTO.SolicitarServicioDTO
 import com.raul_fernandez_garcia.worknearby.modeloDTO.CategoriaDTO
+import com.raul_fernandez_garcia.worknearby.modeloDTO.CrearNotificacionDTO
 import com.raul_fernandez_garcia.worknearby.modeloDTO.NotificacionDTO
 import com.raul_fernandez_garcia.worknearby.modeloDTO.OfertaDTO
 import com.raul_fernandez_garcia.worknearby.modeloDTO.ResenaDTO
@@ -762,6 +763,9 @@ class NotificacionesViewModel(context: Context) : ViewModel() {
     private val _isLoading = MutableStateFlow(true)
     val isLoading: StateFlow<Boolean> = _isLoading
 
+    private val _mensajeExito = MutableStateFlow<String?>(null)
+    val mensajeExito: StateFlow<String?> = _mensajeExito
+
     private val _nombreUsuario = MutableStateFlow("Cargando...")
     val nombreUsuario: StateFlow<String> = _nombreUsuario
 
@@ -769,6 +773,8 @@ class NotificacionesViewModel(context: Context) : ViewModel() {
         cargarNotificaciones()
         cargarPerfilUsuario()
     }
+
+
 
     fun cargarNotificaciones() {
         viewModelScope.launch {
@@ -811,6 +817,31 @@ class NotificacionesViewModel(context: Context) : ViewModel() {
                 _nombreUsuario.value = "Usuario"
             }
         }
+    }
+
+    // Función para enviar la notificación al servidor
+    fun enviarNotificacion(idUsuarioDestino: Int, titulo: String, mensaje: String) {
+        viewModelScope.launch {
+            _isLoading.value = true
+            try {
+                val nuevaNotificacion = CrearNotificacionDTO(
+                    idUsuario = idUsuarioDestino,
+                    titulo = titulo,
+                    mensaje = mensaje
+                )
+                // Llama a tu API (Asegúrate de tener este metodo en tu ApiService)
+                RetrofitClient.api.enviarNotificacion(nuevaNotificacion)
+                _mensajeExito.value = "Notificación enviada correctamente"
+            } catch (e: Exception) {
+                e.printStackTrace()
+            } finally {
+                _isLoading.value = false
+            }
+        }
+    }
+
+    fun resetMensaje() {
+        _mensajeExito.value = null
     }
 }
 

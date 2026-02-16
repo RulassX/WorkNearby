@@ -165,4 +165,10 @@
     <string name="titulo_notificaciones">Notificacións</string>
     <string name="msg_no_hay_notificaciones">Aínda non tes notificacións</string>
 
+    <!-- ============================================== -->
+    <!-- PANTALLA: CREAR NOTIFICACIONES             -->
+    <!-- ============================================== -->
+    <string name="label_mensaje">Escribe a mensaxe aquí...</string>
+    <string name="label_titulo_mensaje">Título</string>
+
 </resources>

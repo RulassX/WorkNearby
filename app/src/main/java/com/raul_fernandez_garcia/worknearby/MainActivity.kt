@@ -5,6 +5,7 @@ import android.content.Context
 import android.location.Geocoder
 import android.net.Uri
 import android.os.Bundle
+import android.widget.Toast
 import androidx.activity.ComponentActivity
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.compose.setContent
@@ -851,10 +852,12 @@ private fun TrabajoOfertado(
                                 modifier = Modifier.padding(top = 8.dp)
                             )
                         }
-                        Column(modifier = Modifier
-                            .fillMaxHeight(),
+                        Column(
+                            modifier = Modifier
+                                .fillMaxHeight(),
                             verticalArrangement = Arrangement.SpaceBetween,
-                            horizontalAlignment = Alignment.CenterHorizontally) {
+                            horizontalAlignment = Alignment.CenterHorizontally
+                        ) {
 
                             // FOTO REAL (Coil)
                             AsyncImage(
@@ -869,6 +872,7 @@ private fun TrabajoOfertado(
                                 contentScale = ContentScale.Crop,
                             )
 
+
                             //Boton para enviar notificacion
                             FloatingActionButton(
                                 onClick = { navController.navigate("") },
@@ -880,6 +884,8 @@ private fun TrabajoOfertado(
                                     stringResource(R.string.cd_notificar)
                                 )
                             }
+
+
                         }
                     }
 
@@ -2487,7 +2493,6 @@ fun HistorialNotificaciones(navController: NavHostController) {
     val isLoading by viewModel.isLoading.collectAsState()
 
 
-
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val scope = rememberCoroutineScope()
 
@@ -2605,7 +2610,9 @@ fun HistorialNotificaciones(navController: NavHostController) {
 
 @Composable
 fun ListaNotificaciones(notificaciones: List<NotificacionDTO>, modifier: Modifier = Modifier) {
-    LazyColumn(modifier.fillMaxSize().padding(top = 10.dp)) {
+    LazyColumn(modifier
+        .fillMaxSize()
+        .padding(top = 10.dp)) {
         items(notificaciones) { notificacion ->
             Card(
                 colors = CardDefaults.cardColors(
@@ -2649,6 +2656,110 @@ fun ListaNotificaciones(notificaciones: List<NotificacionDTO>, modifier: Modifie
                         )
                     }
                 }
+            }
+        }
+    }
+}
+
+
+//------------------------------------------------
+
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun EscribirNotificacion(
+    navController: NavHostController,
+    idUsuarioDestino: Int // ID del usuario que recibirá la notificación
+) {
+    val context = LocalContext.current
+    val viewModel: NotificacionesViewModel = viewModel(
+        factory = NotificacionesViewModelFactory(context)
+    )
+
+    var titulo by remember { mutableStateOf("") }
+    var mensaje by remember { mutableStateOf("") }
+    val mensajeExito by viewModel.mensajeExito.collectAsState()
+
+    LaunchedEffect(mensajeExito) {
+        if (mensajeExito != null) {
+            // Esperamos un poquito para que el usuario lea (opcional)
+            navController.popBackStack()
+            viewModel.resetMensaje()
+        }
+    }
+
+    Scaffold(
+        topBar = {
+            CenterAlignedTopAppBar(
+                title = { Text("Nueva Notificación") },
+                navigationIcon = {
+                    IconButton(onClick = { navController.popBackStack() }) {
+                        Icon(
+                            Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = stringResource(R.string.cd_cancelar)
+                        )
+                    }
+                },
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    titleContentColor = MaterialTheme.colorScheme.onPrimary,
+                    navigationIconContentColor = MaterialTheme.colorScheme.onPrimary
+                )
+            )
+        }
+    ) { paddingValues ->
+        Column(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(paddingValues)
+                .padding(24.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            // --- 1. TITULO ---
+            OutlinedTextField(
+                value = titulo,
+                onValueChange = { titulo = it },
+                label = { Text("") },
+                modifier = Modifier.fillMaxWidth(),
+                shape = RoundedCornerShape(12.dp),
+                singleLine = true
+            )
+
+            Spacer(modifier = Modifier.height(20.dp))
+
+            // --- 2. MENSAJE (Multiline como la descripción del contrato) ---
+            OutlinedTextField(
+                value = mensaje,
+                onValueChange = { mensaje = it },
+                label = { Text(stringResource(R.string.label_mensaje)) },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(180.dp),
+                shape = RoundedCornerShape(12.dp),
+                maxLines = 5
+            )
+
+            Spacer(modifier = Modifier.height(32.dp))
+
+            // --- 3. BOTÓN ENVIAR ---
+            Button(
+                onClick = {
+                    if (titulo.isNotEmpty() && mensaje.isNotEmpty()) {
+                        viewModel.enviarNotificacion(idUsuarioDestino, titulo, mensaje)
+                        navController.popBackStack()
+                    }
+                },
+                modifier = Modifier
+                    .fillMaxWidth()
+                    .height(50.dp),
+                enabled = titulo.isNotEmpty() && mensaje.isNotEmpty(),
+                colors = ButtonDefaults.buttonColors(
+                    containerColor = MaterialTheme.colorScheme.primary
+                )
+            ) {
+                Icon(Icons.Default.Send, contentDescription = null)
+                Spacer(Modifier.width(8.dp))
+                Text(stringResource(R.string.cd_notificar), fontSize = 18.sp)
             }
         }
     }

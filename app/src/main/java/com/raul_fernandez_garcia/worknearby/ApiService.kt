@@ -7,6 +7,7 @@ import com.raul_fernandez_garcia.WorkNearby_API.modeloDTO.RegistroDTO
 import com.raul_fernandez_garcia.WorkNearby_API.modeloDTO.SolicitarServicioDTO
 import com.raul_fernandez_garcia.worknearby.modeloDTO.CategoriaDTO
 import com.raul_fernandez_garcia.worknearby.modeloDTO.ClienteDTO
+import com.raul_fernandez_garcia.worknearby.modeloDTO.CrearNotificacionDTO
 import com.raul_fernandez_garcia.worknearby.modeloDTO.NotificacionDTO
 import com.raul_fernandez_garcia.worknearby.modeloDTO.OfertaDTO
 import com.raul_fernandez_garcia.worknearby.modeloDTO.ResenaDTO
@@ -112,5 +113,8 @@ interface ApiService {
     suspend fun marcarComoLeida(
         @Path("id") idNotificacion: Int
     ): Response<Unit>
+
+    @POST("/api/notificaciones")
+    suspend fun enviarNotificacion(@Body dto: CrearNotificacionDTO): Response<Unit>
 
 }
