@@ -64,6 +64,8 @@
     <string name="registro_cli_subtitulo">Paso 3 de 3: A túa localización</string>
     <string name="label_direccion">Enderezo</string>
     <string name="label_ciudad">Cidade</string>
+    <string name="btn_gps">Usar a miña ubicación actual</string>
+    <string name="marcador">A túa ubicación</string>
     <string name="btn_finalizar">Finalizar Rexistro</string>
 
     <!-- ============================================== -->
@@ -168,6 +170,7 @@
     <!-- ============================================== -->
     <!-- PANTALLA: CREAR NOTIFICACIONES             -->
     <!-- ============================================== -->
+    <string name="cd_nueva_notificacion">Nova Notificación</string>
     <string name="label_mensaje">Escribe a mensaxe aquí...</string>
     <string name="label_titulo_mensaje">Título</string>
 

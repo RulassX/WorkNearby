@@ -361,7 +361,7 @@ class CrearResenaViewModel(context: Context) : ViewModel() {
                     )
 
                     RetrofitClient.api.publicarResena(nuevaResena)
-                    _mensajeExito.value = "Opinión publicada correctamente"
+                    _mensajeExito.value = "Opinion publicada correctamente"
                 } else {
                     println("Error: No hay usuario logueado")
                 }
@@ -442,7 +442,7 @@ class LoginViewModel(private val context: Context) : ViewModel() {
     }
 
     fun enviarTokenAlServidor(idUsuario: Int) {
-        // 1. Le pedimos a Google el token único de este móvil
+        // 1. Le pedimos a Google el token unico de este movil
         FirebaseMessaging.getInstance().token.addOnCompleteListener { task ->
             if (!task.isSuccessful) {
                 Log.w("FCM", "Error al obtener el token", task.exception)
@@ -458,7 +458,7 @@ class LoginViewModel(private val context: Context) : ViewModel() {
                 try {
                     val response = RetrofitClient.api.actualizarTokenFCM(idUsuario, token)
                     if (response.isSuccessful) {
-                        Log.d("FCM", "Token actualizado con éxito en el servidor")
+                        Log.d("FCM", "Token actualizado con exito en el servidor")
                     }
                 } catch (e: Exception) {
                     Log.e("FCM", "Error al conectar con el servidor: ${e.message}")
@@ -502,7 +502,7 @@ class RegistroViewModel(private val context: Context) : ViewModel() {
 
     var isLoading by mutableStateOf(false)       // Para mostrar ruedita de carga
     var errorRegistro by mutableStateOf<String?>(null) // Para mostrar mensajes de error
-    var registroExitoso by mutableStateOf(false) // Para navegar al login automáticamente
+    var registroExitoso by mutableStateOf(false) // Para navegar al login automaticamente
 
     fun registrarUsuario() {
         if (email.isBlank() || password.isBlank()) {
@@ -519,7 +519,7 @@ class RegistroViewModel(private val context: Context) : ViewModel() {
                     nombre = nombre,
                     apellidos = apellidos,
                     email = email,
-                    password = password, // <--- AQUÍ SE ENVÍA SIN ENCRIPTAR
+                    password = password, // <--- AQUI SE ENVIA SIN ENCRIPTAR
                     telefono = telefono,
                     rol = rol,
 
@@ -541,7 +541,7 @@ class RegistroViewModel(private val context: Context) : ViewModel() {
                 registroExitoso = true
 
             } catch (e: Exception) {
-                // Si falla (ej: email repetido, servidor caído)
+                // Si falla (ej: email repetido, servidor caido)
                 e.printStackTrace()
                 errorRegistro = "Error: ${e.message}"
             } finally {
@@ -819,7 +819,7 @@ class NotificacionesViewModel(context: Context) : ViewModel() {
         }
     }
 
-    // Función para enviar la notificación al servidor
+    // Funcion para enviar la notificacion al servidor
     fun enviarNotificacion(idUsuarioDestino: Int, titulo: String, mensaje: String) {
         viewModelScope.launch {
             _isLoading.value = true
@@ -829,9 +829,9 @@ class NotificacionesViewModel(context: Context) : ViewModel() {
                     titulo = titulo,
                     mensaje = mensaje
                 )
-                // Llama a tu API (Asegúrate de tener este metodo en tu ApiService)
+                // Llama a tu API (Asegurate de tener este metodo en tu ApiService)
                 RetrofitClient.api.enviarNotificacion(nuevaNotificacion)
-                _mensajeExito.value = "Notificación enviada correctamente"
+                _mensajeExito.value = "Notificacion enviada correctamente"
             } catch (e: Exception) {
                 e.printStackTrace()
             } finally {

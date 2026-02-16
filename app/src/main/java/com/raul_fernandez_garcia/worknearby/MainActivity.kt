@@ -1697,7 +1697,7 @@ fun VentanaRegistroCliente(
     val context = LocalContext.current
     val scope = rememberCoroutineScope()
 
-    // Estado de la cámara del mapa (Santiago de Compostela por defecto)
+    // Estado de la camara del mapa (Santiago de Compostela por defecto)
     val cameraPositionState = rememberCameraPositionState {
         position = CameraPosition.fromLatLngZoom(LatLng(42.8782, -8.5448), 15f)
     }
@@ -1757,7 +1757,7 @@ fun VentanaRegistroCliente(
                     value = viewModel.direccion,
                     onValueChange = {
                         viewModel.direccion = it
-                        // Al escribir, buscamos en el mapa (opcional poner un debounce aquí)
+                        // Al escribir, buscamos en el mapa (opcional poner un debounce aqui)
                         buscarDireccionEnMapa(context, it, cameraPositionState, viewModel)
                     },
                     label = stringResource(R.string.label_direccion)
@@ -1789,7 +1789,7 @@ fun VentanaRegistroCliente(
                 ) {
                     Icon(Icons.Default.LocationOn, contentDescription = null)
                     Spacer(Modifier.width(8.dp))
-                    Text("Usar mi ubicación actual (GPS)")
+                    Text(stringResource(R.string.btn_gps))
                 }
 
                 // VISTA DEL MAPA
@@ -1811,7 +1811,7 @@ fun VentanaRegistroCliente(
                                     viewModel.longitud
                                 )
                             ),
-                            title = "Tu ubicación"
+                            title = stringResource(R.string.marcador)
                         )
                     }
                 }
@@ -1973,7 +1973,7 @@ fun obtenerUbicacionGPS(
             val latLng = LatLng(it.latitude, it.longitude)
             cameraState.position = CameraPosition.fromLatLngZoom(latLng, 15f)
 
-            // Opcional: Rellenar el texto de dirección automáticamente desde las coordenadas
+            // Opcional: Rellenar el texto de direccion automaticamente desde las coordenadas
             val geocoder = Geocoder(context)
             val direcciones = geocoder.getFromLocation(it.latitude, it.longitude, 1)
             if (!direcciones.isNullOrEmpty()) {
@@ -2669,7 +2669,7 @@ fun ListaNotificaciones(notificaciones: List<NotificacionDTO>, modifier: Modifie
 @Composable
 fun EscribirNotificacion(
     navController: NavHostController,
-    idUsuarioDestino: Int // ID del usuario que recibirá la notificación
+    idUsuarioDestino: Int // ID del usuario que recibira la notificacion
 ) {
     val context = LocalContext.current
     val viewModel: NotificacionesViewModel = viewModel(
@@ -2691,7 +2691,7 @@ fun EscribirNotificacion(
     Scaffold(
         topBar = {
             CenterAlignedTopAppBar(
-                title = { Text("Nueva Notificación") },
+                title = { Text(stringResource(R.string.cd_nueva_notificacion)) },
                 navigationIcon = {
                     IconButton(onClick = { navController.popBackStack() }) {
                         Icon(
@@ -2727,7 +2727,7 @@ fun EscribirNotificacion(
 
             Spacer(modifier = Modifier.height(20.dp))
 
-            // --- 2. MENSAJE (Multiline como la descripción del contrato) ---
+            // --- 2. MENSAJE (Multiline como la descripcion del contrato) ---
             OutlinedTextField(
                 value = mensaje,
                 onValueChange = { mensaje = it },
@@ -2741,7 +2741,7 @@ fun EscribirNotificacion(
 
             Spacer(modifier = Modifier.height(32.dp))
 
-            // --- 3. BOTÓN ENVIAR ---
+            // --- 3. BOTON ENVIAR ---
             Button(
                 onClick = {
                     if (titulo.isNotEmpty() && mensaje.isNotEmpty()) {
