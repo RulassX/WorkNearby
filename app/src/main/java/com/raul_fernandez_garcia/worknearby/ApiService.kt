@@ -99,7 +99,7 @@ interface ApiService {
     ): Response<Unit> // Usamos Response<Unit> porque a veces solo nos importa si fue OK (200)
 
     /**
-     * Obtiene el historial de notificaciones del usuario (el buzón)
+     * Obtiene el historial de notificaciones del usuario (el buzon)
      */
     @GET("/api/notificaciones/{idUsuario}")
     suspend fun obtenerNotificaciones(
@@ -107,7 +107,7 @@ interface ApiService {
     ): List<NotificacionDTO>
 
     /**
-     * Marca una notificación como leída
+     * Marca una notificacion como leida
      */
     @PATCH("/api/notificaciones/{id}/leer")
     suspend fun marcarComoLeida(
