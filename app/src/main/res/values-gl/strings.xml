@@ -20,9 +20,12 @@
     <string name="cd_foto_seleccionada">Foto seleccionada</string>
     <string name="cd_anadir_oferta">Engadir oferta</string>
     <string name="cd_anadir_resena">Engadir recensión</string>
+    <string name="cd_borrar_resena">Borrar reseña</string>
     <string name="cd_anadir_contrato">Engadir contrato</string>
     <string name="cd_logo">Logotipo da aplicación</string>
     <string name="cd_estrella">Estrela</string>
+    <string name="cd_notificar">Enviar notificación</string>
+    <string name="cd_nueva_notificacion">Nova Notificación</string>
 
     <!-- ============================================== -->
     <!-- PANTALLA: LOGIN                                -->
@@ -94,7 +97,6 @@
     <string name="precio_hora_simple">%s €/hora</string>
     <string name="sin_descripcion">Sen descrición</string>
     <string name="titulo_opiniones">Opinións de clientes</string>
-    <string name="cd_notificar">Enviar notificación</string>
     <string name="msg_no_hay_resenas">Aínda non hai recensións.</string>
 
     <!-- ============================================== -->
@@ -170,7 +172,6 @@
     <!-- ============================================== -->
     <!-- PANTALLA: CREAR NOTIFICACIONES             -->
     <!-- ============================================== -->
-    <string name="cd_nueva_notificacion">Nova Notificación</string>
     <string name="label_mensaje">Escribe a mensaxe aquí...</string>
     <string name="label_titulo_mensaje">Título</string>
 

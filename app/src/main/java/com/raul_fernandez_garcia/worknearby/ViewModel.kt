@@ -274,7 +274,7 @@ class TrabajoViewModelFactory(private val context: Context) : ViewModelProvider.
 
 //------------------------------------------------
 
-
+/*
 class PerfilViewModel(context: Context) : ViewModel() {
     val sessionManager = SessionManager(context)
 
@@ -325,6 +325,90 @@ class PerfilViewModelFactory(private val context: Context) : ViewModelProvider.F
         if (modelClass.isAssignableFrom(PerfilViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST")
             return PerfilViewModel(context) as T
+        }
+        throw IllegalArgumentException("Unknown ViewModel class")
+    }
+}
+ */
+class PerfilViewModel(
+    context: Context,
+    private val idUsuarioExterno: Int? = null // Si es null, carga "Mi Perfil"
+) : ViewModel() {
+
+    private val sessionManager = SessionManager(context)
+
+    private val _perfil = MutableStateFlow<Any?>(null)
+    val perfil: StateFlow<Any?> = _perfil
+
+    private val _isLoading = MutableStateFlow(true)
+    val isLoading: StateFlow<Boolean> = _isLoading
+
+    private val _esTrabajador = MutableStateFlow(false)
+    val esTrabajador: StateFlow<Boolean> = _esTrabajador
+
+    init {
+        // Al iniciar, decidimos qué cargar
+        if (idUsuarioExterno == null) {
+            cargarMiPerfil()
+        } else {
+            cargarPerfilAjeno(idUsuarioExterno)
+        }
+    }
+
+    // --- CASO 1: MI PROPIO PERFIL ---
+    private fun cargarMiPerfil() {
+        viewModelScope.launch {
+            _isLoading.value = true
+            try {
+                val miId = sessionManager.obtenerIdUsuario()
+                val rol = sessionManager.obtenerRol()
+                _esTrabajador.value = (rol == "trabajador")
+
+                if (_esTrabajador.value) {
+                    _perfil.value = RetrofitClient.api.obtenerPerfilTrabajador(miId)
+                } else {
+                    _perfil.value = RetrofitClient.api.obtenerPerfilCliente(miId)
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            } finally {
+                _isLoading.value = false
+            }
+        }
+    }
+
+    // --- CASO 2: PERFIL DE OTRO USUARIO ---
+    private fun cargarPerfilAjeno(id: Int) {
+        viewModelScope.launch {
+            _isLoading.value = true
+            try {
+                // Como no sabemos el rol del ID ajeno, probamos suerte:
+                try {
+                    val trabajador = RetrofitClient.api.obtenerPerfilTrabajador(id)
+                    _perfil.value = trabajador
+                    _esTrabajador.value = true
+                } catch (e: Exception) {
+                    // Si falla como trabajador, intentamos como cliente
+                    val cliente = RetrofitClient.api.obtenerPerfilCliente(id)
+                    _perfil.value = cliente
+                    _esTrabajador.value = false
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            } finally {
+                _isLoading.value = false
+            }
+        }
+    }
+}
+class PerfilViewModelFactory(
+    private val context: Context,
+    private val idUsuarioExterno: Int? = null // Valor por defecto null
+) : ViewModelProvider.Factory {
+    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+        if (modelClass.isAssignableFrom(PerfilViewModel::class.java)) {
+            @Suppress("UNCHECKED_CAST")
+            return PerfilViewModel(context, idUsuarioExterno) as T
         }
         throw IllegalArgumentException("Unknown ViewModel class")
     }

@@ -44,6 +44,7 @@ import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Build
+import androidx.compose.material.icons.filled.Delete
 import androidx.compose.material.icons.filled.Send
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Notifications
@@ -216,6 +217,16 @@ fun appNavigation(navController: NavHostController) {
         }
 
         composable(
+            route = "perfil_ajeno/{usuarioId}",
+            arguments = listOf(navArgument("usuarioId") { type = NavType.IntType })
+        ) { backStackEntry ->
+            val id = backStackEntry.arguments?.getInt("usuarioId") ?: 0
+
+            PerfilAjeno(navController = navController, usuarioId = id)
+        }
+
+
+        composable(
             route = "crear_resena/{idTrabajador}",
             arguments = listOf(navArgument("idTrabajador") { type = NavType.IntType })
         ) { backStackEntry ->
@@ -373,11 +384,7 @@ private fun BuscarOfertas(
                     actions = {
 
                     }
-
-
                 )
-
-
             },
             // Boton solo visible para trabajador
 
@@ -389,12 +396,10 @@ private fun BuscarOfertas(
                         modifier = Modifier
                             .size(70.dp)
                     ) {
-                        Icon(Icons.Filled.Add, stringResource(R.string.cd_anadir_oferta))
+                        Icon(Icons.Filled.Add, stringResource(R.string.cd_anadir_oferta), Modifier.size(35.dp))
                     }
                 }
             }
-
-
         ) { paddingValues ->
             if (listaOfertasReal.isEmpty()) {
                 Box(
@@ -424,7 +429,6 @@ fun ListaOfertas(
     onOfertaClick: (Int) -> Unit,
     modifier: Modifier = Modifier
 ) {
-
 
     LazyColumn(
         modifier
@@ -479,7 +483,6 @@ fun ListaOfertas(
                                 .padding(start = 15.dp, bottom = 15.dp),
                         )
                     }
-
                     AsyncImage(
                         model = oferta.fotoUrlOferta ?: R.drawable.imagenvacia,
                         contentDescription = stringResource(R.string.cd_foto_oferta),
@@ -1219,6 +1222,158 @@ private fun Perfil(
                                 }
                             }
                         }
+                    }
+                }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun PerfilAjeno(
+    navController: NavHostController,
+    usuarioId: Int // Recibimos el ID del usuario que queremos ver
+) {
+    val context = LocalContext.current
+
+    // IMPORTANTE: Pasamos el usuarioId a la Factory para que el ViewModel sepa a quién cargar
+    val viewModel: PerfilViewModel = viewModel(
+        factory = PerfilViewModelFactory(context, usuarioId)
+    )
+
+    val perfil by viewModel.perfil.collectAsState()
+    val esTrabajador by viewModel.esTrabajador.collectAsState()
+    val isLoading by viewModel.isLoading.collectAsState()
+
+    Scaffold(
+        topBar = {
+            CenterAlignedTopAppBar(
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    titleContentColor = MaterialTheme.colorScheme.onPrimary,
+                    navigationIconContentColor = MaterialTheme.colorScheme.onPrimary
+                ),
+                title = {
+                    Text(text = "Ver Perfil")
+                },
+                navigationIcon = {
+                    FilledIconButton(
+                        colors = IconButtonDefaults.filledIconButtonColors(
+                            containerColor = MaterialTheme.colorScheme.secondaryContainer
+                        ),
+                        onClick = { navController.popBackStack() }) {
+                        Icon(
+                            Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = stringResource(R.string.cd_volver_atras)
+                        )
+                    }
+                }
+            )
+        }
+    ) { paddingValues ->
+        if (isLoading) {
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                CircularProgressIndicator()
+            }
+        } else if (perfil == null) {
+            // Caso opcional: Si no se encuentra el usuario
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                Text(text = "No se ha podido cargar el perfil")
+            }
+        } else {
+            // Extraemos los datos del perfil (igual que en tu pantalla original)
+            val usuario = if (esTrabajador) (perfil as TrabajadorDTO).usuario
+            else (perfil as ClienteDTO).usuario
+
+            LazyColumn(
+                modifier = Modifier
+                    .fillMaxSize()
+                    .padding(paddingValues)
+            ) {
+                item {
+                    Column(
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .padding(16.dp),
+                        horizontalAlignment = Alignment.CenterHorizontally
+                    ) {
+                        // FOTO Y NOMBRE
+                        AsyncImage(
+                            model = usuario.fotoUrl ?: R.drawable.fotoperfilvacia,
+                            contentDescription = stringResource(R.string.cd_foto_perfil),
+                            modifier = Modifier
+                                .size(140.dp)
+                                .clip(CircleShape)
+                                .border(2.dp, Color.Gray, CircleShape),
+                            contentScale = ContentScale.Crop
+                        )
+                        Spacer(modifier = Modifier.height(16.dp))
+                        Text(
+                            text = usuario.nombre,
+                            fontSize = 24.sp,
+                            fontWeight = FontWeight.Bold
+                        )
+                        Text(text = usuario.apellidos, fontSize = 20.sp, color = Color.Gray)
+
+                        // ROL CHIP
+                        AssistChip(
+                            onClick = {},
+                            label = { Text(usuario.rol.uppercase()) },
+                            leadingIcon = {
+                                Icon(
+                                    Icons.Default.Person,
+                                    null,
+                                    tint = MaterialTheme.colorScheme.primary
+                                )
+                            },
+                            colors = AssistChipDefaults.assistChipColors(
+                                containerColor = MaterialTheme.colorScheme.secondaryContainer
+                            ),
+                        )
+
+                        Spacer(modifier = Modifier.height(24.dp))
+
+                        // TARJETA DE DATOS
+                        Card(
+                            modifier = Modifier.fillMaxWidth(),
+                            colors = CardDefaults.cardColors(
+                                containerColor = MaterialTheme.colorScheme.secondaryContainer,
+                                contentColor = MaterialTheme.colorScheme.onSecondaryContainer
+                            ),
+                        ) {
+                            Column(modifier = Modifier.padding(16.dp)) {
+                                DatoPerfil(stringResource(R.string.dato_telefono), usuario.telefono)
+                                DatoPerfil(stringResource(R.string.dato_email), usuario.email)
+
+                                // DATOS ESPECÍFICOS SEGÚN ROL
+                                if (esTrabajador) {
+                                    val p = perfil as TrabajadorDTO
+                                    DatoPerfil(
+                                        stringResource(R.string.dato_radio),
+                                        "${p.radioKm} km"
+                                    )
+                                    DatoPerfil(
+                                        stringResource(R.string.dato_descripcion),
+                                        p.descripcion
+                                            ?: stringResource(R.string.valor_sin_descripcion)
+                                    )
+                                } else {
+                                    val c = perfil as ClienteDTO
+                                    DatoPerfil(
+                                        stringResource(R.string.dato_ciudad),
+                                        c.ciudad ?: stringResource(R.string.valor_no_especificada)
+                                    )
+                                    DatoPerfil(
+                                        stringResource(R.string.dato_direccion),
+                                        c.direccion
+                                            ?: stringResource(R.string.valor_no_especificada)
+                                    )
+                                }
+                            }
+                        }
+
+                        // Opcional: Podrías añadir un botón de "Contactar" o "Contratar" aquí abajo
                     }
                 }
             }
@@ -2636,8 +2791,7 @@ fun HistorialNotificaciones(navController: NavHostController) {
                     onNotifiClick = { idEmisor ->
                         // Suponiendo que tu ruta de perfil para otros usuarios es "perfil_ajeno/{id}"
                         // O si usas la misma de perfil pasándole un ID
-                        //navController.navigate("perfil_ajeno/$idEmisor")
-                        navController.navigate("perfil/$idEmisor")
+                        navController.navigate("perfil_ajeno/${idEmisor}")
                     }
                 )
             }
