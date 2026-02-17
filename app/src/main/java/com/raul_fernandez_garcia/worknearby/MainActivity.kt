@@ -898,7 +898,11 @@ private fun TrabajoOfertado(
                                     if (idParaNotificar != 0) {
                                         navController.navigate("escribir_notificacion/$idParaNotificar")
                                     } else {
-                                        Toast.makeText(context, "Error: No se pudo encontrar el destinatario", Toast.LENGTH_SHORT).show()
+                                        Toast.makeText(
+                                            context,
+                                            "Error: No se pudo encontrar el destinatario",
+                                            Toast.LENGTH_SHORT
+                                        ).show()
                                     }
                                 },
                                 modifier = Modifier
@@ -2628,7 +2632,13 @@ fun HistorialNotificaciones(navController: NavHostController) {
             } else {
                 ListaNotificaciones(
                     notificaciones = listaNotificaciones,
-                    modifier = Modifier.padding(paddingValues)
+                    modifier = Modifier.padding(paddingValues),
+                    onNotifiClick = { idEmisor ->
+                        // Suponiendo que tu ruta de perfil para otros usuarios es "perfil_ajeno/{id}"
+                        // O si usas la misma de perfil pasándole un ID
+                        //navController.navigate("perfil_ajeno/$idEmisor")
+                        navController.navigate("perfil/$idEmisor")
+                    }
                 )
             }
         }
@@ -2636,7 +2646,11 @@ fun HistorialNotificaciones(navController: NavHostController) {
 }
 
 @Composable
-fun ListaNotificaciones(notificaciones: List<NotificacionDTO>, modifier: Modifier = Modifier) {
+fun ListaNotificaciones(
+    notificaciones: List<NotificacionDTO>,
+    onNotifiClick: (Int) -> Unit,
+    modifier: Modifier = Modifier
+) {
     LazyColumn(
         modifier
             .fillMaxSize()
@@ -2651,6 +2665,7 @@ fun ListaNotificaciones(notificaciones: List<NotificacionDTO>, modifier: Modifie
                 modifier = Modifier
                     .padding(vertical = 8.dp, horizontal = 16.dp)
                     .fillMaxWidth()
+                    .clickable { onNotifiClick(notificacion.idEmisor) }
             ) {
                 Row(
                     modifier = Modifier.padding(16.dp),
