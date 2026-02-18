@@ -453,7 +453,6 @@ private fun BuscarMisOfertas(
 
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val scope = rememberCoroutineScope()
-    val esTrabajador by viewModel.esTrabajador.collectAsState()
 
     ModalNavigationDrawer(
         drawerState = drawerState,

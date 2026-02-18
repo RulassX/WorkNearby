@@ -37,6 +37,8 @@ class OfertasViewModel(context: Context) : ViewModel() {
     private val _misOfertas = MutableStateFlow<List<OfertaDTO>>(emptyList())
     val misOfertas: StateFlow<List<OfertaDTO>> = _misOfertas
 
+    private val _idTrabajadorReal = MutableStateFlow<Int?>(null)
+
     private val _isLoading = MutableStateFlow(true)
     val isLoading: StateFlow<Boolean> = _isLoading
     private val _nombreUsuario = MutableStateFlow("Cargando...")
@@ -48,8 +50,8 @@ class OfertasViewModel(context: Context) : ViewModel() {
     val esTrabajador: StateFlow<Boolean> = _esTrabajador
 
     init {
-        cargarOfertas()
         cargarPerfilUsuario()
+        cargarOfertas()
     }
 
     fun cargarOfertas() {
@@ -67,9 +69,11 @@ class OfertasViewModel(context: Context) : ViewModel() {
 
     // NUEVO: Funcion para filtrar las ofertas del usuario actual
     private fun actualizarMisOfertas(todas: List<OfertaDTO>) {
-        val miId = sessionManager.obtenerIdUsuario()
-        // Filtramos: solo las ofertas donde el ID del trabajador coincida con el mio
-        _misOfertas.value = todas.filter { it.idTrabajador == miId }
+        val idTrabajador = _idTrabajadorReal.value
+        if (idTrabajador != null) {
+            // Filtramos por el ID de la tabla trabajadores, no por el de usuario
+            _misOfertas.value = todas.filter { it.idTrabajador == idTrabajador }
+        }
     }
 
     private fun cargarPerfilUsuario() {
@@ -81,15 +85,16 @@ class OfertasViewModel(context: Context) : ViewModel() {
                 _esTrabajador.value = (rol == "trabajador")
 
                 if (idUsuarioLogueado != 0) {
-                    val nombreReal = if (_esTrabajador.value) {
+                    if (_esTrabajador.value) {
                         val perfil = RetrofitClient.api.obtenerPerfilTrabajador(idUsuarioLogueado)
                         perfil.usuario.nombre
+
+                        _idTrabajadorReal.value = perfil.id
+                        actualizarMisOfertas(_ofertas.value)
                     } else {
                         val perfil = RetrofitClient.api.obtenerPerfilCliente(idUsuarioLogueado)
-                        perfil.usuario.nombre
+                        _nombreUsuario.value = perfil.usuario.nombre
                     }
-
-                    _nombreUsuario.value = nombreReal
                 } else {
                     _nombreUsuario.value = "Invitado"
                 }
@@ -357,7 +362,10 @@ class PerfilViewModel(context: Context, private val idUsuarioExterno: Int? = nul
     }
 }
 
-class PerfilViewModelFactory(private val context: Context, private val idUsuarioExterno: Int? = null) : ViewModelProvider.Factory {
+class PerfilViewModelFactory(
+    private val context: Context,
+    private val idUsuarioExterno: Int? = null
+) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(PerfilViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST")
