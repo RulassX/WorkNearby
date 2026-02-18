@@ -199,6 +199,10 @@ fun appNavigation(navController: NavHostController) {
             BuscarOfertas(navController)
         }
 
+        composable("mis_ofertas") {
+            BuscarMisOfertas(navController)
+        }
+
         composable("contratos") {
             BuscarContratos(navController)
         }
@@ -357,7 +361,7 @@ private fun BuscarOfertas(
 
                     title = {
                         Text(
-                            text = stringResource(R.string.app_name)
+                            text = stringResource(R.string.titulo_worknearby)
                         )
                     },
                     navigationIcon = {
@@ -392,11 +396,15 @@ private fun BuscarOfertas(
                 if (esTrabajador) {
 
                     FloatingActionButton(
-                        onClick = { navController.navigate("crear_oferta") },
+                        onClick = { navController.navigate("mis_ofertas") },
                         modifier = Modifier
                             .size(70.dp)
                     ) {
-                        Icon(Icons.Filled.Add, stringResource(R.string.cd_anadir_oferta), Modifier.size(35.dp))
+                        Icon(
+                            Icons.Filled.Person,
+                            stringResource(R.string.cd_mis_ofertas),
+                            Modifier.size(35.dp)
+                        )
                     }
                 }
             }
@@ -413,6 +421,171 @@ private fun BuscarOfertas(
             } else {
                 ListaOfertas(
                     ofertas = listaOfertasReal,
+                    modifier = Modifier.padding(paddingValues),
+                    onOfertaClick = { id ->
+                        navController.navigate("trabajo_ofertado/$id")
+                    }
+                )
+            }
+        }
+    }
+}
+
+@SuppressLint("UnusedMaterial3ScaffoldPaddingParameter")
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+private fun BuscarMisOfertas(
+    navController: NavHostController,
+) {
+    val context = LocalContext.current
+    val viewModel: OfertasViewModel = viewModel(
+        factory = OfertasViewModelFactory(context)
+    )
+
+    LaunchedEffect(Unit) {
+        viewModel.cargarOfertas()
+    }
+
+    val misOfertas by viewModel.misOfertas.collectAsState()
+    val isLoading by viewModel.isLoading.collectAsState()
+
+    val nombre by viewModel.nombreUsuario.collectAsState()
+
+    val drawerState = rememberDrawerState(DrawerValue.Closed)
+    val scope = rememberCoroutineScope()
+    val esTrabajador by viewModel.esTrabajador.collectAsState()
+
+    ModalNavigationDrawer(
+        drawerState = drawerState,
+        drawerContent = {
+            ModalDrawerSheet {
+
+                Spacer(modifier = Modifier.height(15.dp))
+                Text(
+                    text = stringResource(R.string.menu_hola, nombre),
+                    modifier = Modifier.padding(15.dp),
+                    style = MaterialTheme.typography.titleLarge
+                )
+                HorizontalDivider()
+                Spacer(modifier = Modifier.height(15.dp))
+
+                NavigationDrawerItem(
+                    label = {
+                        Icon(
+                            imageVector = Icons.Filled.Add,
+                            contentDescription = null,
+                            modifier = Modifier.size(20.dp)
+                        )
+                        Text(stringResource(R.string.cd_anadir_oferta))
+                    },
+
+                    selected = false,
+                    onClick = {
+                        scope.launch {
+                            drawerState.close()
+                            navController.navigate("crear_oferta")
+                        }
+                    },
+                    modifier = Modifier.padding(horizontal = 12.dp)
+                )
+
+                NavigationDrawerItem(
+                    label = {
+                        Icon(
+                            imageVector = Icons.Filled.Delete,
+                            contentDescription = null,
+                            modifier = Modifier.size(20.dp)
+                        )
+                        Text(stringResource(R.string.cd_borrar_resena))
+                    },
+
+                    selected = false,
+                    onClick = {
+
+                        //Aqui borra la oferta
+
+                    },
+                    modifier = Modifier.padding(horizontal = 12.dp)
+                )
+
+                NavigationDrawerItem(
+                    label = {
+                        Icon(
+                            imageVector = Icons.Filled.ArrowBack,
+                            contentDescription = null,
+                            modifier = Modifier.size(20.dp)
+                        )
+                        Text(stringResource(R.string.cd_volver_atras))
+                    },
+
+                    selected = false,
+                    onClick = {
+
+                        navController.popBackStack()
+
+                    },
+                    modifier = Modifier.padding(horizontal = 12.dp)
+                )
+            }
+        }
+    ) {
+        Scaffold(
+            topBar = {
+                CenterAlignedTopAppBar(
+                    colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                        // Color de fondo de la barra
+                        containerColor = MaterialTheme.colorScheme.primary,
+
+                        // Color del texto del titulo
+                        titleContentColor = MaterialTheme.colorScheme.onPrimary,
+
+                        // Color de los iconos (menu, flecha atras)
+                        navigationIconContentColor = MaterialTheme.colorScheme.onPrimary,
+                        actionIconContentColor = MaterialTheme.colorScheme.onPrimary
+                    ),
+
+                    title = {
+                        Text(
+                            text = stringResource(R.string.titulo_mis_ofertas)
+                        )
+                    },
+                    navigationIcon = {
+                        FilledIconButton(
+                            colors = IconButtonDefaults.filledIconButtonColors(
+                                containerColor = MaterialTheme.colorScheme.secondaryContainer
+                            ),
+
+                            onClick = {
+                                scope.launch {
+                                    if (drawerState.isClosed) {
+                                        drawerState.open()
+                                    } else {
+                                        drawerState.close()
+                                    }
+                                }
+                            }) {
+                            Icon(
+                                imageVector = Icons.Default.Menu,
+                                contentDescription = stringResource(R.string.cd_abrir_menu)
+                            )
+                        }
+                    }
+                )
+            },
+
+        ) { paddingValues ->
+            if (misOfertas.isEmpty()) {
+                Box(
+                    modifier = Modifier
+                        .fillMaxSize()
+                        .padding(paddingValues),
+                    contentAlignment = Alignment.Center
+                ) {
+                    Text(stringResource(R.string.msg_cargando_ofertas))
+                }
+            } else {
+                ListaOfertas(
+                    ofertas = misOfertas,
                     modifier = Modifier.padding(paddingValues),
                     onOfertaClick = { id ->
                         navController.navigate("trabajo_ofertado/$id")

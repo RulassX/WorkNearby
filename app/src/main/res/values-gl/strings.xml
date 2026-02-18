@@ -18,6 +18,7 @@
     <string name="cd_foto_perfil">Foto de perfil</string>
     <string name="cd_foto_oferta">Foto da oferta</string>
     <string name="cd_foto_seleccionada">Foto seleccionada</string>
+    <string name="cd_mis_ofertas">As miñas ofertas</string>
     <string name="cd_anadir_oferta">Engadir oferta</string>
     <string name="cd_anadir_resena">Engadir recensión</string>
     <string name="cd_borrar_resena">Borrar reseña</string>
@@ -83,6 +84,7 @@
     <!-- PANTALLA: BUSCAR OFERTAS                       -->
     <!-- ============================================== -->
     <string name="titulo_worknearby">WorkNearby</string>
+    <string name="titulo_mis_ofertas">As Miñas Ofertas</string>
     <string name="msg_cargando_ofertas">Cargando ofertas ou non hai dispoñibles...</string>
     <string name="label_precio_formato">Prezo: %s €/h</string>
     <string name="label_por_trabajador">Por: %s</string>

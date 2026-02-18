@@ -33,6 +33,10 @@ class OfertasViewModel(context: Context) : ViewModel() {
     private val _ofertas = MutableStateFlow<List<OfertaDTO>>(emptyList())
     val ofertas: StateFlow<List<OfertaDTO>> = _ofertas
 
+    // NUEVO: Estado para las ofertas del propio trabajador
+    private val _misOfertas = MutableStateFlow<List<OfertaDTO>>(emptyList())
+    val misOfertas: StateFlow<List<OfertaDTO>> = _misOfertas
+
     private val _isLoading = MutableStateFlow(true)
     val isLoading: StateFlow<Boolean> = _isLoading
     private val _nombreUsuario = MutableStateFlow("Cargando...")
@@ -53,10 +57,19 @@ class OfertasViewModel(context: Context) : ViewModel() {
             try {
                 val lista = RetrofitClient.api.buscarOfertas(lat = null, lon = null)
                 _ofertas.value = lista
+
+                actualizarMisOfertas(lista)
             } catch (e: Exception) {
                 e.printStackTrace()
             }
         }
+    }
+
+    // NUEVO: Funcion para filtrar las ofertas del usuario actual
+    private fun actualizarMisOfertas(todas: List<OfertaDTO>) {
+        val miId = sessionManager.obtenerIdUsuario()
+        // Filtramos: solo las ofertas donde el ID del trabajador coincida con el mio
+        _misOfertas.value = todas.filter { it.idTrabajador == miId }
     }
 
     private fun cargarPerfilUsuario() {
@@ -68,7 +81,7 @@ class OfertasViewModel(context: Context) : ViewModel() {
                 _esTrabajador.value = (rol == "trabajador")
 
                 if (idUsuarioLogueado != 0) {
-                    val nombreReal = if (rol == "trabajador") {
+                    val nombreReal = if (_esTrabajador.value) {
                         val perfil = RetrofitClient.api.obtenerPerfilTrabajador(idUsuarioLogueado)
                         perfil.usuario.nombre
                     } else {
@@ -274,66 +287,8 @@ class TrabajoViewModelFactory(private val context: Context) : ViewModelProvider.
 
 //------------------------------------------------
 
-/*
-class PerfilViewModel(context: Context) : ViewModel() {
-    val sessionManager = SessionManager(context)
 
-    // Usamos 'Any?' porque puede ser ClienteDTO o TrabajadorDTO
-    private val _perfil = MutableStateFlow<Any?>(null)
-    val perfil: StateFlow<Any?> = _perfil
-
-    private val _isLoading = MutableStateFlow(true)
-    val isLoading: StateFlow<Boolean> = _isLoading
-
-    private val _esTrabajador = MutableStateFlow(false)
-    val esTrabajador: StateFlow<Boolean> = _esTrabajador
-
-    init {
-        cargarMiPerfil()
-    }
-
-    private fun cargarMiPerfil() {
-        viewModelScope.launch {
-            _isLoading.value = true
-            try {
-
-                val miId = sessionManager.obtenerIdUsuario()
-                val rol = sessionManager.obtenerRol()
-
-                val soyTrabajador = (rol == "trabajador")
-
-                _esTrabajador.value = soyTrabajador
-
-                if (soyTrabajador) {
-                    val datos = RetrofitClient.api.obtenerPerfilTrabajador(miId)
-                    _perfil.value = datos
-                } else {
-                    val datos = RetrofitClient.api.obtenerPerfilCliente(miId)
-                    _perfil.value = datos
-                }
-            } catch (e: Exception) {
-                e.printStackTrace()
-            } finally {
-                _isLoading.value = false
-            }
-        }
-    }
-}
-
-class PerfilViewModelFactory(private val context: Context) : ViewModelProvider.Factory {
-    override fun <T : ViewModel> create(modelClass: Class<T>): T {
-        if (modelClass.isAssignableFrom(PerfilViewModel::class.java)) {
-            @Suppress("UNCHECKED_CAST")
-            return PerfilViewModel(context) as T
-        }
-        throw IllegalArgumentException("Unknown ViewModel class")
-    }
-}
- */
-class PerfilViewModel(
-    context: Context,
-    private val idUsuarioExterno: Int? = null // Si es null, carga "Mi Perfil"
-) : ViewModel() {
+class PerfilViewModel(context: Context, private val idUsuarioExterno: Int? = null) : ViewModel() {
 
     private val sessionManager = SessionManager(context)
 
@@ -401,10 +356,8 @@ class PerfilViewModel(
         }
     }
 }
-class PerfilViewModelFactory(
-    private val context: Context,
-    private val idUsuarioExterno: Int? = null // Valor por defecto null
-) : ViewModelProvider.Factory {
+
+class PerfilViewModelFactory(private val context: Context, private val idUsuarioExterno: Int? = null) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(PerfilViewModel::class.java)) {
             @Suppress("UNCHECKED_CAST")
