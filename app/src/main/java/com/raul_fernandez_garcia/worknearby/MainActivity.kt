@@ -14,10 +14,8 @@ import androidx.activity.enableEdgeToEdge
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
-import androidx.compose.foundation.background
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
-import androidx.compose.foundation.gestures.snapping.SnapPosition
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Box
 import androidx.compose.foundation.layout.Column
@@ -51,16 +49,15 @@ import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.Star
+import androidx.compose.material3.AlertDialog
 import androidx.compose.material3.AssistChip
 import androidx.compose.material3.AssistChipDefaults
 import androidx.compose.material3.Button
-import androidx.compose.material3.ButtonColors
 import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
-import androidx.compose.material3.Divider
 import androidx.compose.material3.DrawerValue
 import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
@@ -78,7 +75,6 @@ import androidx.compose.material3.ModalNavigationDrawer
 import androidx.compose.material3.NavigationDrawerItem
 import androidx.compose.material3.OutlinedButton
 import androidx.compose.material3.OutlinedTextField
-import androidx.compose.material3.OutlinedTextFieldDefaults
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.Surface
 import androidx.compose.material3.Text
@@ -447,12 +443,41 @@ private fun BuscarMisOfertas(
     }
 
     val misOfertas by viewModel.misOfertas.collectAsState()
-    val isLoading by viewModel.isLoading.collectAsState()
-
     val nombre by viewModel.nombreUsuario.collectAsState()
 
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val scope = rememberCoroutineScope()
+
+    // --- ESTADOS PARA EL BORRADO ---
+    var modoBorradoActivo by remember { mutableStateOf(false) }
+    var mostrarDialogo by remember { mutableStateOf(false) }
+    var idOfertaSeleccionada by remember { mutableStateOf<Int?>(null) }
+
+    // --- DIÁLOGO DE CONFIRMACIÓN ---
+    if (mostrarDialogo) {
+        AlertDialog(
+            onDismissRequest = { mostrarDialogo = false },
+            title = { Text("Confirmar eliminación") },
+            text = { Text("¿Estás seguro de que quieres borrar esta oferta? Esta acción no se puede deshacer.") },
+            confirmButton = {
+                TextButton(onClick = {
+                    idOfertaSeleccionada?.let { viewModel.borrarOferta(it) }
+                    mostrarDialogo = false
+                    modoBorradoActivo = false // Desactivamos el modo borrado tras eliminar
+                }) {
+                    Text("Sí, borrar", color = MaterialTheme.colorScheme.error)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = {
+                    mostrarDialogo = false
+                    modoBorradoActivo = false // También lo desactivamos si cancela
+                }) {
+                    Text("No")
+                }
+            }
+        )
+    }
 
     ModalNavigationDrawer(
         drawerState = drawerState,
@@ -468,6 +493,7 @@ private fun BuscarMisOfertas(
                 HorizontalDivider()
                 Spacer(modifier = Modifier.height(15.dp))
 
+                //Añadir
                 NavigationDrawerItem(
                     label = {
                         Icon(
@@ -488,6 +514,7 @@ private fun BuscarMisOfertas(
                     modifier = Modifier.padding(horizontal = 12.dp)
                 )
 
+                //Borrar
                 NavigationDrawerItem(
                     label = {
                         Icon(
@@ -498,15 +525,17 @@ private fun BuscarMisOfertas(
                         Text(stringResource(R.string.cd_borrar_resena))
                     },
 
-                    selected = false,
+                    selected = modoBorradoActivo,
                     onClick = {
-
-                        //Aqui borra la oferta
-
+                        scope.launch {
+                            modoBorradoActivo = true // Activamos el modo especial
+                            drawerState.close() // Cerramos el menú para ver las ofertas
+                        }
                     },
                     modifier = Modifier.padding(horizontal = 12.dp)
                 )
 
+                //Atras
                 NavigationDrawerItem(
                     label = {
                         Icon(
@@ -545,7 +574,11 @@ private fun BuscarMisOfertas(
 
                     title = {
                         Text(
-                            text = stringResource(R.string.titulo_mis_ofertas)
+                            if (modoBorradoActivo) {
+                                "Selecciona para borrar"
+                            } else {
+                                stringResource(R.string.titulo_mis_ofertas)
+                            }
                         )
                     },
                     navigationIcon = {
@@ -572,7 +605,7 @@ private fun BuscarMisOfertas(
                 )
             },
 
-        ) { paddingValues ->
+            ) { paddingValues ->
             if (misOfertas.isEmpty()) {
                 Box(
                     modifier = Modifier
@@ -587,7 +620,14 @@ private fun BuscarMisOfertas(
                     ofertas = misOfertas,
                     modifier = Modifier.padding(paddingValues),
                     onOfertaClick = { id ->
-                        navController.navigate("trabajo_ofertado/$id")
+                        if (modoBorradoActivo) {
+                            // Si estamos en modo borrado, guardamos el ID y abrimos diálogo
+                            idOfertaSeleccionada = id
+                            mostrarDialogo = true
+                        } else {
+                            // Si no, navegación normal
+                            navController.navigate("trabajo_ofertado/$id")
+                        }
                     }
                 )
             }
