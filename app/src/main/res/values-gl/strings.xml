@@ -20,6 +20,7 @@
     <string name="cd_foto_seleccionada">Foto seleccionada</string>
     <string name="cd_mis_ofertas">As miñas ofertas</string>
     <string name="cd_anadir_oferta">Engadir oferta</string>
+    <string name="cd_borrar_oferta">Borrar oferta</string>
     <string name="cd_anadir_resena">Engadir recensión</string>
     <string name="cd_borrar_resena">Borrar reseña</string>
     <string name="cd_anadir_contrato">Engadir contrato</string>

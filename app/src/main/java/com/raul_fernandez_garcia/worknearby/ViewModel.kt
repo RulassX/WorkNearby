@@ -87,7 +87,7 @@ class OfertasViewModel(context: Context) : ViewModel() {
                 if (idUsuarioLogueado != 0) {
                     if (_esTrabajador.value) {
                         val perfil = RetrofitClient.api.obtenerPerfilTrabajador(idUsuarioLogueado)
-                        perfil.usuario.nombre
+                        _nombreUsuario.value = perfil.usuario.nombre
 
                         _idTrabajadorReal.value = perfil.id
                         actualizarMisOfertas(_ofertas.value)

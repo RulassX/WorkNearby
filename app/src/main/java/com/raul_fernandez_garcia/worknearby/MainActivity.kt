@@ -495,12 +495,15 @@ private fun BuscarMisOfertas(
 
                 //Añadir
                 NavigationDrawerItem(
-                    label = {
+
+                    icon = {
                         Icon(
                             imageVector = Icons.Filled.Add,
                             contentDescription = null,
                             modifier = Modifier.size(20.dp)
                         )
+                    },
+                    label = {
                         Text(stringResource(R.string.cd_anadir_oferta))
                     },
 
@@ -516,13 +519,15 @@ private fun BuscarMisOfertas(
 
                 //Borrar
                 NavigationDrawerItem(
-                    label = {
+                    icon = {
                         Icon(
                             imageVector = Icons.Filled.Delete,
                             contentDescription = null,
                             modifier = Modifier.size(20.dp)
                         )
-                        Text(stringResource(R.string.cd_borrar_resena))
+                    },
+                    label = {
+                        Text(stringResource(R.string.cd_borrar_oferta))
                     },
 
                     selected = modoBorradoActivo,
@@ -537,12 +542,14 @@ private fun BuscarMisOfertas(
 
                 //Atras
                 NavigationDrawerItem(
-                    label = {
+                    icon = {
                         Icon(
                             imageVector = Icons.Filled.ArrowBack,
                             contentDescription = null,
                             modifier = Modifier.size(20.dp)
                         )
+                    },
+                    label = {
                         Text(stringResource(R.string.cd_volver_atras))
                     },
 
