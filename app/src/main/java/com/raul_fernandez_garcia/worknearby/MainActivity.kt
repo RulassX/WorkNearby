@@ -44,6 +44,7 @@ import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Edit
 import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Send
 import androidx.compose.material.icons.filled.LocationOn
@@ -1342,7 +1343,22 @@ private fun Perfil(
                         }
                     }
                 )
+            },
+
+            floatingActionButton = {
+
+                FloatingActionButton(
+                    onClick = {
+                       navController.navigate("editar_perfil")
+                    },
+                    modifier = Modifier
+                        .size(70.dp)
+                ) {
+                    Icon(Icons.Filled.Edit, stringResource(R.string.cd_editar_perfil))
+                }
             }
+
+
         ) { paddingValues ->
             if (isLoading || perfil == null) {
                 Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
@@ -1572,7 +1588,10 @@ fun PerfilAjeno(
                                         .clickable { abrirTelefono(context, usuario.telefono) }
                                 )
                                 {
-                                    DatoPerfil(stringResource(R.string.dato_telefono), usuario.telefono)
+                                    DatoPerfil(
+                                        stringResource(R.string.dato_telefono),
+                                        usuario.telefono
+                                    )
 
                                     if (usuario.telefono != null) {
                                         Icon(
@@ -1652,6 +1671,122 @@ fun PerfilAjeno(
                             }
                         }
                     }
+                }
+            }
+        }
+    }
+}
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun EditarMiPerfil(
+    navController: NavHostController,
+    esTrabajador: Boolean,
+    perfilActual: Any // Pasamos el perfil cargado para rellenar los campos
+) {
+    val context = LocalContext.current
+    val viewModel: EditarPerfilViewModel = viewModel(factory = EditarPerfilViewModelFactory(context))
+
+    var fotoUri by remember { mutableStateOf<Uri?>(null) } // La foto seleccionada
+
+    val launcherImagen = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickVisualMedia()
+    ) { uri: Uri? ->
+        fotoUri = uri
+    }
+
+    // Rellenamos los campos al iniciar
+    LaunchedEffect(Unit) {
+        viewModel.cargarDatosActuales(perfilActual, esTrabajador)
+    }
+
+    Scaffold(
+        topBar = {
+            CenterAlignedTopAppBar(
+                title = { Text("Editar Perfil") },
+                navigationIcon = {
+                    IconButton(onClick = { navController.popBackStack() }) {
+                        Icon(Icons.Default.ArrowBack, "Volver")
+                    }
+                },
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                    containerColor = MaterialTheme.colorScheme.primary,
+                    titleContentColor = MaterialTheme.colorScheme.onPrimary,
+                    navigationIconContentColor = MaterialTheme.colorScheme.onPrimary
+                )
+            )
+        }
+    ) { padding ->
+        LazyColumn(
+            modifier = Modifier
+                .fillMaxSize()
+                .padding(padding)
+                .padding(16.dp),
+            verticalArrangement = Arrangement.spacedBy(12.dp),
+            horizontalAlignment = Alignment.CenterHorizontally
+        ) {
+            item {
+                // --- SECCION FOTO ---
+                Box(modifier = Modifier.size(120.dp).clickable {launcherImagen.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))}) {
+                    AsyncImage(
+                        model = viewModel.fotoUrl ?: R.drawable.fotoperfilvacia,
+                        contentDescription = null,
+                        modifier = Modifier.fillMaxSize().clip(CircleShape).border(1.dp, Color.Gray, CircleShape),
+                        contentScale = ContentScale.Crop
+                    )
+                    Icon(
+                        Icons.Default.Edit,
+                        null,
+                        modifier = Modifier.align(Alignment.BottomEnd).padding(4.dp),
+                        tint = Color.White
+                    )
+                }
+                Spacer(modifier = Modifier.height(16.dp))
+            }
+
+            item {
+                // --- CAMPOS COMUNES ---
+                OutlinedTextField(value = viewModel.nombre, onValueChange = { viewModel.nombre = it }, label = { Text("Nombre") }, modifier = Modifier.fillMaxWidth())
+                OutlinedTextField(value = viewModel.apellidos, onValueChange = { viewModel.apellidos = it }, label = { Text("Apellidos") }, modifier = Modifier.fillMaxWidth())
+                OutlinedTextField(value = viewModel.telefono, onValueChange = { viewModel.telefono = it }, label = { Text("Teléfono") }, modifier = Modifier.fillMaxWidth())
+            }
+
+            item {
+                // --- CAMPOS ESPECIFICOS ---
+                if (esTrabajador) {
+                    OutlinedTextField(
+                        value = viewModel.radioKm,
+                        onValueChange = { viewModel.radioKm = it },
+                        label = { Text("Radio de acción (Km)") },
+                        modifier = Modifier.fillMaxWidth(),
+                        keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Number)
+                    )
+                    OutlinedTextField(
+                        value = viewModel.descripcion,
+                        onValueChange = { viewModel.descripcion = it },
+                        label = { Text("Descripción profesional") },
+                        modifier = Modifier.fillMaxWidth().height(120.dp),
+                        maxLines = 4
+                    )
+                } else {
+                    OutlinedTextField(value = viewModel.ciudad, onValueChange = { viewModel.ciudad = it }, label = { Text("Ciudad") }, modifier = Modifier.fillMaxWidth())
+                    OutlinedTextField(value = viewModel.direccion, onValueChange = { viewModel.direccion = it }, label = { Text("Dirección") }, modifier = Modifier.fillMaxWidth())
+                }
+            }
+
+            item {
+                Spacer(modifier = Modifier.height(24.dp))
+                Button(
+                    onClick = {
+                        viewModel.guardarCambios(esTrabajador) {
+                            navController.popBackStack() // Volver tras guardar
+                        }
+                    },
+                    modifier = Modifier.fillMaxWidth().height(50.dp),
+                    enabled = !viewModel.isLoading
+                ) {
+                    if (viewModel.isLoading) CircularProgressIndicator(color = Color.White, modifier = Modifier.size(24.dp))
+                    else Text("Guardar Cambios")
                 }
             }
         }

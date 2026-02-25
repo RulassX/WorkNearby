@@ -82,6 +82,12 @@ interface ApiService {
         @Body datos: ClienteDTO
     ): ClienteDTO
 
+    @PUT("/api/usuario/trabajador/{id}")
+    suspend fun actualizarPerfilTrabajador(
+        @Path("id") idUsuario: Int,
+        @Body datos: TrabajadorDTO
+    ): Response<TrabajadorDTO>
+
     @GET("/api/usuario/trabajador/{id}")
     suspend fun obtenerPerfilTrabajador(@Path("id") idUsuario: Int): TrabajadorDTO
 

@@ -17,12 +17,14 @@ import com.raul_fernandez_garcia.WorkNearby_API.modeloDTO.LoginRequest
 import com.raul_fernandez_garcia.WorkNearby_API.modeloDTO.RegistroDTO
 import com.raul_fernandez_garcia.WorkNearby_API.modeloDTO.SolicitarServicioDTO
 import com.raul_fernandez_garcia.worknearby.modeloDTO.CategoriaDTO
+import com.raul_fernandez_garcia.worknearby.modeloDTO.ClienteDTO
 import com.raul_fernandez_garcia.worknearby.modeloDTO.CrearNotificacionDTO
 import com.raul_fernandez_garcia.worknearby.modeloDTO.NotificacionDTO
 import com.raul_fernandez_garcia.worknearby.modeloDTO.OfertaDTO
 import com.raul_fernandez_garcia.worknearby.modeloDTO.ResenaDTO
 import com.raul_fernandez_garcia.worknearby.modeloDTO.ServicioDTO
 import com.raul_fernandez_garcia.worknearby.modeloDTO.TrabajadorDTO
+import com.raul_fernandez_garcia.worknearby.modeloDTO.UsuarioDTO
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
@@ -392,6 +394,129 @@ class PerfilViewModelFactory(
     }
 }
 
+
+//------------------------------------------------
+
+
+class EditarPerfilViewModel(private val context: Context) : ViewModel() {
+    private val sessionManager = SessionManager(context)
+
+    // Estados de los campos comunes
+    var nombre by mutableStateOf("")
+    var apellidos by mutableStateOf("")
+    var telefono by mutableStateOf("")
+    var fotoUrl by mutableStateOf<String?>(null)
+
+    // Estados especificos
+    var direccion by mutableStateOf("")     // Cliente
+    var ciudad by mutableStateOf("")        // Cliente
+    var descripcion by mutableStateOf("")   // Trabajador
+    var radioKm by mutableStateOf("")       // Trabajador
+
+    var isLoading by mutableStateOf(false)
+    var mensajeExito by mutableStateOf<String?>(null)
+
+
+    fun cargarDatosActuales(perfil: Any, esTrabajador: Boolean) {
+        if (esTrabajador) {
+            val p = perfil as TrabajadorDTO
+            nombre = p.usuario.nombre
+            apellidos = p.usuario.apellidos
+            telefono = p.usuario.telefono
+            fotoUrl = p.usuario.fotoUrl
+            descripcion = p.descripcion ?: ""
+            radioKm = p.radioKm?.toString() ?: ""
+        } else {
+            val c = perfil as ClienteDTO
+            nombre = c.usuario.nombre
+            apellidos = c.usuario.apellidos
+            telefono = c.usuario.telefono
+            fotoUrl = c.usuario.fotoUrl
+            direccion = c.direccion ?: ""
+            ciudad = c.ciudad ?: ""
+        }
+    }
+
+    fun guardarCambios(esTrabajador: Boolean, onExito: () -> Unit) {
+        viewModelScope.launch {
+            isLoading = true
+            try {
+                val idUsuario = sessionManager.obtenerIdUsuario()
+
+                val fotoString = fotoUri?.let { uri ->
+                    try {
+                        val inputStream = contentResolver.openInputStream(uri)
+                        val bytes = inputStream?.readBytes()
+                        inputStream?.close()
+                        if (bytes != null) Base64.encodeToString(
+                            bytes,
+                            Base64.NO_WRAP
+                        ) else null
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                        null
+                    }
+                }
+
+                // 1. Creamos el objeto Usuario comun
+                val usuarioActualizado = UsuarioDTO(
+                    id = idUsuario,
+                    nombre = nombre,
+                    apellidos = apellidos,
+                    telefono = telefono,
+                    fotoUrl = fotoString, // Aqui va el String Base64 que generamos
+                    email = "", // El email normalmente no se cambia asi por seguridad
+                    rol = if (esTrabajador) "trabajador" else "cliente"
+                )
+
+                if (esTrabajador) {
+                    // 2. Construimos DTO de Trabajador
+                    val trabajadorDTO = TrabajadorDTO(
+                        id = 0, // El ID se gestiona en el server
+                        usuario = usuarioActualizado,
+                        descripcion = descripcion,
+                        radioKm = radioKm.toDoubleOrNull() ?: 0.0,
+                        latitud = 0.0, // Idealmente usarias el Geocoder aqui
+                        longitud = 0.0
+                    )
+
+                    val response = RetrofitClient.api.actualizarPerfilTrabajador(idUsuario, trabajadorDTO)
+                    if (response.isSuccessful) onExito()
+
+                } else {
+                    // 3. Construimos DTO de Cliente
+                    val clienteDTO = ClienteDTO(
+                        id = 0,
+                        usuario = usuarioActualizado,
+                        direccion = direccion,
+                        ciudad = ciudad,
+                        latitud = 0.0,
+                        longitud = 0.0
+                    )
+
+                    val response = RetrofitClient.api.actualizarPerfilCliente(idUsuario, clienteDTO)
+                    if (response.isSuccessful) onExito()
+                }
+
+            } catch (e: Exception) {
+                Log.e("EditarPerfil", "Error al guardar: ${e.message}")
+                // Aqui podrias poner un estado de error para mostrar un Toast
+            } finally {
+                isLoading = false
+            }
+        }
+    }
+}
+
+class EditarPerfilViewModelFactory(private val context: Context) : ViewModelProvider.Factory {
+    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+        if (modelClass.isAssignableFrom(EditarPerfilViewModel::class.java)) {
+            @Suppress("UNCHECKED_CAST")
+            return EditarPerfilViewModel(context) as T
+        }
+        throw IllegalArgumentException("Clase ViewModel desconocida")
+    }
+}
 
 //------------------------------------------------
 

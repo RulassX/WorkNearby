@@ -1,5 +1,9 @@
 package com.raul_fernandez_garcia.worknearby.pruebas
 
+import android.net.Uri
+import androidx.activity.compose.rememberLauncherForActivityResult
+import androidx.activity.result.PickVisualMediaRequest
+import androidx.activity.result.contract.ActivityResultContracts
 import androidx.compose.foundation.Image
 import androidx.compose.foundation.border
 import androidx.compose.foundation.clickable
@@ -20,21 +24,29 @@ import androidx.compose.foundation.shape.CircleShape
 import androidx.compose.foundation.shape.RoundedCornerShape
 import androidx.compose.foundation.text.KeyboardOptions
 import androidx.compose.material.icons.Icons
+import androidx.compose.material.icons.automirrored.filled.ArrowBack
+import androidx.compose.material.icons.filled.Add
 import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Notifications
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material3.Button
+import androidx.compose.material3.ButtonDefaults
 import androidx.compose.material3.Card
 import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CenterAlignedTopAppBar
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.Divider
 import androidx.compose.material3.DrawerValue
+import androidx.compose.material3.DropdownMenuItem
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.ExposedDropdownMenuBox
+import androidx.compose.material3.ExposedDropdownMenuDefaults
+import androidx.compose.material3.FilledIconButton
 import androidx.compose.material3.HorizontalDivider
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconButtonDefaults
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.ModalDrawerSheet
 import androidx.compose.material3.ModalNavigationDrawer
@@ -49,7 +61,10 @@ import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
+import androidx.compose.runtime.mutableStateOf
+import androidx.compose.runtime.remember
 import androidx.compose.runtime.rememberCoroutineScope
+import androidx.compose.runtime.setValue
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.draw.clip
@@ -63,16 +78,21 @@ import androidx.compose.ui.text.font.FontWeight
 import androidx.compose.ui.text.input.KeyboardType
 import androidx.compose.ui.text.input.PasswordVisualTransformation
 import androidx.compose.ui.text.input.VisualTransformation
+import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
+import coil.compose.AsyncImage
+import com.raul_fernandez_garcia.worknearby.CrearOfertaViewModel
+import com.raul_fernandez_garcia.worknearby.CrearOfertaViewModelFactory
 import com.raul_fernandez_garcia.worknearby.LoginViewModel
 import com.raul_fernandez_garcia.worknearby.LoginViewModelFactory
 import com.raul_fernandez_garcia.worknearby.NotificacionesViewModel
 import com.raul_fernandez_garcia.worknearby.NotificacionesViewModelFactory
 import com.raul_fernandez_garcia.worknearby.R
+import com.raul_fernandez_garcia.worknearby.modeloDTO.CategoriaDTO
 import com.raul_fernandez_garcia.worknearby.modeloDTO.NotificacionDTO
 import kotlinx.coroutines.launch
 
@@ -431,3 +451,259 @@ fun ListaNotificaciones(notificaciones: List<NotificacionDTO>, modifier: Modifie
         }
     }
 }
+
+
+
+@OptIn(ExperimentalMaterial3Api::class)
+@Composable
+fun EscribirOferta(
+    navController: NavHostController
+) {
+    val context = LocalContext.current
+    val viewModel: CrearOfertaViewModel = viewModel(
+        factory = CrearOfertaViewModelFactory(context)
+    )
+
+    // Estados del formulario
+    var titulo by remember { mutableStateOf("") }
+    var descripcion by remember { mutableStateOf("") }
+    var precioTexto by remember { mutableStateOf("") }
+    var fotoUri by remember { mutableStateOf<Uri?>(null) } // La foto seleccionada
+
+    val listaCategorias by viewModel.categorias.collectAsState()
+    var expanded by remember { mutableStateOf(false) }
+    var categoriaSeleccionada by remember { mutableStateOf<CategoriaDTO?>(null) }
+
+
+    // Estados del ViewModel
+    val isLoading by viewModel.isLoading.collectAsState()
+    val mensajeExito by viewModel.mensajeExito.collectAsState()
+
+    val launcherImagen = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickVisualMedia()
+    ) { uri: Uri? ->
+        fotoUri = uri
+    }
+
+    // Efecto: Si se publica con exito, volvemos atras
+    LaunchedEffect(mensajeExito) {
+        if (mensajeExito != null) {
+            // Esperamos un poquito para que el usuario lea (opcional)
+            navController.popBackStack()
+            viewModel.resetMensaje()
+        }
+    }
+
+    Scaffold(
+        topBar = {
+            CenterAlignedTopAppBar(
+                colors = TopAppBarDefaults.centerAlignedTopAppBarColors(
+                    // Color de fondo de la barra
+                    containerColor = MaterialTheme.colorScheme.primary,
+
+                    // Color del texto del titulo
+                    titleContentColor = MaterialTheme.colorScheme.onPrimary,
+
+                    // Color de los iconos (menu, flecha atras)
+                    navigationIconContentColor = MaterialTheme.colorScheme.onPrimary,
+                    actionIconContentColor = MaterialTheme.colorScheme.onPrimary
+                ),
+
+                title = { Text(stringResource(R.string.titulo_nueva_oferta)) },
+                navigationIcon = {
+                    FilledIconButton(
+                        colors = IconButtonDefaults.filledIconButtonColors(
+                            containerColor = MaterialTheme.colorScheme.secondaryContainer
+                        ),
+                        onClick = { navController.popBackStack() }) {
+                        Icon(
+                            Icons.AutoMirrored.Filled.ArrowBack,
+                            contentDescription = stringResource(R.string.cd_cancelar)
+                        )
+                    }
+                }
+            )
+        }
+    ) { paddingValues ->
+
+        if (isLoading) {
+            Box(modifier = Modifier.fillMaxSize(), contentAlignment = Alignment.Center) {
+                CircularProgressIndicator()
+            }
+        } else {
+            Column(
+                modifier = Modifier
+                    .padding(paddingValues)
+                    .fillMaxSize()
+                    .padding(24.dp),
+                horizontalAlignment = Alignment.CenterHorizontally
+            ) {
+
+                // --- 1. SELECCION DE FOTO ---
+                Box(
+                    modifier = Modifier
+                        .size(120.dp)
+                        .clip(RoundedCornerShape(12.dp))
+                        .border(1.dp, Color.Gray, RoundedCornerShape(12.dp))
+                        .clickable {
+                            // Abrir galeria (solo imagenes)
+                            launcherImagen.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+                        },
+                    contentAlignment = Alignment.Center
+                ) {
+                    if (fotoUri != null) {
+                        AsyncImage(
+                            model = fotoUri,
+                            contentDescription = stringResource(R.string.cd_foto_seleccionada),
+                            modifier = Modifier.fillMaxSize(),
+                            contentScale = ContentScale.Crop
+                        )
+                    } else {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Icon(Icons.Default.Add, contentDescription = null, tint = Color.Gray)
+                            Text(
+                                stringResource(R.string.text_anadir_foto_opcional),
+                                fontSize = 12.sp,
+                                color = Color.Gray,
+                                textAlign = TextAlign.Center
+                            )
+                        }
+                    }
+                }
+
+                Spacer(modifier = Modifier.height(24.dp))
+
+                // --- 2. TITULO ---
+                OutlinedTextField(
+                    value = titulo,
+                    onValueChange = { titulo = it },
+                    label = { Text(stringResource(R.string.label_titulo_trabajo)) },
+                    placeholder = { Text(stringResource(R.string.placeholder_titulo_trabajo)) },
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(12.dp),
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // --- 3. CATEGORIA---
+                ExposedDropdownMenuBox(
+                    expanded = expanded,
+                    onExpandedChange = { expanded = !expanded },
+                    modifier = Modifier.fillMaxWidth()
+                ) {
+                    OutlinedTextField(
+                        value = categoriaSeleccionada?.nombre
+                            ?: stringResource(R.string.placeholder_seleccionar),
+                        onValueChange = {},
+                        readOnly = true,
+                        label = { Text(stringResource(R.string.label_categoria)) },
+                        trailingIcon = {
+                            ExposedDropdownMenuDefaults.TrailingIcon(expanded = expanded)
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .menuAnchor(),
+                        shape = RoundedCornerShape(12.dp),
+                    )
+
+                    // La lista que se despliega
+                    ExposedDropdownMenu(
+                        expanded = expanded,
+                        onDismissRequest = { expanded = false }
+                    ) {
+                        if (listaCategorias.isEmpty()) {
+                            DropdownMenuItem(
+                                text = { Text(stringResource(R.string.valor_no_especificada)) },
+                                onClick = { }
+                            )
+                        } else {
+                            listaCategorias.forEach { categoria ->
+                                DropdownMenuItem(
+                                    text = { Text(text = categoria.nombre) },
+                                    onClick = {
+                                        categoriaSeleccionada = categoria
+                                        expanded = false
+                                    },
+                                    contentPadding = ExposedDropdownMenuDefaults.ItemContentPadding
+                                )
+                            }
+                        }
+                    }
+                }
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // --- 4. PRECIO ---
+                OutlinedTextField(
+                    value = precioTexto,
+                    onValueChange = {
+                        // Solo numeros y un punto decimal
+                        if (it.all { char -> char.isDigit() || char == '.' }) {
+                            precioTexto = it
+                        }
+                    },
+                    label = { Text(stringResource(R.string.label_precio_hora_euro)) },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Decimal),
+                    modifier = Modifier.fillMaxWidth(),
+                    shape = RoundedCornerShape(12.dp),
+                )
+
+                Spacer(modifier = Modifier.height(16.dp))
+
+                // --- 5. DESCRIPCION ---
+                OutlinedTextField(
+                    value = descripcion,
+                    onValueChange = { descripcion = it },
+                    label = { Text(stringResource(R.string.label_descripcion_detallada)) },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(120.dp),
+                    shape = RoundedCornerShape(12.dp),
+                )
+
+                Spacer(modifier = Modifier.height(32.dp))
+
+                // --- 6. BOTON PUBLICAR ---
+                Button(
+                    onClick = {
+                        val precio = precioTexto.toDoubleOrNull() ?: 0.0
+                        if (categoriaSeleccionada != null) {
+                            viewModel.publicarOferta(
+                                titulo,
+                                descripcion,
+                                precio,
+                                categoriaSeleccionada!!.id,
+                                fotoUri
+                            )
+                        }
+                    },
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(50.dp),
+                    enabled = titulo.isNotEmpty() && descripcion.isNotEmpty() && precioTexto.isNotEmpty() && categoriaSeleccionada != null,
+                    colors = ButtonDefaults.buttonColors(containerColor = MaterialTheme.colorScheme.primary)
+                ) {
+                    Text(stringResource(R.string.btn_publicar_oferta), fontSize = 18.sp)
+                }
+            }
+        }
+    }
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
