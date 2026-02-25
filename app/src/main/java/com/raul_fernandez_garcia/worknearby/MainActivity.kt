@@ -2,6 +2,7 @@ package com.raul_fernandez_garcia.worknearby
 
 import android.annotation.SuppressLint
 import android.content.Context
+import android.content.Intent
 import android.location.Geocoder
 import android.net.Uri
 import android.os.Bundle
@@ -43,9 +44,11 @@ import androidx.compose.material.icons.filled.Person
 import androidx.compose.material.icons.filled.ArrowBack
 import androidx.compose.material.icons.filled.Build
 import androidx.compose.material.icons.filled.Delete
+import androidx.compose.material.icons.filled.Email
 import androidx.compose.material.icons.filled.Send
 import androidx.compose.material.icons.filled.LocationOn
 import androidx.compose.material.icons.filled.Notifications
+import androidx.compose.material.icons.filled.Phone
 import androidx.compose.material.icons.filled.Search
 import androidx.compose.material.icons.filled.Star
 import androidx.compose.material.icons.outlined.Star
@@ -453,7 +456,7 @@ private fun BuscarMisOfertas(
     var mostrarDialogo by remember { mutableStateOf(false) }
     var idOfertaSeleccionada by remember { mutableStateOf<Int?>(null) }
 
-    // --- DIÁLOGO DE CONFIRMACIÓN ---
+    // --- DIALOGO DE CONFIRMACION ---
     if (mostrarDialogo) {
         AlertDialog(
             onDismissRequest = { mostrarDialogo = false },
@@ -471,7 +474,7 @@ private fun BuscarMisOfertas(
             dismissButton = {
                 TextButton(onClick = {
                     mostrarDialogo = false
-                    modoBorradoActivo = false // También lo desactivamos si cancela
+                    modoBorradoActivo = false // Tambien lo desactivamos si cancela
                 }) {
                     Text("No")
                 }
@@ -534,7 +537,7 @@ private fun BuscarMisOfertas(
                     onClick = {
                         scope.launch {
                             modoBorradoActivo = true // Activamos el modo especial
-                            drawerState.close() // Cerramos el menú para ver las ofertas
+                            drawerState.close() // Cerramos el menu para ver las ofertas
                         }
                     },
                     modifier = Modifier.padding(horizontal = 12.dp)
@@ -628,11 +631,11 @@ private fun BuscarMisOfertas(
                     modifier = Modifier.padding(paddingValues),
                     onOfertaClick = { id ->
                         if (modoBorradoActivo) {
-                            // Si estamos en modo borrado, guardamos el ID y abrimos diálogo
+                            // Si estamos en modo borrado, guardamos el ID y abrimos dialogo
                             idOfertaSeleccionada = id
                             mostrarDialogo = true
                         } else {
-                            // Si no, navegación normal
+                            // Si no, navegacion normal
                             navController.navigate("trabajo_ofertado/$id")
                         }
                     }
@@ -1456,7 +1459,7 @@ fun PerfilAjeno(
 ) {
     val context = LocalContext.current
 
-    // IMPORTANTE: Pasamos el usuarioId a la Factory para que el ViewModel sepa a quién cargar
+    // IMPORTANTE: Pasamos el usuarioId a la Factory para que el ViewModel sepa a quien cargar
     val viewModel: PerfilViewModel = viewModel(
         factory = PerfilViewModelFactory(context, usuarioId)
     )
@@ -1562,10 +1565,47 @@ fun PerfilAjeno(
                             ),
                         ) {
                             Column(modifier = Modifier.padding(16.dp)) {
-                                DatoPerfil(stringResource(R.string.dato_telefono), usuario.telefono)
-                                DatoPerfil(stringResource(R.string.dato_email), usuario.email)
 
-                                // DATOS ESPECÍFICOS SEGÚN ROL
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .clickable { abrirTelefono(context, usuario.telefono) }
+                                )
+                                {
+                                    DatoPerfil(stringResource(R.string.dato_telefono), usuario.telefono)
+
+                                    if (usuario.telefono != null) {
+                                        Icon(
+                                            imageVector = Icons.Default.Phone,
+                                            contentDescription = null,
+                                            modifier = Modifier
+                                                .align(Alignment.CenterEnd)
+                                                .padding(end = 8.dp),
+                                            tint = MaterialTheme.colorScheme.primary
+                                        )
+                                    }
+                                }
+
+                                Box(
+                                    modifier = Modifier
+                                        .fillMaxWidth()
+                                        .clickable { abrirEmail(context, usuario.email) })
+                                {
+                                    DatoPerfil(stringResource(R.string.dato_email), usuario.email)
+
+                                    if (usuario.email != null) {
+                                        Icon(
+                                            imageVector = Icons.Default.Email,
+                                            contentDescription = null,
+                                            modifier = Modifier
+                                                .align(Alignment.CenterEnd)
+                                                .padding(end = 8.dp),
+                                            tint = MaterialTheme.colorScheme.primary
+                                        )
+                                    }
+                                }
+
+                                // DATOS ESPECIFICOS SEGUN ROL
                                 if (esTrabajador) {
                                     val p = perfil as TrabajadorDTO
                                     DatoPerfil(
@@ -1583,16 +1623,34 @@ fun PerfilAjeno(
                                         stringResource(R.string.dato_ciudad),
                                         c.ciudad ?: stringResource(R.string.valor_no_especificada)
                                     )
-                                    DatoPerfil(
-                                        stringResource(R.string.dato_direccion),
-                                        c.direccion
-                                            ?: stringResource(R.string.valor_no_especificada)
-                                    )
+
+                                    Box(
+                                        modifier = Modifier
+                                            .fillMaxWidth()
+                                            .clickable(enabled = c.direccion != null) {
+                                                abrirGoogleMaps(context, c.direccion!!)
+                                            }) {
+
+                                        DatoPerfil(
+                                            stringResource(R.string.dato_direccion),
+                                            c.direccion
+                                                ?: stringResource(R.string.valor_no_especificada),
+                                        )
+
+                                        if (c.direccion != null) {
+                                            Icon(
+                                                imageVector = Icons.Default.LocationOn,
+                                                contentDescription = null,
+                                                modifier = Modifier
+                                                    .align(Alignment.CenterEnd)
+                                                    .padding(end = 8.dp),
+                                                tint = MaterialTheme.colorScheme.primary
+                                            )
+                                        }
+                                    }
                                 }
                             }
                         }
-
-                        // Opcional: Podrías añadir un botón de "Contactar" o "Contratar" aquí abajo
                     }
                 }
             }
@@ -1617,6 +1675,50 @@ fun DatoPerfil(titulo: String, valor: String) {
     }
 }
 
+fun abrirGoogleMaps(context: Context, direccion: String) {
+    if (direccion.isEmpty()) return
+
+    // El formato "geo:0,0?q=" permite buscar una direccion de texto
+    val gmmIntentUri = Uri.parse("geo:0,0?q=${Uri.encode(direccion)}")
+    val mapIntent = Intent(Intent.ACTION_VIEW, gmmIntentUri)
+
+    // Intentamos forzar que se abra con la app de Google Maps
+    mapIntent.setPackage("com.google.android.apps.maps")
+
+    try {
+        context.startActivity(mapIntent)
+    } catch (e: Exception) {
+        // Si el usuario no tiene instalada la app de Maps, abrimos en el navegador
+        val webIntent = Intent(
+            Intent.ACTION_VIEW,
+            Uri.parse("https://www.google.com/maps/search/?api=1&query=${Uri.encode(direccion)}")
+        )
+        context.startActivity(webIntent)
+    }
+}
+
+// Funcion para abrir el marcador del telefono
+fun abrirTelefono(context: Context, telefono: String) {
+    val intent = Intent(Intent.ACTION_DIAL).apply {
+        data = Uri.parse("tel:$telefono")
+    }
+    context.startActivity(intent)
+}
+
+// Funcion para abrir la app de correo
+fun abrirEmail(context: Context, email: String) {
+    val intent = Intent(Intent.ACTION_SENDTO).apply {
+        data = Uri.parse("mailto:$email")
+    }
+    // Intentamos abrir la app de correo
+    try {
+        context.startActivity(intent)
+    } catch (e: Exception) {
+        // Si no hay app de correo instalada
+        Toast.makeText(context, "No hay aplicaciones de correo instaladas", Toast.LENGTH_SHORT)
+            .show()
+    }
+}
 
 //------------------------------------------------
 
@@ -3009,7 +3111,7 @@ fun HistorialNotificaciones(navController: NavHostController) {
                     modifier = Modifier.padding(paddingValues),
                     onNotifiClick = { idEmisor ->
                         // Suponiendo que tu ruta de perfil para otros usuarios es "perfil_ajeno/{id}"
-                        // O si usas la misma de perfil pasándole un ID
+                        // O si usas la misma de perfil pasandole un ID
                         navController.navigate("perfil_ajeno/${idEmisor}")
                     }
                 )

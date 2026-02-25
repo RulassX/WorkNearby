@@ -324,7 +324,7 @@ class PerfilViewModel(context: Context, private val idUsuarioExterno: Int? = nul
     val esTrabajador: StateFlow<Boolean> = _esTrabajador
 
     init {
-        // Al iniciar, decidimos qué cargar
+        // Al iniciar, decidimos que cargar
         if (idUsuarioExterno == null) {
             cargarMiPerfil()
         } else {
