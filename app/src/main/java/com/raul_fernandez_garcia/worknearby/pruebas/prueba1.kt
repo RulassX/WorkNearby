@@ -1,6 +1,8 @@
 package com.raul_fernandez_garcia.worknearby.pruebas
 
+import android.content.Context
 import android.net.Uri
+import android.util.Base64
 import androidx.activity.compose.rememberLauncherForActivityResult
 import androidx.activity.result.PickVisualMediaRequest
 import androidx.activity.result.contract.ActivityResultContracts
@@ -82,9 +84,13 @@ import androidx.compose.ui.text.style.TextAlign
 import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.compose.ui.unit.sp
+import androidx.lifecycle.ViewModel
+import androidx.lifecycle.ViewModelProvider
+import androidx.lifecycle.viewModelScope
 import androidx.lifecycle.viewmodel.compose.viewModel
 import androidx.navigation.NavHostController
 import coil.compose.AsyncImage
+import com.raul_fernandez_garcia.WorkNearby_API.modeloDTO.CrearOfertaDTO
 import com.raul_fernandez_garcia.worknearby.CrearOfertaViewModel
 import com.raul_fernandez_garcia.worknearby.CrearOfertaViewModelFactory
 import com.raul_fernandez_garcia.worknearby.LoginViewModel
@@ -92,8 +98,13 @@ import com.raul_fernandez_garcia.worknearby.LoginViewModelFactory
 import com.raul_fernandez_garcia.worknearby.NotificacionesViewModel
 import com.raul_fernandez_garcia.worknearby.NotificacionesViewModelFactory
 import com.raul_fernandez_garcia.worknearby.R
+import com.raul_fernandez_garcia.worknearby.RetrofitClient
+import com.raul_fernandez_garcia.worknearby.SessionManager
 import com.raul_fernandez_garcia.worknearby.modeloDTO.CategoriaDTO
 import com.raul_fernandez_garcia.worknearby.modeloDTO.NotificacionDTO
+import kotlinx.coroutines.Dispatchers
+import kotlinx.coroutines.flow.MutableStateFlow
+import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
 
 @Preview(showBackground = true)
@@ -690,7 +701,104 @@ fun EscribirOferta(
 }
 
 
+class CrearOfertaViewModel(context: Context) : ViewModel() {
 
+    val sessionManager = SessionManager(context)
+
+    private val contentResolver = context.contentResolver
+
+    private val _isLoading = MutableStateFlow(false)
+    val isLoading: StateFlow<Boolean> = _isLoading
+
+    private val _mensajeExito = MutableStateFlow<String?>(null)
+    val mensajeExito: StateFlow<String?> = _mensajeExito
+
+    private val _categorias = MutableStateFlow<List<CategoriaDTO>>(emptyList())
+    val categorias: StateFlow<List<CategoriaDTO>> = _categorias
+
+    init {
+        cargarCategorias()
+    }
+
+    fun publicarOferta(
+        titulo: String,
+        descripcion: String,
+        precio: Double,
+        idCategoria: Int,
+        fotoUri: Uri?
+    ) {
+        viewModelScope.launch(Dispatchers.IO) {
+            _isLoading.value = true
+            try {
+                val miIdTrabajador = sessionManager.obtenerIdUsuario()
+
+                if (miIdTrabajador != 0) {
+                    val fotoString = fotoUri?.let { uri ->
+                        try {
+                            val inputStream = contentResolver.openInputStream(uri)
+                            val bytes = inputStream?.readBytes()
+                            inputStream?.close()
+                            if (bytes != null) Base64.encodeToString(
+                                bytes,
+                                Base64.NO_WRAP
+                            ) else null
+                        } catch (e: Exception) {
+                            e.printStackTrace()
+                            null
+                        }
+                    }
+
+                    val nuevaOferta = CrearOfertaDTO(
+                        idTrabajador = miIdTrabajador,
+                        idCategoria = idCategoria,
+                        titulo = titulo,
+                        descripcion = descripcion,
+                        precio = precio,
+                        fotoUrlOferta = fotoString
+                    )
+
+                    RetrofitClient.api.publicarOferta(nuevaOferta)
+                    _mensajeExito.value = "Oferta publicada correctamente"
+
+                } else {
+                    println("Error: No hay usuario logueado")
+                }
+
+            } catch (e: Exception) {
+                e.printStackTrace()
+            } finally {
+                _isLoading.value = false
+            }
+        }
+    }
+
+    // Funcion para descargar la lista del desplegable
+    private fun cargarCategorias() {
+        viewModelScope.launch {
+            try {
+                // Llama al endpoint @GET("/api/categorias")
+                val lista = RetrofitClient.api.obtenerCategorias()
+                _categorias.value = lista
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+    }
+
+    fun resetMensaje() {
+        _mensajeExito.value = null
+    }
+}
+
+class CrearOfertaViewModelFactory(private val context: Context) : ViewModelProvider.Factory {
+    override fun <T : ViewModel> create(modelClass: Class<T>): T {
+        if (modelClass.isAssignableFrom(CrearOfertaViewModel::class.java)) {
+            @Suppress("UNCHECKED_CAST")
+            return CrearOfertaViewModel(context) as T
+        }
+        throw IllegalArgumentException("Unknown ViewModel class")
+    }
+}
 
 
 

@@ -29,6 +29,9 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
+import androidx.compose.runtime.State
+import retrofit2.Response
+
 
 class OfertasViewModel(context: Context) : ViewModel() {
     val sessionManager = SessionManager(context)
@@ -401,21 +404,46 @@ class PerfilViewModelFactory(
 class EditarPerfilViewModel(private val context: Context) : ViewModel() {
     private val sessionManager = SessionManager(context)
 
-    // Estados de los campos comunes
+    // Estados al estilo CrearOfertaViewModel
+    private val _fotoUri = mutableStateOf<Uri?>(null)
+    val fotoUri: State<Uri?> = _fotoUri
+
+    private val _fotoBase64 = mutableStateOf<String?>(null)
+    val fotoBase64: State<String?> = _fotoBase64
+
+    // Foto que ya viene del servidor (si existe)
+    private val _fotoUrlActual = mutableStateOf<String?>(null)
+    val fotoUrlActual: State<String?> = _fotoUrlActual
+
+    // Otros campos
     var nombre by mutableStateOf("")
     var apellidos by mutableStateOf("")
     var telefono by mutableStateOf("")
-    var fotoUrl by mutableStateOf<String?>(null)
-
-    // Estados especificos
-    var direccion by mutableStateOf("")     // Cliente
-    var ciudad by mutableStateOf("")        // Cliente
-    var descripcion by mutableStateOf("")   // Trabajador
-    var radioKm by mutableStateOf("")       // Trabajador
-
+    var direccion by mutableStateOf("")
+    var ciudad by mutableStateOf("")
+    var descripcion by mutableStateOf("")
+    var radioKm by mutableStateOf("")
     var isLoading by mutableStateOf(false)
-    var mensajeExito by mutableStateOf<String?>(null)
 
+    fun onFotoSelected(uri: Uri?) {
+        _fotoUri.value = uri
+        uri?.let { convertirImagenABase64(it) }
+    }
+
+    private fun convertirImagenABase64(uri: Uri) {
+        viewModelScope.launch {
+            try {
+                val inputStream = context.contentResolver.openInputStream(uri)
+                val bytes = inputStream?.readBytes()
+                inputStream?.close()
+                if (bytes != null) {
+                    _fotoBase64.value = Base64.encodeToString(bytes, Base64.NO_WRAP)
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+    }
 
     fun cargarDatosActuales(perfil: Any, esTrabajador: Boolean) {
         if (esTrabajador) {
@@ -423,7 +451,7 @@ class EditarPerfilViewModel(private val context: Context) : ViewModel() {
             nombre = p.usuario.nombre
             apellidos = p.usuario.apellidos
             telefono = p.usuario.telefono
-            fotoUrl = p.usuario.fotoUrl
+            _fotoUrlActual.value = p.usuario.fotoUrl
             descripcion = p.descripcion ?: ""
             radioKm = p.radioKm?.toString() ?: ""
         } else {
@@ -431,7 +459,7 @@ class EditarPerfilViewModel(private val context: Context) : ViewModel() {
             nombre = c.usuario.nombre
             apellidos = c.usuario.apellidos
             telefono = c.usuario.telefono
-            fotoUrl = c.usuario.fotoUrl
+            _fotoUrlActual.value = c.usuario.fotoUrl
             direccion = c.direccion ?: ""
             ciudad = c.ciudad ?: ""
         }
@@ -443,48 +471,31 @@ class EditarPerfilViewModel(private val context: Context) : ViewModel() {
             try {
                 val idUsuario = sessionManager.obtenerIdUsuario()
 
-                val fotoString = fotoUri?.let { uri ->
-                    try {
-                        val inputStream = contentResolver.openInputStream(uri)
-                        val bytes = inputStream?.readBytes()
-                        inputStream?.close()
-                        if (bytes != null) Base64.encodeToString(
-                            bytes,
-                            Base64.NO_WRAP
-                        ) else null
-                    } catch (e: Exception) {
-                        e.printStackTrace()
-                        null
-                    }
-                }
+                // Si hay una foto nueva en _fotoBase64, usamos esa.
+                // Si no, enviamos la que ya tenía (_fotoUrlActual).
+                val fotoAFinal = _fotoBase64.value ?: _fotoUrlActual.value
 
-                // 1. Creamos el objeto Usuario comun
                 val usuarioActualizado = UsuarioDTO(
                     id = idUsuario,
                     nombre = nombre,
                     apellidos = apellidos,
                     telefono = telefono,
-                    fotoUrl = fotoString, // Aqui va el String Base64 que generamos
-                    email = "", // El email normalmente no se cambia asi por seguridad
+                    fotoUrl = fotoAFinal,
+                    email = "",
                     rol = if (esTrabajador) "trabajador" else "cliente"
                 )
 
-                if (esTrabajador) {
-                    // 2. Construimos DTO de Trabajador
+                val response = if (esTrabajador) {
                     val trabajadorDTO = TrabajadorDTO(
-                        id = 0, // El ID se gestiona en el server
+                        id = 0,
                         usuario = usuarioActualizado,
                         descripcion = descripcion,
                         radioKm = radioKm.toDoubleOrNull() ?: 0.0,
-                        latitud = 0.0, // Idealmente usarias el Geocoder aqui
+                        latitud = 0.0,
                         longitud = 0.0
                     )
-
-                    val response = RetrofitClient.api.actualizarPerfilTrabajador(idUsuario, trabajadorDTO)
-                    if (response.isSuccessful) onExito()
-
+                    RetrofitClient.api.actualizarPerfilTrabajador(idUsuario, trabajadorDTO)
                 } else {
-                    // 3. Construimos DTO de Cliente
                     val clienteDTO = ClienteDTO(
                         id = 0,
                         usuario = usuarioActualizado,
@@ -493,14 +504,17 @@ class EditarPerfilViewModel(private val context: Context) : ViewModel() {
                         latitud = 0.0,
                         longitud = 0.0
                     )
+                    RetrofitClient.api.actualizarPerfilCliente(idUsuario, clienteDTO)
+                }
 
-                    val response = RetrofitClient.api.actualizarPerfilCliente(idUsuario, clienteDTO)
-                    if (response.isSuccessful) onExito()
+                if (response.isSuccessful) {
+                    onExito()
+                } else {
+                    Log.e("EditarPerfil", "Error en el servidor: ${response.code()}")
                 }
 
             } catch (e: Exception) {
-                Log.e("EditarPerfil", "Error al guardar: ${e.message}")
-                // Aqui podrias poner un estado de error para mostrar un Toast
+                Log.e("EditarPerfil", "Error: ${e.message}")
             } finally {
                 isLoading = false
             }

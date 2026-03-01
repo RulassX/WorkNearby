@@ -80,7 +80,7 @@ interface ApiService {
     suspend fun actualizarPerfilCliente(
         @Path("id") idUsuario: Int,
         @Body datos: ClienteDTO
-    ): ClienteDTO
+    ): Response<ClienteDTO>
 
     @PUT("/api/usuario/trabajador/{id}")
     suspend fun actualizarPerfilTrabajador(

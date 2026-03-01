@@ -1349,7 +1349,7 @@ private fun Perfil(
 
                 FloatingActionButton(
                     onClick = {
-                       navController.navigate("editar_perfil")
+                        navController.navigate("editar_perfil")
                     },
                     modifier = Modifier
                         .size(70.dp)
@@ -1685,14 +1685,13 @@ fun EditarMiPerfil(
     perfilActual: Any // Pasamos el perfil cargado para rellenar los campos
 ) {
     val context = LocalContext.current
-    val viewModel: EditarPerfilViewModel = viewModel(factory = EditarPerfilViewModelFactory(context))
-
-    var fotoUri by remember { mutableStateOf<Uri?>(null) } // La foto seleccionada
+    val viewModel: EditarPerfilViewModel =
+        viewModel(factory = EditarPerfilViewModelFactory(context))
 
     val launcherImagen = rememberLauncherForActivityResult(
         contract = ActivityResultContracts.PickVisualMedia()
     ) { uri: Uri? ->
-        fotoUri = uri
+        viewModel.onFotoSelected(uri)
     }
 
     // Rellenamos los campos al iniciar
@@ -1727,17 +1726,33 @@ fun EditarMiPerfil(
         ) {
             item {
                 // --- SECCION FOTO ---
-                Box(modifier = Modifier.size(120.dp).clickable {launcherImagen.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))}) {
+                Box(
+                    modifier = Modifier
+                        .size(120.dp)
+                        .clickable {
+                            launcherImagen.launch(
+                                PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
+                            )
+                        }) {
                     AsyncImage(
-                        model = viewModel.fotoUrl ?: R.drawable.fotoperfilvacia,
+                        // Si hay una URI nueva (seleccionada localmente), la mostramos.
+                        // Si no, mostramos la URL que viene del servidor.
+                        model = viewModel.fotoUri.value ?: viewModel.fotoUrlActual.value ?: R.drawable.fotoperfilvacia,
                         contentDescription = null,
-                        modifier = Modifier.fillMaxSize().clip(CircleShape).border(1.dp, Color.Gray, CircleShape),
+                        modifier = Modifier
+                            .size(120.dp)
+                            .clip(CircleShape)
+                            .clickable {
+                                launcherImagen.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+                            },
                         contentScale = ContentScale.Crop
                     )
                     Icon(
                         Icons.Default.Edit,
                         null,
-                        modifier = Modifier.align(Alignment.BottomEnd).padding(4.dp),
+                        modifier = Modifier
+                            .align(Alignment.BottomEnd)
+                            .padding(4.dp),
                         tint = Color.White
                     )
                 }
@@ -1746,9 +1761,24 @@ fun EditarMiPerfil(
 
             item {
                 // --- CAMPOS COMUNES ---
-                OutlinedTextField(value = viewModel.nombre, onValueChange = { viewModel.nombre = it }, label = { Text("Nombre") }, modifier = Modifier.fillMaxWidth())
-                OutlinedTextField(value = viewModel.apellidos, onValueChange = { viewModel.apellidos = it }, label = { Text("Apellidos") }, modifier = Modifier.fillMaxWidth())
-                OutlinedTextField(value = viewModel.telefono, onValueChange = { viewModel.telefono = it }, label = { Text("Teléfono") }, modifier = Modifier.fillMaxWidth())
+                OutlinedTextField(
+                    value = viewModel.nombre,
+                    onValueChange = { viewModel.nombre = it },
+                    label = { Text("Nombre") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+                OutlinedTextField(
+                    value = viewModel.apellidos,
+                    onValueChange = { viewModel.apellidos = it },
+                    label = { Text("Apellidos") },
+                    modifier = Modifier.fillMaxWidth()
+                )
+                OutlinedTextField(
+                    value = viewModel.telefono,
+                    onValueChange = { viewModel.telefono = it },
+                    label = { Text("Teléfono") },
+                    modifier = Modifier.fillMaxWidth()
+                )
             }
 
             item {
@@ -1765,12 +1795,24 @@ fun EditarMiPerfil(
                         value = viewModel.descripcion,
                         onValueChange = { viewModel.descripcion = it },
                         label = { Text("Descripción profesional") },
-                        modifier = Modifier.fillMaxWidth().height(120.dp),
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(120.dp),
                         maxLines = 4
                     )
                 } else {
-                    OutlinedTextField(value = viewModel.ciudad, onValueChange = { viewModel.ciudad = it }, label = { Text("Ciudad") }, modifier = Modifier.fillMaxWidth())
-                    OutlinedTextField(value = viewModel.direccion, onValueChange = { viewModel.direccion = it }, label = { Text("Dirección") }, modifier = Modifier.fillMaxWidth())
+                    OutlinedTextField(
+                        value = viewModel.ciudad,
+                        onValueChange = { viewModel.ciudad = it },
+                        label = { Text("Ciudad") },
+                        modifier = Modifier.fillMaxWidth()
+                    )
+                    OutlinedTextField(
+                        value = viewModel.direccion,
+                        onValueChange = { viewModel.direccion = it },
+                        label = { Text("Dirección") },
+                        modifier = Modifier.fillMaxWidth()
+                    )
                 }
             }
 
@@ -1782,10 +1824,15 @@ fun EditarMiPerfil(
                             navController.popBackStack() // Volver tras guardar
                         }
                     },
-                    modifier = Modifier.fillMaxWidth().height(50.dp),
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(50.dp),
                     enabled = !viewModel.isLoading
                 ) {
-                    if (viewModel.isLoading) CircularProgressIndicator(color = Color.White, modifier = Modifier.size(24.dp))
+                    if (viewModel.isLoading) CircularProgressIndicator(
+                        color = Color.White,
+                        modifier = Modifier.size(24.dp)
+                    )
                     else Text("Guardar Cambios")
                 }
             }
