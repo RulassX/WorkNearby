@@ -1745,7 +1745,7 @@ fun EditarMiPerfil(navController: NavHostController, esTrabajador: Boolean) {
                         }) {
                     AsyncImage(
                         model = viewModel.fotoUri ?: R.drawable.fotoperfilvacia,
-                        contentDescription = null,
+                        contentDescription = stringResource(R.string.cd_foto_seleccionada),
                         modifier = Modifier
                             .size(120.dp)
                             .clip(CircleShape),
@@ -1769,19 +1769,29 @@ fun EditarMiPerfil(navController: NavHostController, esTrabajador: Boolean) {
                 OutlinedTextField(
                     value = viewModel.nombre,
                     onValueChange = { viewModel.nombre = it },
-                    label = { Text("Nombre") }
+                    label = { Text(stringResource(R.string.label_nombre)) },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true,
+                    shape = RoundedCornerShape(12.dp)
                 )
 
                 OutlinedTextField(
                     value = viewModel.apellidos,
                     onValueChange = { viewModel.apellidos = it },
-                    label = { Text("Apellidos") }
+                    label = { Text(stringResource(R.string.label_apellidos)) },
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true,
+                    shape = RoundedCornerShape(12.dp)
                 )
 
                 OutlinedTextField(
                     value = viewModel.telefono,
                     onValueChange = { viewModel.telefono = it },
-                    label = { Text("Teléfono") }
+                    label = { Text(stringResource(R.string.label_telf)) },
+                    keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
+                    modifier = Modifier.fillMaxWidth(),
+                    singleLine = true,
+                    shape = RoundedCornerShape(12.dp)
                 )
             }
 
@@ -1792,13 +1802,19 @@ fun EditarMiPerfil(navController: NavHostController, esTrabajador: Boolean) {
                     OutlinedTextField(
                         value = viewModel.descripcion,
                         onValueChange = { viewModel.descripcion = it },
-                        label = { Text("Descripción") }
+                        label = { Text(stringResource(R.string.label_desc)) },
+                        modifier = Modifier.fillMaxWidth(),
+                        singleLine = true,
+                        shape = RoundedCornerShape(12.dp)
                     )
 
                     OutlinedTextField(
                         value = viewModel.radioKm,
                         onValueChange = { viewModel.radioKm = it },
-                        label = { Text("Radio km") }
+                        label = { Text(stringResource(R.string.label_radio)) },
+                        modifier = Modifier.fillMaxWidth(),
+                        singleLine = true,
+                        shape = RoundedCornerShape(12.dp)
                     )
                 }
             } else {
@@ -1806,15 +1822,21 @@ fun EditarMiPerfil(navController: NavHostController, esTrabajador: Boolean) {
                     // --- SECCION DATOS CLIENTE ---
 
                     OutlinedTextField(
-                        value = viewModel.direccion,
-                        onValueChange = { viewModel.direccion = it },
-                        label = { Text("Dirección") }
+                        value = viewModel.ciudad,
+                        onValueChange = { viewModel.ciudad = it },
+                        label = { Text(stringResource(R.string.label_ciudad)) },
+                        modifier = Modifier.fillMaxWidth(),
+                        singleLine = true,
+                        shape = RoundedCornerShape(12.dp)
                     )
 
                     OutlinedTextField(
-                        value = viewModel.ciudad,
-                        onValueChange = { viewModel.ciudad = it },
-                        label = { Text("Ciudad") }
+                        value = viewModel.direccion,
+                        onValueChange = { viewModel.direccion = it },
+                        label = { Text(stringResource(R.string.label_direccion)) },
+                        modifier = Modifier.fillMaxWidth(),
+                        singleLine = true,
+                        shape = RoundedCornerShape(12.dp)
                     )
                 }
             }
@@ -1827,7 +1849,14 @@ fun EditarMiPerfil(navController: NavHostController, esTrabajador: Boolean) {
                             navController.popBackStack()
                         }
                     },
-                    modifier = Modifier.fillMaxWidth()
+                    modifier = Modifier
+                        .fillMaxWidth()
+                        .height(50.dp),
+                    shape = RoundedCornerShape(12.dp),
+                    enabled = viewModel.nombre.isNotBlank() &&
+                            viewModel.apellidos.isNotBlank() &&
+                            viewModel.telefono.isNotBlank() &&
+                            viewModel.descripcion.isNotBlank()
                 ) {
                     Text("Guardar")
                 }
