@@ -29,8 +29,6 @@ import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.launch
-import androidx.compose.runtime.State
-import retrofit2.Response
 
 
 class OfertasViewModel(context: Context) : ViewModel() {
@@ -109,6 +107,7 @@ class OfertasViewModel(context: Context) : ViewModel() {
             }
         }
     }
+
     fun borrarOferta(idOferta: Int) {
         viewModelScope.launch {
             try {
@@ -404,117 +403,129 @@ class PerfilViewModelFactory(
 class EditarPerfilViewModel(private val context: Context) : ViewModel() {
     private val sessionManager = SessionManager(context)
 
-    // Estados al estilo CrearOfertaViewModel
-    private val _fotoUri = mutableStateOf<Uri?>(null)
-    val fotoUri: State<Uri?> = _fotoUri
+    private val _esTrabajador = MutableStateFlow(false)
+    val esTrabajador: StateFlow<Boolean> = _esTrabajador
 
-    private val _fotoBase64 = mutableStateOf<String?>(null)
-    val fotoBase64: State<String?> = _fotoBase64
+    var isLoading by mutableStateOf(false)
 
-    // Foto que ya viene del servidor (si existe)
-    private val _fotoUrlActual = mutableStateOf<String?>(null)
-    val fotoUrlActual: State<String?> = _fotoUrlActual
-
-    // Otros campos
+    // comun
     var nombre by mutableStateOf("")
     var apellidos by mutableStateOf("")
     var telefono by mutableStateOf("")
+
+    var fotoUri by mutableStateOf<Uri?>(null)
+    var fotoString by mutableStateOf<String?>(null)
+
+    // cliente
     var direccion by mutableStateOf("")
     var ciudad by mutableStateOf("")
+
+    // trabajador
     var descripcion by mutableStateOf("")
     var radioKm by mutableStateOf("")
-    var isLoading by mutableStateOf(false)
 
-    fun onFotoSelected(uri: Uri?) {
-        _fotoUri.value = uri
-        uri?.let { convertirImagenABase64(it) }
-    }
 
-    private fun convertirImagenABase64(uri: Uri) {
+    fun onFotoSeleccionada(uri: Uri) {
+        fotoUri = uri
+
         viewModelScope.launch {
-            try {
-                val inputStream = context.contentResolver.openInputStream(uri)
-                val bytes = inputStream?.readBytes()
-                inputStream?.close()
-                if (bytes != null) {
-                    _fotoBase64.value = Base64.encodeToString(bytes, Base64.NO_WRAP)
-                }
-            } catch (e: Exception) {
-                e.printStackTrace()
+            val bytes = context.contentResolver.openInputStream(uri)?.readBytes()
+            fotoString = bytes?.let {
+                Base64.encodeToString(it, Base64.NO_WRAP)
             }
         }
     }
 
-    fun cargarDatosActuales(perfil: Any, esTrabajador: Boolean) {
-        if (esTrabajador) {
-            val p = perfil as TrabajadorDTO
-            nombre = p.usuario.nombre
-            apellidos = p.usuario.apellidos
-            telefono = p.usuario.telefono
-            _fotoUrlActual.value = p.usuario.fotoUrl
-            descripcion = p.descripcion ?: ""
-            radioKm = p.radioKm?.toString() ?: ""
-        } else {
-            val c = perfil as ClienteDTO
-            nombre = c.usuario.nombre
-            apellidos = c.usuario.apellidos
-            telefono = c.usuario.telefono
-            _fotoUrlActual.value = c.usuario.fotoUrl
-            direccion = c.direccion ?: ""
-            ciudad = c.ciudad ?: ""
+    fun cargarDatos(esTrabajador: Boolean) {
+
+        viewModelScope.launch {
+            isLoading = true
+
+            try {
+                val id = sessionManager.obtenerIdUsuario()
+
+                if (esTrabajador) {
+
+                    val tra = RetrofitClient.api.obtenerPerfilTrabajador(id)
+
+                    nombre = tra.usuario.nombre
+                    apellidos = tra.usuario.apellidos
+                    telefono = tra.usuario.telefono
+                    fotoString = tra.usuario.fotoUrl
+                    descripcion = tra.descripcion ?: ""
+                    radioKm = tra.radioKm?.toString() ?: ""
+
+                } else {
+
+                    val cli = RetrofitClient.api.obtenerPerfilCliente(id)
+
+                    nombre = cli.usuario.nombre
+                    apellidos = cli.usuario.apellidos
+                    telefono = cli.usuario.telefono
+                    fotoString = cli.usuario.fotoUrl
+                    direccion = cli.direccion ?: ""
+                    ciudad = cli.ciudad ?: ""
+                }
+
+            } catch (e: Exception) {
+                Log.e("EditarPerfil", "Error al cargar: ${e.message}")
+            } finally {
+                isLoading = false
+            }
         }
     }
 
     fun guardarCambios(esTrabajador: Boolean, onExito: () -> Unit) {
         viewModelScope.launch {
             isLoading = true
+
             try {
-                val idUsuario = sessionManager.obtenerIdUsuario()
+                val id = sessionManager.obtenerIdUsuario()
 
-                // Si hay una foto nueva en _fotoBase64, usamos esa.
-                // Si no, enviamos la que ya tenía (_fotoUrlActual).
-                val fotoAFinal = _fotoBase64.value ?: _fotoUrlActual.value
-
+                //usuario EXISTENTE (mismo id)
                 val usuarioActualizado = UsuarioDTO(
-                    id = idUsuario,
+                    id = id,
                     nombre = nombre,
                     apellidos = apellidos,
                     telefono = telefono,
-                    fotoUrl = fotoAFinal,
                     email = "",
+                    fotoUrl = fotoString,
                     rol = if (esTrabajador) "trabajador" else "cliente"
                 )
 
                 val response = if (esTrabajador) {
-                    val trabajadorDTO = TrabajadorDTO(
-                        id = 0,
-                        usuario = usuarioActualizado,
-                        descripcion = descripcion,
-                        radioKm = radioKm.toDoubleOrNull() ?: 0.0,
-                        latitud = 0.0,
-                        longitud = 0.0
+
+                    RetrofitClient.api.actualizarPerfilTrabajador(
+                        id,
+                        TrabajadorDTO(
+                            0,
+                            usuario = usuarioActualizado,
+                            descripcion = descripcion,
+                            radioKm = radioKm.toDoubleOrNull() ?: 0.0,
+                            latitud = 0.0,
+                            longitud = 0.0
+                        )
                     )
-                    RetrofitClient.api.actualizarPerfilTrabajador(idUsuario, trabajadorDTO)
+
                 } else {
-                    val clienteDTO = ClienteDTO(
-                        id = 0,
-                        usuario = usuarioActualizado,
-                        direccion = direccion,
-                        ciudad = ciudad,
-                        latitud = 0.0,
-                        longitud = 0.0
+
+                    RetrofitClient.api.actualizarPerfilCliente(
+                        id,
+                        ClienteDTO(
+                            id = 0,
+                            usuario = usuarioActualizado,
+                            direccion = direccion,
+                            ciudad = ciudad,
+                            latitud = 0.0,
+                            longitud = 0.0
+                        )
                     )
-                    RetrofitClient.api.actualizarPerfilCliente(idUsuario, clienteDTO)
                 }
 
                 if (response.isSuccessful) {
                     onExito()
-                } else {
-                    Log.e("EditarPerfil", "Error en el servidor: ${response.code()}")
                 }
 
-            } catch (e: Exception) {
-                Log.e("EditarPerfil", "Error: ${e.message}")
             } finally {
                 isLoading = false
             }
@@ -999,7 +1010,8 @@ class NotificacionesViewModel(context: Context) : ViewModel() {
                 if (idUsuarioLogueado != 0) {
                     // Accedemos a .usuario.nombre dentro de cada caso para que Kotlin sepa el tipo exacto
                     val nombreReal = if (rol == "trabajador") {
-                        val perfil = RetrofitClient.api.obtenerPerfilTrabajador(idUsuarioLogueado)
+                        val perfil =
+                            RetrofitClient.api.obtenerPerfilTrabajador(idUsuarioLogueado)
                         perfil.usuario.nombre
                     } else {
                         val perfil = RetrofitClient.api.obtenerPerfilCliente(idUsuarioLogueado)

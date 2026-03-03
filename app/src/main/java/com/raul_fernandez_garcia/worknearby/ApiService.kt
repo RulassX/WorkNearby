@@ -72,9 +72,7 @@ interface ApiService {
     suspend fun publicarResena(@Body resena: CrearResenaDTO): ResenaDTO
 
     @GET("/api/usuario/cliente/{id}")
-    suspend fun obtenerPerfilCliente(
-        @Path("id") idUsuario: Int
-    ): ClienteDTO
+    suspend fun obtenerPerfilCliente(@Path("id") idUsuario: Int): ClienteDTO
 
     @PUT("/api/usuario/cliente/{id}")
     suspend fun actualizarPerfilCliente(
