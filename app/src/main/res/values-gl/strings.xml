@@ -114,6 +114,7 @@
     <string name="dato_descripcion">Descrición</string>
     <string name="dato_ciudad">Cidade</string>
     <string name="dato_direccion">Enderezo</string>
+    <string name="btn_guardar_perfil">Gardar</string>
     <string name="valor_no_especificada">Non especificada</string>
     <string name="valor_sin_descripcion">Sen descrición</string>
 

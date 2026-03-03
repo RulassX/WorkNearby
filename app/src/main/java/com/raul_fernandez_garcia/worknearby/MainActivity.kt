@@ -1843,22 +1843,42 @@ fun EditarMiPerfil(navController: NavHostController, esTrabajador: Boolean) {
             item {
                 Spacer(modifier = Modifier.height(24.dp))
 
-                Button(
-                    onClick = {
-                        viewModel.guardarCambios(esTrabajador) {
-                            navController.popBackStack()
-                        }
-                    },
-                    modifier = Modifier
-                        .fillMaxWidth()
-                        .height(50.dp),
-                    shape = RoundedCornerShape(12.dp),
-                    enabled = viewModel.nombre.isNotBlank() &&
-                            viewModel.apellidos.isNotBlank() &&
-                            viewModel.telefono.isNotBlank() &&
-                            viewModel.descripcion.isNotBlank()
-                ) {
-                    Text("Guardar")
+                if (esTrabajador){
+                    Button(
+                        onClick = {
+                            viewModel.guardarCambios(esTrabajador) {
+                                navController.popBackStack()
+                            }
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(50.dp),
+                        shape = RoundedCornerShape(12.dp),
+                        enabled = viewModel.nombre.isNotBlank() &&
+                                viewModel.apellidos.isNotBlank() &&
+                                viewModel.telefono.isNotBlank() &&
+                                viewModel.descripcion.isNotBlank()
+                    ) {
+                        Text(stringResource(R.string.btn_guardar_perfil))
+                    }
+                }else{
+                    Button(
+                        onClick = {
+                            viewModel.guardarCambios(esTrabajador) {
+                                navController.popBackStack()
+                            }
+                        },
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(50.dp),
+                        shape = RoundedCornerShape(12.dp),
+                        enabled = viewModel.nombre.isNotBlank() &&
+                                viewModel.apellidos.isNotBlank() &&
+                                viewModel.ciudad.isNotBlank() &&
+                                viewModel.direccion.isNotBlank()
+                    ) {
+                        Text(stringResource(R.string.btn_guardar_perfil))
+                    }
                 }
             }
         }

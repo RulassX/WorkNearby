@@ -116,6 +116,7 @@
     <string name="dato_descripcion">Descripción</string>
     <string name="dato_ciudad">Ciudad</string>
     <string name="dato_direccion">Dirección</string>
+    <string name="btn_guardar_perfil">Guardar</string>
     <string name="valor_no_especificada">No especificada</string>
     <string name="valor_sin_descripcion">Sin descripción</string>
 
