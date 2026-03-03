@@ -1264,6 +1264,13 @@ private fun Perfil(
     val drawerState = rememberDrawerState(DrawerValue.Closed)
     val scope = rememberCoroutineScope()
 
+
+    LaunchedEffect(Unit) {
+        viewModel.cargarMiPerfil()
+    }
+
+
+
     ModalNavigationDrawer(
         drawerState = drawerState,
         drawerContent = {
@@ -1698,11 +1705,6 @@ fun EditarMiPerfil(navController: NavHostController, esTrabajador: Boolean) {
     val viewModel: EditarPerfilViewModel =
         viewModel(factory = EditarPerfilViewModelFactory(context))
 
-    val launcherImagen = rememberLauncherForActivityResult(
-        ActivityResultContracts.PickVisualMedia()
-    ) { uri ->
-        uri?.let { viewModel.onFotoSeleccionada(it) }
-    }
 
     LaunchedEffect(Unit) {
         viewModel.cargarDatos(esTrabajador)
@@ -1733,37 +1735,10 @@ fun EditarMiPerfil(navController: NavHostController, esTrabajador: Boolean) {
             verticalArrangement = Arrangement.spacedBy(12.dp),
             horizontalAlignment = Alignment.CenterHorizontally
         ) {
-            item {
-                // --- SECCION FOTO ---
-                Box(
-                    modifier = Modifier
-                        .size(120.dp)
-                        .clickable {
-                            launcherImagen.launch(
-                                PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly)
-                            )
-                        }) {
-                    AsyncImage(
-                        model = viewModel.fotoUri ?: R.drawable.fotoperfilvacia,
-                        contentDescription = stringResource(R.string.cd_foto_seleccionada),
-                        modifier = Modifier
-                            .size(120.dp)
-                            .clip(CircleShape),
-                        contentScale = ContentScale.Crop
-                    )
-                    Icon(
-                        Icons.Default.Edit,
-                        null,
-                        modifier = Modifier
-                            .align(Alignment.BottomEnd)
-                            .padding(4.dp),
-                        tint = Color.White
-                    )
-                }
-                Spacer(modifier = Modifier.height(16.dp))
-            }
 
             item {
+                Spacer(modifier = Modifier.height(50.dp))
+
                 // --- SECCION DATOS COMUNES ---
 
                 OutlinedTextField(
@@ -1775,6 +1750,8 @@ fun EditarMiPerfil(navController: NavHostController, esTrabajador: Boolean) {
                     shape = RoundedCornerShape(12.dp)
                 )
 
+                Spacer(modifier = Modifier.height(24.dp))
+
                 OutlinedTextField(
                     value = viewModel.apellidos,
                     onValueChange = { viewModel.apellidos = it },
@@ -1784,10 +1761,12 @@ fun EditarMiPerfil(navController: NavHostController, esTrabajador: Boolean) {
                     shape = RoundedCornerShape(12.dp)
                 )
 
+                Spacer(modifier = Modifier.height(24.dp))
+
                 OutlinedTextField(
                     value = viewModel.telefono,
                     onValueChange = { viewModel.telefono = it },
-                    label = { Text(stringResource(R.string.label_telf)) },
+                    label = { Text(stringResource(R.string.dato_telefono)) },
                     keyboardOptions = KeyboardOptions(keyboardType = KeyboardType.Phone),
                     modifier = Modifier.fillMaxWidth(),
                     singleLine = true,
@@ -1797,16 +1776,22 @@ fun EditarMiPerfil(navController: NavHostController, esTrabajador: Boolean) {
 
             if (esTrabajador) {
                 item {
+                    Spacer(modifier = Modifier.height(24.dp))
+
                     // --- SECCION DATOS TRABAJADOR ---
 
                     OutlinedTextField(
                         value = viewModel.descripcion,
                         onValueChange = { viewModel.descripcion = it },
                         label = { Text(stringResource(R.string.label_desc)) },
-                        modifier = Modifier.fillMaxWidth(),
-                        singleLine = true,
-                        shape = RoundedCornerShape(12.dp)
+                        modifier = Modifier
+                            .fillMaxWidth()
+                            .height(120.dp),
+                        shape = RoundedCornerShape(12.dp),
+                        maxLines = 5
                     )
+
+                    Spacer(modifier = Modifier.height(24.dp))
 
                     OutlinedTextField(
                         value = viewModel.radioKm,
@@ -1819,6 +1804,8 @@ fun EditarMiPerfil(navController: NavHostController, esTrabajador: Boolean) {
                 }
             } else {
                 item {
+                    Spacer(modifier = Modifier.height(24.dp))
+
                     // --- SECCION DATOS CLIENTE ---
 
                     OutlinedTextField(
@@ -1829,6 +1816,8 @@ fun EditarMiPerfil(navController: NavHostController, esTrabajador: Boolean) {
                         singleLine = true,
                         shape = RoundedCornerShape(12.dp)
                     )
+
+                    Spacer(modifier = Modifier.height(24.dp))
 
                     OutlinedTextField(
                         value = viewModel.direccion,
@@ -1877,14 +1866,13 @@ fun EditarMiPerfil(navController: NavHostController, esTrabajador: Boolean) {
                                 viewModel.ciudad.isNotBlank() &&
                                 viewModel.direccion.isNotBlank()
                     ) {
-                        Text(stringResource(R.string.btn_guardar_perfil))
+                        Text(stringResource(R.string.btn_guardar_perfil), fontSize = 18.sp)
                     }
                 }
             }
         }
     }
 }
-
 
 @Composable
 fun DatoPerfil(titulo: String, valor: String) {

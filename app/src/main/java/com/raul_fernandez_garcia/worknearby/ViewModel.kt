@@ -337,7 +337,7 @@ class PerfilViewModel(context: Context, private val idUsuarioExterno: Int? = nul
     }
 
     // --- CASO 1: MI PROPIO PERFIL ---
-    private fun cargarMiPerfil() {
+    fun cargarMiPerfil() {
         viewModelScope.launch {
             _isLoading.value = true
             try {
@@ -424,18 +424,6 @@ class EditarPerfilViewModel(private val context: Context) : ViewModel() {
     var descripcion by mutableStateOf("")
     var radioKm by mutableStateOf("")
 
-
-    fun onFotoSeleccionada(uri: Uri) {
-        fotoUri = uri
-
-        viewModelScope.launch {
-            val bytes = context.contentResolver.openInputStream(uri)?.readBytes()
-            fotoString = bytes?.let {
-                Base64.encodeToString(it, Base64.NO_WRAP)
-            }
-        }
-    }
-
     fun cargarDatos(esTrabajador: Boolean) {
 
         viewModelScope.launch {
@@ -446,29 +434,25 @@ class EditarPerfilViewModel(private val context: Context) : ViewModel() {
 
                 if (esTrabajador) {
 
-                    val tra = RetrofitClient.api.obtenerPerfilTrabajador(id)
+                    val trabajador = RetrofitClient.api.obtenerPerfilTrabajador(id)
 
-                    nombre = tra.usuario.nombre
-                    apellidos = tra.usuario.apellidos
-                    telefono = tra.usuario.telefono
-                    fotoString = tra.usuario.fotoUrl
-                    descripcion = tra.descripcion ?: ""
-                    radioKm = tra.radioKm?.toString() ?: ""
+                    nombre = trabajador.usuario.nombre
+                    apellidos = trabajador.usuario.apellidos
+                    telefono = trabajador.usuario.telefono
+                    descripcion = trabajador.descripcion ?: ""
+                    radioKm = trabajador.radioKm?.toString() ?: ""
 
                 } else {
 
-                    val cli = RetrofitClient.api.obtenerPerfilCliente(id)
+                    val cliente = RetrofitClient.api.obtenerPerfilCliente(id)
 
-                    nombre = cli.usuario.nombre
-                    apellidos = cli.usuario.apellidos
-                    telefono = cli.usuario.telefono
-                    fotoString = cli.usuario.fotoUrl
-                    direccion = cli.direccion ?: ""
-                    ciudad = cli.ciudad ?: ""
+                    nombre = cliente.usuario.nombre
+                    apellidos = cliente.usuario.apellidos
+                    telefono = cliente.usuario.telefono
+                    direccion = cliente.direccion ?: ""
+                    ciudad = cliente.ciudad ?: ""
                 }
 
-            } catch (e: Exception) {
-                Log.e("EditarPerfil", "Error al cargar: ${e.message}")
             } finally {
                 isLoading = false
             }
@@ -498,7 +482,7 @@ class EditarPerfilViewModel(private val context: Context) : ViewModel() {
                     RetrofitClient.api.actualizarPerfilTrabajador(
                         id,
                         TrabajadorDTO(
-                            0,
+                            id = 0,
                             usuario = usuarioActualizado,
                             descripcion = descripcion,
                             radioKm = radioKm.toDoubleOrNull() ?: 0.0,
@@ -532,7 +516,6 @@ class EditarPerfilViewModel(private val context: Context) : ViewModel() {
         }
     }
 }
-
 class EditarPerfilViewModelFactory(private val context: Context) : ViewModelProvider.Factory {
     override fun <T : ViewModel> create(modelClass: Class<T>): T {
         if (modelClass.isAssignableFrom(EditarPerfilViewModel::class.java)) {
@@ -689,12 +672,15 @@ class LoginViewModelFactory(private val context: Context) : ViewModelProvider.Fa
 
 
 class RegistroViewModel(private val context: Context) : ViewModel() {
+    private val contentResolver = context.contentResolver
+
     // Datos Tabla Usuario (Pantalla 1)
     var nombre by mutableStateOf("")
     var apellidos by mutableStateOf("")
     var email by mutableStateOf("")
     var password by mutableStateOf("")
     var telefono by mutableStateOf("")
+    var fotoUri by mutableStateOf<Uri?>(null)
 
     // Rol (Pantalla 2)
     var rol by mutableStateOf("cliente") // 'cliente' o 'trabajador'
@@ -724,6 +710,21 @@ class RegistroViewModel(private val context: Context) : ViewModel() {
             errorRegistro = null
 
             try {
+                val fotoString = fotoUri?.let { uri ->
+                    try {
+                        val inputStream = contentResolver.openInputStream(uri)
+                        val bytes = inputStream?.readBytes()
+                        inputStream?.close()
+                        if (bytes != null) Base64.encodeToString(
+                            bytes,
+                            Base64.NO_WRAP
+                        ) else null
+                    } catch (e: Exception) {
+                        e.printStackTrace()
+                        null
+                    }
+                }
+
                 // 2. Preparamos el objeto a enviar (DTO)
                 val datos = RegistroDTO(
                     nombre = nombre,
@@ -731,6 +732,7 @@ class RegistroViewModel(private val context: Context) : ViewModel() {
                     email = email,
                     password = password, // <--- AQUI SE ENVIA SIN ENCRIPTAR
                     telefono = telefono,
+                    fotoUrl =fotoString,
                     rol = rol,
 
                     latitud = latitud,

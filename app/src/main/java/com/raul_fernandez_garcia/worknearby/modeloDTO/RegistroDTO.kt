@@ -6,6 +6,7 @@ data class RegistroDTO(
     val email: String,
     val password: String,
     val telefono: String,
+    val fotoUrl: String? = null,
     val rol: String,
 
     val latitud: Double,
