@@ -2230,6 +2230,15 @@ fun VentanaRegistroUsuario(
     viewModel: RegistroViewModel
 ) {
 
+    val context = LocalContext.current
+
+    // CORRECCIÓN: Usamos viewModel.fotoUri para asignar el resultado
+    val launcherImagen = rememberLauncherForActivityResult(
+        contract = ActivityResultContracts.PickVisualMedia()
+    ) { uri: Uri? ->
+        viewModel.fotoUri = uri
+    }
+
     Scaffold { padding ->
         LazyColumn(
             modifier = Modifier
@@ -2250,19 +2259,55 @@ fun VentanaRegistroUsuario(
                         .clip(CircleShape),
                     contentScale = ContentScale.Crop,
                 )
+
                 Spacer(modifier = Modifier.height(16.dp))
+
                 Text(
                     stringResource(R.string.registro1_titulo),
                     fontSize = 28.sp,
                     fontWeight = FontWeight.Bold,
                     color = MaterialTheme.colorScheme.primary
                 )
+
                 Text(
                     stringResource(R.string.registro1_subtitulo),
                     fontSize = 14.sp,
                     color = Color.Gray
                 )
+
                 Spacer(modifier = Modifier.height(32.dp))
+
+                //Seleccion imagen
+                Box(
+                    modifier = Modifier
+                        .size(120.dp)
+                        .clip(RoundedCornerShape(12.dp))
+                        .border(1.dp, Color.Gray, RoundedCornerShape(12.dp))
+                        .clickable {
+                            // Abrir galeria (solo imagenes)
+                            launcherImagen.launch(PickVisualMediaRequest(ActivityResultContracts.PickVisualMedia.ImageOnly))
+                        },
+                    contentAlignment = Alignment.Center
+                ) {
+                    if (viewModel.fotoUri != null) {
+                        AsyncImage(
+                            model = viewModel.fotoUri,
+                            contentDescription = stringResource(R.string.cd_foto_seleccionada),
+                            modifier = Modifier.fillMaxSize(),
+                            contentScale = ContentScale.Crop
+                        )
+                    } else {
+                        Column(horizontalAlignment = Alignment.CenterHorizontally) {
+                            Icon(Icons.Default.Add, contentDescription = null, tint = Color.Gray)
+                            Text(
+                                stringResource(R.string.text_anadir_foto_opcional),
+                                fontSize = 12.sp,
+                                color = Color.Gray,
+                                textAlign = TextAlign.Center
+                            )
+                        }
+                    }
+                }
 
                 // Formulario
                 CustomTextField(
@@ -2270,17 +2315,20 @@ fun VentanaRegistroUsuario(
                     onValueChange = { viewModel.nombre = it },
                     label = stringResource(R.string.label_nombre)
                 )
+
                 CustomTextField(
                     value = viewModel.apellidos,
                     onValueChange = { viewModel.apellidos = it },
                     label = stringResource(R.string.label_apellidos)
                 )
+
                 CustomTextField(
                     value = viewModel.email,
                     onValueChange = { viewModel.email = it },
                     label = stringResource(R.string.label_email),
                     type = KeyboardType.Email
                 )
+
                 CustomTextField(
                     value = viewModel.telefono,
                     onValueChange = { viewModel.telefono = it },

@@ -749,11 +749,11 @@ class RegistroViewModel(private val context: Context) : ViewModel() {
                 // RetrofitClient ya lo tienes configurado en tu proyecto
                 RetrofitClient.api.registrarUsuario(datos)
 
-                // Si no salta al 'catch', es que todo fue bien
+                // Si no salta al 'catch' es que fue bien
                 registroExitoso = true
 
             } catch (e: Exception) {
-                // Si falla (ej: email repetido, servidor caido)
+                // Si falla
                 e.printStackTrace()
                 errorRegistro = "Error: ${e.message}"
             } finally {
