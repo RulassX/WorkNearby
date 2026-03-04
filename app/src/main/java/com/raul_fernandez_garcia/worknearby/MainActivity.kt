@@ -2313,7 +2313,8 @@ fun VentanaRegistroUsuario(
                 CustomTextField(
                     value = viewModel.nombre,
                     onValueChange = { viewModel.nombre = it },
-                    label = stringResource(R.string.label_nombre)
+                    label = stringResource(R.string.label_nombre),
+                    type = KeyboardType.Text
                 )
 
                 CustomTextField(
@@ -2552,11 +2553,12 @@ fun VentanaRegistroCliente(
                     modifier = Modifier
                         .fillMaxWidth()
                         .padding(vertical = 8.dp),
-                    shape = RoundedCornerShape(12.dp)
+                    shape = RoundedCornerShape(12.dp),
+                    colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.secondaryContainer)
                 ) {
-                    Icon(Icons.Default.LocationOn, contentDescription = null)
+                    Icon(Icons.Default.LocationOn, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
                     Spacer(Modifier.width(8.dp))
-                    Text(stringResource(R.string.btn_gps))
+                    Text(stringResource(R.string.btn_gps), color = MaterialTheme.colorScheme.primary)
                 }
 
                 // VISTA DEL MAPA
