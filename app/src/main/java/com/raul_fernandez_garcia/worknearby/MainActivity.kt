@@ -474,8 +474,8 @@ private fun BuscarMisOfertas(
     if (mostrarDialogo) {
         AlertDialog(
             onDismissRequest = { mostrarDialogo = false },
-            title = { Text("Confirmar eliminación") },
-            text = { Text("¿Estás seguro de que quieres borrar esta oferta? Esta acción no se puede deshacer.") },
+            title = { Text(stringResource(R.string.msg_eliminar_oferta_1)) },
+            text = { Text(stringResource(R.string.msg_eliminar_oferta_2)) },
             confirmButton = {
                 TextButton(onClick = {
                     idOfertaSeleccionada?.let { viewModel.borrarOferta(it) }
@@ -757,8 +757,40 @@ private fun BuscarContratos(
     val scope = rememberCoroutineScope()
     val esTrabajador by viewModel.esTrabajador.collectAsState()
 
+    // --- ESTADOS PARA EL BORRADO ---
+    var modoBorradoActivo by remember { mutableStateOf(false) }
+    var mostrarDialogo by remember { mutableStateOf(false) }
+    var idOfertaSeleccionada by remember { mutableStateOf<Int?>(null) }
+
+
     LaunchedEffect(Unit) {
         viewModel.cargarContratos()
+    }
+
+    // --- DIALOGO DE CONFIRMACION ---
+    if (mostrarDialogo) {
+        AlertDialog(
+            onDismissRequest = { mostrarDialogo = false },
+            title = { Text(stringResource(R.string.msg_eliminar_contrato_1)) },
+            text = { Text(stringResource(R.string.msg_eliminar_contrato_2)) },
+            confirmButton = {
+                TextButton(onClick = {
+                    idOfertaSeleccionada?.let { viewModel.borrarContrato(it) }
+                    mostrarDialogo = false
+                    modoBorradoActivo = false // Desactivamos el modo borrado tras eliminar
+                }) {
+                    Text("Sí, borrar", color = MaterialTheme.colorScheme.error)
+                }
+            },
+            dismissButton = {
+                TextButton(onClick = {
+                    mostrarDialogo = false
+                    modoBorradoActivo = false // Tambien lo desactivamos si cancela
+                }) {
+                    Text("No")
+                }
+            }
+        )
     }
 
     ModalNavigationDrawer(
@@ -775,38 +807,71 @@ private fun BuscarContratos(
                 HorizontalDivider()
                 Spacer(modifier = Modifier.height(15.dp))
 
+                //Añadir
                 NavigationDrawerItem(
-                    label = { Text(stringResource(R.string.menu_perfil)) },
+
+                    icon = {
+                        Icon(
+                            imageVector = Icons.Filled.Add,
+                            contentDescription = null,
+                            modifier = Modifier.size(20.dp)
+                        )
+                    },
+                    label = {
+                        Text(stringResource(R.string.cd_anadir_contrato))
+                    },
+
                     selected = false,
                     onClick = {
                         scope.launch {
                             drawerState.close()
-                            navController.navigate("perfil")
+                            navController.navigate("crear_contrato")
                         }
                     },
                     modifier = Modifier.padding(horizontal = 12.dp)
                 )
 
+                //Borrar
                 NavigationDrawerItem(
-                    label = { Text(stringResource(R.string.menu_ofertas)) },
-                    selected = false,
+                    icon = {
+                        Icon(
+                            imageVector = Icons.Filled.Delete,
+                            contentDescription = null,
+                            modifier = Modifier.size(20.dp)
+                        )
+                    },
+                    label = {
+                        Text(stringResource(R.string.cd_borrar_contrato))
+                    },
+
+                    selected = modoBorradoActivo,
                     onClick = {
                         scope.launch {
+                            modoBorradoActivo = true // Activamos el modo especial
                             drawerState.close()
-                            navController.navigate("ofertas")
                         }
                     },
                     modifier = Modifier.padding(horizontal = 12.dp)
                 )
 
+                //Atras
                 NavigationDrawerItem(
-                    label = { Text(stringResource(R.string.menu_notificaciones)) },
+                    icon = {
+                        Icon(
+                            imageVector = Icons.Filled.ArrowBack,
+                            contentDescription = null,
+                            modifier = Modifier.size(20.dp)
+                        )
+                    },
+                    label = {
+                        Text(stringResource(R.string.cd_volver_atras))
+                    },
+
                     selected = false,
                     onClick = {
-                        scope.launch {
-                            drawerState.close()
-                            navController.navigate("historial_notificacion")
-                        }
+
+                        navController.popBackStack()
+
                     },
                     modifier = Modifier.padding(horizontal = 12.dp)
                 )
@@ -858,20 +923,6 @@ private fun BuscarContratos(
 
                     }
                 )
-            },
-            // Boton solo visible para trabajador
-
-            floatingActionButton = {
-                if (esTrabajador) {
-
-                    FloatingActionButton(
-                        onClick = { navController.navigate("crear_contrato") },
-                        modifier = Modifier
-                            .size(70.dp)
-                    ) {
-                        Icon(Icons.Filled.Add, stringResource(R.string.cd_anadir_oferta))
-                    }
-                }
             }
         ) { paddingValues ->
             if (listaContratosReal.isEmpty()) {
@@ -1832,7 +1883,7 @@ fun EditarMiPerfil(navController: NavHostController, esTrabajador: Boolean) {
             item {
                 Spacer(modifier = Modifier.height(24.dp))
 
-                if (esTrabajador){
+                if (esTrabajador) {
                     Button(
                         onClick = {
                             viewModel.guardarCambios(esTrabajador) {
@@ -1850,7 +1901,7 @@ fun EditarMiPerfil(navController: NavHostController, esTrabajador: Boolean) {
                     ) {
                         Text(stringResource(R.string.btn_guardar_perfil))
                     }
-                }else{
+                } else {
                     Button(
                         onClick = {
                             viewModel.guardarCambios(esTrabajador) {
@@ -2556,9 +2607,16 @@ fun VentanaRegistroCliente(
                     shape = RoundedCornerShape(12.dp),
                     colors = ButtonDefaults.buttonColors(MaterialTheme.colorScheme.secondaryContainer)
                 ) {
-                    Icon(Icons.Default.LocationOn, contentDescription = null, tint = MaterialTheme.colorScheme.primary)
+                    Icon(
+                        Icons.Default.LocationOn,
+                        contentDescription = null,
+                        tint = MaterialTheme.colorScheme.primary
+                    )
                     Spacer(Modifier.width(8.dp))
-                    Text(stringResource(R.string.btn_gps), color = MaterialTheme.colorScheme.primary)
+                    Text(
+                        stringResource(R.string.btn_gps),
+                        color = MaterialTheme.colorScheme.primary
+                    )
                 }
 
                 // VISTA DEL MAPA

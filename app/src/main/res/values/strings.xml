@@ -24,6 +24,7 @@
     <string name="cd_anadir_resena">Añadir reseña</string>
     <string name="cd_borrar_resena">Borrar reseña</string>
     <string name="cd_anadir_contrato">Añadir contrato</string>
+    <string name="cd_borrar_contrato">Borrar contrato</string>
     <string name="cd_logo">Logo de la aplicación</string>
     <string name="cd_estrella">Estrella</string>
     <string name="cd_notificar">Enviar notificación</string>
@@ -86,10 +87,16 @@
     <!-- PANTALLA: BUSCAR OFERTAS                       -->
     <!-- ============================================== -->
     <string name="titulo_worknearby">WorkNearby</string>
-    <string name="titulo_mis_ofertas">Mis Ofertas</string>
     <string name="msg_cargando_ofertas">Cargando ofertas o no hay disponibles...</string>
     <string name="label_precio_formato">Precio: %s €/h</string>
     <string name="label_por_trabajador">Por: %s</string>
+
+    <!-- ============================================== -->
+    <!-- PANTALLA: BUSCAR MIS OFERTAS                       -->
+    <!-- ============================================== -->
+    <string name="titulo_mis_ofertas">Mis Ofertas</string>
+    <string name="msg_eliminar_oferta_1">Confirmar eliminación</string>
+    <string name="msg_eliminar_oferta_2">¿Estás seguro de que quieres borrar esta oferta? Esta acción no se puede deshacer."</string>
 
     <!-- ============================================== -->
     <!-- PANTALLA: DETALLES (TrabajoOfertado)           -->
@@ -158,10 +165,12 @@
     <string name="btn_crear_contrato">Crear Contrato</string>
 
     <!-- ============================================== -->
-    <!-- PANTALLA: BUSCAR CONTRATOS (Lista)             -->
+    <!-- PANTALLA: BUSCAR CONTRATOS                     -->
     <!-- ============================================== -->
     <string name="titulo_mis_contratos">Mis Contratos</string>
     <string name="msg_cargando_contratos">Cargando contratos o no tienes ninguno...</string>
+    <string name="msg_eliminar_contrato_1">Confirmar eliminación</string>
+    <string name="msg_eliminar_contrato_2">¿Estás seguro de que quieres borrar este contrato? Esta acción no se puede deshacer.</string>
     <string name="label_servicio_categoria">Servicio: %s</string>
     <string name="label_fecha">Fecha: %s</string>
 

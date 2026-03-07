@@ -212,6 +212,23 @@ class ContratosViewModel(context: Context) : ViewModel() {
             }
         }
     }
+
+    fun borrarContrato(idOferta: Int) {
+        viewModelScope.launch {
+            try {
+                val response = RetrofitClient.api.borrarOferta(idOferta)
+
+                if (response.isSuccessful) {
+                    // Si el servidor confirma el borrado, recargamos la lista
+                    cargarContratos()
+                } else {
+                    println("Error al borrar: ${response.code()}")
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+    }
 }
 
 class ContratosViewModelFactory(private val context: Context) : ViewModelProvider.Factory {

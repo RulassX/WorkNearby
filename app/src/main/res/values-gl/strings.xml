@@ -25,6 +25,7 @@
     <string name="cd_anadir_resena">Engadir recensión</string>
     <string name="cd_borrar_resena">Borrar reseña</string>
     <string name="cd_anadir_contrato">Engadir contrato</string>
+    <string name="cd_borrar_contrato">Borrar contrato</string>
     <string name="cd_logo">Logotipo da aplicación</string>
     <string name="cd_estrella">Estrela</string>
     <string name="cd_notificar">Enviar notificación</string>
@@ -86,10 +87,16 @@
     <!-- PANTALLA: BUSCAR OFERTAS                       -->
     <!-- ============================================== -->
     <string name="titulo_worknearby">WorkNearby</string>
-    <string name="titulo_mis_ofertas">As Miñas Ofertas</string>
     <string name="msg_cargando_ofertas">Cargando ofertas ou non hai dispoñibles...</string>
     <string name="label_precio_formato">Prezo: %s €/h</string>
     <string name="label_por_trabajador">Por: %s</string>
+
+    <!-- ============================================== -->
+    <!-- PANTALLA: BUSCAR MIS OFERTAS                       -->
+    <!-- ============================================== -->
+    <string name="titulo_mis_ofertas">As Miñas Ofertas</string>
+    <string name="msg_eliminar_oferta_1">Confirmar eliminación</string>
+    <string name="msg_eliminar_oferta_2">Estás seguro de que queres eliminar esta oferta? Esta acción non se pode desfacer."</string>
 
     <!-- ============================================== -->
     <!-- PANTALLA: DETALLES (TraballoOfertado)           -->
@@ -156,10 +163,12 @@
     <string name="btn_crear_contrato">Crear Contrato</string>
 
     <!-- ============================================== -->
-    <!-- PANTALLA: BUSCAR CONTRATOS (Lista)             -->
+    <!-- PANTALLA: BUSCAR CONTRATOS                     -->
     <!-- ============================================== -->
     <string name="titulo_mis_contratos">Os Meus Contratos</string>
     <string name="msg_cargando_contratos">Cargando contratos ou non tes ningún...</string>
+    <string name="msg_eliminar_contrato_1">Confirmar eliminación</string>
+    <string name="msg_eliminar_contrato_2">Estás seguro de que queres eliminar este contrato? Esta acción non se pode desfacer.</string>
     <string name="label_servicio_categoria">Servizo: %s</string>
     <string name="label_fecha">Data: %s</string>
 
