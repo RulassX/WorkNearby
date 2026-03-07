@@ -97,6 +97,8 @@
     <string name="titulo_mis_ofertas">As Miñas Ofertas</string>
     <string name="msg_eliminar_oferta_1">Confirmar eliminación</string>
     <string name="msg_eliminar_oferta_2">Estás seguro de que queres eliminar esta oferta? Esta acción non se pode desfacer."</string>
+    <string name="opcion_si">Si, eliminar</string>
+    <string name="opcion_no">Non</string>
 
     <!-- ============================================== -->
     <!-- PANTALLA: DETALLES (TraballoOfertado)           -->

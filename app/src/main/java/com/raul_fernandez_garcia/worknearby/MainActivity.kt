@@ -482,7 +482,7 @@ private fun BuscarMisOfertas(
                     mostrarDialogo = false
                     modoBorradoActivo = false // Desactivamos el modo borrado tras eliminar
                 }) {
-                    Text("Sí, borrar", color = MaterialTheme.colorScheme.error)
+                    Text(stringResource(R.string.opcion_si), color = MaterialTheme.colorScheme.error)
                 }
             },
             dismissButton = {
@@ -490,7 +490,7 @@ private fun BuscarMisOfertas(
                     mostrarDialogo = false
                     modoBorradoActivo = false // Tambien lo desactivamos si cancela
                 }) {
-                    Text("No")
+                    Text(stringResource(R.string.opcion_no))
                 }
             }
         )
@@ -779,7 +779,7 @@ private fun BuscarContratos(
                     mostrarDialogo = false
                     modoBorradoActivo = false // Desactivamos el modo borrado tras eliminar
                 }) {
-                    Text("Sí, borrar", color = MaterialTheme.colorScheme.error)
+                    Text(stringResource(R.string.opcion_si), color = MaterialTheme.colorScheme.error)
                 }
             },
             dismissButton = {
@@ -787,7 +787,7 @@ private fun BuscarContratos(
                     mostrarDialogo = false
                     modoBorradoActivo = false // Tambien lo desactivamos si cancela
                 }) {
-                    Text("No")
+                    Text(stringResource(R.string.opcion_no))
                 }
             }
         )
