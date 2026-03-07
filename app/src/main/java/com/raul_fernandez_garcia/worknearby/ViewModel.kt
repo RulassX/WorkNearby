@@ -213,16 +213,36 @@ class ContratosViewModel(context: Context) : ViewModel() {
         }
     }
 
-    fun borrarContrato(idOferta: Int) {
+    fun borrarContrato(idContrato: Int) {
         viewModelScope.launch {
             try {
-                val response = RetrofitClient.api.borrarOferta(idOferta)
+                val response = RetrofitClient.api.borrarServicio(idContrato)
 
                 if (response.isSuccessful) {
                     // Si el servidor confirma el borrado, recargamos la lista
                     cargarContratos()
                 } else {
                     println("Error al borrar: ${response.code()}")
+                }
+            } catch (e: Exception) {
+                e.printStackTrace()
+            }
+        }
+    }
+
+    fun borrarContrato2(idContrato: Int) {
+        viewModelScope.launch {
+            try {
+                // Log fundamental para debuguear
+                println("DEBUG: Intentando borrar contrato con ID enviado desde Android: $idContrato")
+
+                val response = RetrofitClient.api.borrarServicio(idContrato)
+
+                if (response.isSuccessful) {
+                    cargarContratos()
+                } else {
+                    // Aquí verás el 404
+                    println("Error al borrar: ${response.code()} para el ID: $idContrato")
                 }
             } catch (e: Exception) {
                 e.printStackTrace()

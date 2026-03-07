@@ -92,6 +92,11 @@ interface ApiService {
     @POST("/api/servicios")
     suspend fun solicitarServicio(@Body datos: SolicitarServicioDTO): ServicioDTO
 
+    @DELETE("/api/servicios/{id}")
+    suspend fun borrarServicio(
+        @Path("id") id: Int
+    ): Response<Unit>
+
     @GET("/api/servicios/mis-contratos")
     suspend fun obtenerMisContratos(
         @Query("idUsuario") idUsuario: Int,

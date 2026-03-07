@@ -95,6 +95,7 @@
     <!-- PANTALLA: BUSCAR MIS OFERTAS                       -->
     <!-- ============================================== -->
     <string name="titulo_mis_ofertas">Mis Ofertas</string>
+    <string name="titulo_borrar">Seleccione para borrar</string>
     <string name="msg_eliminar_oferta_1">Confirmar eliminación</string>
     <string name="msg_eliminar_oferta_2">¿Estás seguro de que quieres borrar esta oferta? Esta acción no se puede deshacer."</string>
     <string name="opcion_si">Sí, borrar</string>

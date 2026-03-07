@@ -482,7 +482,10 @@ private fun BuscarMisOfertas(
                     mostrarDialogo = false
                     modoBorradoActivo = false // Desactivamos el modo borrado tras eliminar
                 }) {
-                    Text(stringResource(R.string.opcion_si), color = MaterialTheme.colorScheme.error)
+                    Text(
+                        stringResource(R.string.opcion_si),
+                        color = MaterialTheme.colorScheme.error
+                    )
                 }
             },
             dismissButton = {
@@ -599,7 +602,7 @@ private fun BuscarMisOfertas(
                     title = {
                         Text(
                             if (modoBorradoActivo) {
-                                "Selecciona para borrar"
+                                stringResource(R.string.titulo_borrar)
                             } else {
                                 stringResource(R.string.titulo_mis_ofertas)
                             }
@@ -750,6 +753,10 @@ private fun BuscarContratos(
         factory = ContratosViewModelFactory(context)
     )
 
+    LaunchedEffect(Unit) {
+        viewModel.cargarContratos()
+    }
+
     val listaContratosReal by viewModel.contratos.collectAsState()
     val nombre by viewModel.nombreUsuario.collectAsState()
 
@@ -763,9 +770,7 @@ private fun BuscarContratos(
     var idOfertaSeleccionada by remember { mutableStateOf<Int?>(null) }
 
 
-    LaunchedEffect(Unit) {
-        viewModel.cargarContratos()
-    }
+
 
     // --- DIALOGO DE CONFIRMACION ---
     if (mostrarDialogo) {
@@ -775,11 +780,14 @@ private fun BuscarContratos(
             text = { Text(stringResource(R.string.msg_eliminar_contrato_2)) },
             confirmButton = {
                 TextButton(onClick = {
-                    idOfertaSeleccionada?.let { viewModel.borrarContrato(it) }
+                    idOfertaSeleccionada?.let { viewModel.borrarContrato2(it) }
                     mostrarDialogo = false
                     modoBorradoActivo = false // Desactivamos el modo borrado tras eliminar
                 }) {
-                    Text(stringResource(R.string.opcion_si), color = MaterialTheme.colorScheme.error)
+                    Text(
+                        stringResource(R.string.opcion_si),
+                        color = MaterialTheme.colorScheme.error
+                    )
                 }
             },
             dismissButton = {
@@ -895,7 +903,12 @@ private fun BuscarContratos(
 
                     title = {
                         Text(
-                            text = stringResource(R.string.titulo_mis_contratos)
+                            if (modoBorradoActivo) {
+                                stringResource(R.string.titulo_borrar)
+                            } else {
+                                stringResource(R.string.titulo_mis_contratos)
+                            }
+
                         )
 
                     },
@@ -918,9 +931,6 @@ private fun BuscarContratos(
                                 contentDescription = stringResource(R.string.cd_abrir_menu)
                             )
                         }
-                    },
-                    actions = {
-
                     }
                 )
             }
@@ -937,7 +947,14 @@ private fun BuscarContratos(
             } else {
                 ListaContratos(
                     contratos = listaContratosReal,
-                    modifier = Modifier.padding(paddingValues)
+                    modifier = Modifier.padding(paddingValues),
+                    onContratoClick = { id ->
+                        if (modoBorradoActivo) {
+                            // Si estamos en modo borrado, guardamos el ID y abrimos dialogo
+                            idOfertaSeleccionada = id
+                            mostrarDialogo = true
+                        }
+                    }
                 )
             }
         }
@@ -945,7 +962,11 @@ private fun BuscarContratos(
 }
 
 @Composable
-private fun ListaContratos(contratos: List<ServicioDTO>, modifier: Modifier = Modifier) {
+private fun ListaContratos(
+    contratos: List<ServicioDTO>,
+    onContratoClick: (Int) -> Unit,
+    modifier: Modifier = Modifier
+) {
     //val nombres = listOf()
     //val apellidos = listOf()
 
@@ -968,6 +989,7 @@ private fun ListaContratos(contratos: List<ServicioDTO>, modifier: Modifier = Mo
                     //.height(150.dp)
                     .padding(vertical = 10.dp, horizontal = 15.dp)
                     .fillMaxSize()
+                    .clickable { onContratoClick(contrato.id) }
             ) {
                 Row(
                     modifier = Modifier.fillMaxSize(),
