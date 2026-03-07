@@ -580,7 +580,7 @@ class CrearResenaViewModel(context: Context) : ViewModel() {
         viewModelScope.launch {
             _isLoading.value = true
             try {
-                val miIdCliente = sessionManager.obtenerIdUsuario()
+                val miIdCliente = sessionManager.obtenerIdCliente()
 
                 if (miIdCliente != 0) {
                     val nuevaResena = CrearResenaDTO(

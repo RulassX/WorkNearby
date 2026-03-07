@@ -8,6 +8,7 @@ class SessionManager(context: Context) {
 
     companion object {
         const val KEY_USER_ID = "user_id"
+        const val KEY_CLIENT_ID = "client_id"
         const val KEY_USER_ROLE = "user_role"
         const val KEY_USER_NAME = "user_name"
     }
@@ -24,6 +25,11 @@ class SessionManager(context: Context) {
     // Obtener ID (Devuelve 0 si no hay nadie)
     fun obtenerIdUsuario(): Int {
         return prefs.getInt(KEY_USER_ID, 0)
+    }
+
+    // Obtener el ID específico de la tabla Cliente
+    fun obtenerIdCliente(): Int {
+        return prefs.getInt(KEY_CLIENT_ID, 0)
     }
 
     // Obtener Rol ("cliente" o "trabajador")
