@@ -229,26 +229,6 @@ class ContratosViewModel(context: Context) : ViewModel() {
             }
         }
     }
-
-    fun borrarContrato2(idContrato: Int) {
-        viewModelScope.launch {
-            try {
-                // Log fundamental para debuguear
-                println("DEBUG: Intentando borrar contrato con ID enviado desde Android: $idContrato")
-
-                val response = RetrofitClient.api.borrarServicio(idContrato)
-
-                if (response.isSuccessful) {
-                    cargarContratos()
-                } else {
-                    // Aquí verás el 404
-                    println("Error al borrar: ${response.code()} para el ID: $idContrato")
-                }
-            } catch (e: Exception) {
-                e.printStackTrace()
-            }
-        }
-    }
 }
 
 class ContratosViewModelFactory(private val context: Context) : ViewModelProvider.Factory {
@@ -580,7 +560,13 @@ class CrearResenaViewModel(context: Context) : ViewModel() {
         viewModelScope.launch {
             _isLoading.value = true
             try {
-                val miIdCliente = sessionManager.obtenerIdCliente()
+                val id = sessionManager.obtenerIdUsuario()
+
+                val cliente = RetrofitClient.api.obtenerPerfilCliente(id)
+
+                val miIdCliente = cliente.id
+
+                //val miIdCliente = sessionManager.obtenerIdCliente()
 
                 if (miIdCliente != 0) {
                     val nuevaResena = CrearResenaDTO(

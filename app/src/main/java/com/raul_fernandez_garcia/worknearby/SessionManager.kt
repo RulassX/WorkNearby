@@ -4,11 +4,13 @@ import android.content.Context
 import android.content.SharedPreferences
 
 class SessionManager(context: Context) {
-    private val prefs: SharedPreferences = context.getSharedPreferences("AppPrefs", Context.MODE_PRIVATE)
+    private val prefs: SharedPreferences =
+        context.getSharedPreferences("AppPrefs", Context.MODE_PRIVATE)
 
     companion object {
         const val KEY_USER_ID = "user_id"
         const val KEY_CLIENT_ID = "client_id"
+        const val KEY_WORKER_ID = "worker_id"
         const val KEY_USER_ROLE = "user_role"
         const val KEY_USER_NAME = "user_name"
     }
@@ -22,12 +24,13 @@ class SessionManager(context: Context) {
         editor.apply()
     }
 
+
     // Obtener ID (Devuelve 0 si no hay nadie)
     fun obtenerIdUsuario(): Int {
         return prefs.getInt(KEY_USER_ID, 0)
     }
 
-    // Obtener el ID específico de la tabla Cliente
+    // Obtener el ID especifico de la tabla Cliente
     fun obtenerIdCliente(): Int {
         return prefs.getInt(KEY_CLIENT_ID, 0)
     }

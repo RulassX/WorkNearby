@@ -780,7 +780,7 @@ private fun BuscarContratos(
             text = { Text(stringResource(R.string.msg_eliminar_contrato_2)) },
             confirmButton = {
                 TextButton(onClick = {
-                    idOfertaSeleccionada?.let { viewModel.borrarContrato2(it) }
+                    idOfertaSeleccionada?.let { viewModel.borrarContrato(it) }
                     mostrarDialogo = false
                     modoBorradoActivo = false // Desactivamos el modo borrado tras eliminar
                 }) {
