@@ -1192,7 +1192,10 @@ private fun TrabajoOfertado(
                                     .padding(bottom = 30.dp)
                                     .size(120.dp)
                                     .clip(RoundedCornerShape(8.dp))
-                                    .border(1.dp, Color.Gray, RoundedCornerShape(8.dp)),
+                                    .border(1.dp, Color.Gray, RoundedCornerShape(8.dp))
+                                    .clickable {
+                                        navController.navigate("perfil_ajeno/${user.id}")
+                                    },
                                 contentScale = ContentScale.Crop,
                             )
 
